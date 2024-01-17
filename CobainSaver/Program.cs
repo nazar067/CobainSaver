@@ -21,7 +21,7 @@ namespace CobainSaver
 
         static async Task Main()
         {
-            var botClient = new TelegramBotClient("YourApiKey");
+            var botClient = new TelegramBotClient("Your api token");
             _receiverOptions = new ReceiverOptions // Также присваем значение настройкам бота
             {
                 AllowedUpdates = new[] // Тут указываем типы получаемых Update`ов, о них подробнее расказано тут https://core.telegram.org/bots/api#update
@@ -62,7 +62,7 @@ namespace CobainSaver
                             var chat = message.Chat;
                             Logs logs = new Logs(message.Chat.Id, message.From.Id, message.From.Username, message.Text, null);
                             await logs.WriteUserLogs();
-                            if (message.Text.Contains("https://www.youtube.com") || message.Text.Contains("https://youtu.be"))
+                            if (message.Text.Contains("https://www.youtube.com") || message.Text.Contains("https://youtu.be") || message.Text.Contains("https://youtube.com"))
                             {
                                 await video.YoutubeDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                             }
