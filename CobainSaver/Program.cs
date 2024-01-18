@@ -21,7 +21,7 @@ namespace CobainSaver
 
         static async Task Main()
         {
-            var botClient = new TelegramBotClient("Your api token");
+            var botClient = new TelegramBotClient("Your API key");
             _receiverOptions = new ReceiverOptions // Также присваем значение настройкам бота
             {
                 AllowedUpdates = new[] // Тут указываем типы получаемых Update`ов, о них подробнее расказано тут https://core.telegram.org/bots/api#update
@@ -78,13 +78,33 @@ namespace CobainSaver
                             {
                                 await video.TwitterDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                             }
+                            else if(message.Text.StartsWith("/logs"))
+                            {
+                                string dateLog = message.Text.Split(' ').Last();
+                                await logs.SendUserLogs(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                            }
+                            else if (message.Text == "/start")
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chat.Id,
+                                    text: "Hi, I'm CobainSaver, just send me video's link"
+                                    );
+                            }
+                            else if(message.Text == "/help")
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chat.Id,
+                                    text: "/help - see all commands\n /logs - look at chat server logs",
+                                    replyToMessageId: update.Message.MessageId
+                                    );
+                            }
                             return;
                         }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                //Console.WriteLine(ex.ToString());
                 var message = update.Message;
                 var user = message.From;
                 var chat = message.Chat;
