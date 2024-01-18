@@ -76,9 +76,9 @@ namespace CobainSaver
                 System.IO.File.AppendAllText(filePath, $"{Environment.NewLine}{DateTime.Now.ToLongTimeString() + ": " + ServerMsg}");
             }
         }
-        public async Task SendUserLogs(string date, string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        public async Task SendUserLogs(string date, string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
         {
-            if(date == "/logs")
+            if(date == "/logs" || date == $"/logs@{cobain}")
             {
                 date = DateTime.Now.ToString("dd-MM-yyyy");
             }

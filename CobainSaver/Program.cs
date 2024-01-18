@@ -49,6 +49,7 @@ namespace CobainSaver
             // Обязательно ставим блок try-catch, чтобы наш бот не "падал" в случае каких-либо ошибок
             try
             {
+                var cobain = await botClient.GetMeAsync();
                 // Сразу же ставим конструкцию switch, чтобы обрабатывать приходящие Update
                 switch (update.Type)
                 {
@@ -78,19 +79,19 @@ namespace CobainSaver
                             {
                                 await video.TwitterDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                             }
-                            else if(message.Text.StartsWith("/logs"))
+                            else if(message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
                             {
                                 string dateLog = message.Text.Split(' ').Last();
-                                await logs.SendUserLogs(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                                await logs.SendUserLogs(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                             }
-                            else if (message.Text == "/start")
+                            else if (message.Text == "/start" || message.Text.StartsWith($"/start@{cobain.Username}"))
                             {
                                 await botClient.SendTextMessageAsync(
                                     chatId: chat.Id,
                                     text: "Hi, I'm CobainSaver, just send me video's link"
                                     );
                             }
-                            else if(message.Text == "/help")
+                            else if(message.Text == "/help" || message.Text.StartsWith($"/help@{cobain.Username}"))
                             {
                                 await botClient.SendTextMessageAsync(
                                     chatId: chat.Id,
