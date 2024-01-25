@@ -229,23 +229,57 @@ namespace CobainSaver
             var response = await client.GetAsync("https://api.vxtwitter.com/Twitter/status/" + mediaId);
             var responseString = await response.Content.ReadAsStringAsync();
             JObject jsonObject = JObject.Parse(responseString);
-            string media = jsonObject["mediaURLs"][0].ToString();
-            if (media.Contains("/media/"))
+            string caption = jsonObject["text"].ToString();
+            List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
+            foreach (var album in jsonObject["mediaURLs"])
             {
-                await botClient.SendPhotoAsync(
-                    chatId: chatId,
-                    photo: InputFile.FromUri(media),
-                    replyToMessageId: update.Message.MessageId
-                    );
+                if (album.ToString().Contains("/media/"))
+                {
+                    mediaAlbum.Add(
+                         new InputMediaPhoto(InputFile.FromUri(album.ToString()))
+                         {
+                             Caption = caption,
+                             ParseMode = ParseMode.Markdown
+                         }
+                        );
+                }
+                else if (album.ToString().Contains("video."))
+                {
+                    if (!jsonObject["mediaURLs"].ToString().Contains("/media/"))
+                    {
+                        mediaAlbum.Add(
+                             new InputMediaVideo(InputFile.FromUri(album.ToString()))
+                             {
+                                 Caption = caption,
+                                 ParseMode = ParseMode.Markdown
+                             }
+                            );
+                    }
+                    else
+                    {
+                        mediaAlbum.Add(
+                             new InputMediaVideo(InputFile.FromUri(album.ToString()))
+                            );
+                    }
+
+                }
             }
-            else
+            int rowSize = 10;
+            List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
+            foreach (var item in result)
             {
-                await botClient.SendVideoAsync(
+                await botClient.SendMediaGroupAsync(
                     chatId: chatId,
-                    video: InputFile.FromUri(media),
-                    replyToMessageId: update.Message.MessageId
-                    );
+                    media: item,
+                    replyToMessageId: update.Message.MessageId);
             }
+        }
+        public async Task InstagramDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        {
+            var response = await client.GetAsync(messageText + "&__a = 1");
+            var responseString = await response.Content.ReadAsStringAsync();
+            JObject jsonObject = JObject.Parse(responseString);
+            await Console.Out.WriteLineAsync(jsonObject.ToString());
         }
         static List<List<T>> ConvertTo2D<T>(List<T> arr, int rowSize)
         {

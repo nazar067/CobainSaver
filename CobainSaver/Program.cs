@@ -79,6 +79,10 @@ namespace CobainSaver
                             {
                                 await video.TwitterDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                             }
+                            else if (message.Text.Contains("https://www.instagram.com"))
+                            {
+                                await video.InstagramDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                            }
                             else if(message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
                             {
                                 string dateLog = message.Text.Split(' ').Last();
