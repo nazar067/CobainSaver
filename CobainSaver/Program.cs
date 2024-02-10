@@ -21,7 +21,7 @@ namespace CobainSaver
 
         static async Task Main()
         {
-            var botClient = new TelegramBotClient("Your API key");
+            var botClient = new TelegramBotClient("Your api key");
             _receiverOptions = new ReceiverOptions // Также присваем значение настройкам бота
             {
                 AllowedUpdates = new[] // Тут указываем типы получаемых Update`ов, о них подробнее расказано тут https://core.telegram.org/bots/api#update
@@ -102,6 +102,22 @@ namespace CobainSaver
                                     text: "/help - see all commands\n /logs - look at chat server logs",
                                     replyToMessageId: update.Message.MessageId
                                     );
+                            }
+                            else if(message.Text == "/countUsers")
+                            {
+                                string dateLog = message.Text.Split(' ').Last();
+                                await logs.CountAllUsers(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
+                            }
+                            else if(message.Text.StartsWith("/userLogs"))
+                            { 
+                                string dateLog = message.Text.Split(' ').Last();
+                                if (!dateLog.Contains("/") && !dateLog.Contains("-") && !dateLog.Contains("."))
+                                    dateLog = "/userLogs ";
+                                await logs.SendUserLogsToAdmin(message.Text, dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
+                            }
+                            else if(message.Text == "/serverLogs")
+                            {
+                                await logs.SendServerLogs(chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                             }
                             return;
                         }
