@@ -21,7 +21,7 @@ namespace CobainSaver
 
         static async Task Main()
         {
-            var botClient = new TelegramBotClient("Your api key");
+            var botClient = new TelegramBotClient("Your API key");
             _receiverOptions = new ReceiverOptions // Также присваем значение настройкам бота
             {
                 AllowedUpdates = new[] // Тут указываем типы получаемых Update`ов, о них подробнее расказано тут https://core.telegram.org/bots/api#update

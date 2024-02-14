@@ -146,7 +146,7 @@ namespace CobainSaver
         }
         public async Task SendServerLogs(string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
         {
-            if(chatId == "admin id")
+            if(chatId == "Admin id")
             {
                 string currentDirectory = Directory.GetCurrentDirectory() + "\\ServerLogs";
 
@@ -187,7 +187,7 @@ namespace CobainSaver
         }
         public async Task SendUserLogsToAdmin(string userId, string date, string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
         {
-            if(chatId == "admin id")
+            if(chatId == "Admin id")
             {
                 if (userId == "/userLogs")
                 {
@@ -211,7 +211,17 @@ namespace CobainSaver
 
                     if (date.StartsWith("/userLogs "))
                     {
-                        date = DateTime.Now.ToString("dd-MM-yyyy");
+                        string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{userId}";
+                        string[] files = Directory.GetFiles(directory);
+                        foreach (var userFile in files)
+                        {
+                            string id = userFile.Split("\\").Last();
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: id
+                                );
+                        }
+                        return;
                     }
                     if (date.Contains("/"))
                     {
@@ -264,7 +274,7 @@ namespace CobainSaver
         }
         public async Task CountAllUsers(string date, string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
         {
-            if (chatId == "admin id")
+            if (chatId == "Admin id")
             {
                 string currentDirectory = Directory.GetCurrentDirectory() + "\\UserLogs";
 
