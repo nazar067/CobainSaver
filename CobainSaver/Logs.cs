@@ -112,11 +112,30 @@ namespace CobainSaver
             string folderPath = Path.Combine(currentDirectory, folderName);
             if (!Directory.Exists(folderPath))
             {
-                await botClient.SendTextMessageAsync(
-                    chatId: chatId,
-                    text: "There are no logs in your chat",
-                    replyToMessageId: update.Message.MessageId
-                    );
+                Language language = new Language("rand", "rand");
+                string lang = await language.GetCurrentLanguage(chatId.ToString());
+                if (lang == "eng")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "There are no logs in your chat",
+                        replyToMessageId: update.Message.MessageId
+                        );
+                }
+                if (lang == "ukr")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "У вашому чаті немає логів",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "rus")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "В вашем чате нет логов",
+                        replyToMessageId: update.Message.MessageId);
+                }
                 return;
             }
 
@@ -126,11 +145,30 @@ namespace CobainSaver
 
             if (!System.IO.File.Exists(filePath))
             {
-                await botClient.SendTextMessageAsync(
-                    chatId: chatId,
-                    text: "There are no logs for that date",
-                    replyToMessageId: update.Message.MessageId
-                    );
+                Language language = new Language("rand", "rand");
+                string lang = await language.GetCurrentLanguage(chatId.ToString());
+                if (lang == "eng")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "There are no logs for that date",
+                        replyToMessageId: update.Message.MessageId
+                        );
+                }
+                if (lang == "ukr")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Логів за цю дату немає",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "rus")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Логи за эту дату отсутствуют.",
+                        replyToMessageId: update.Message.MessageId);
+                }
                 return;
             }
             else
@@ -146,17 +184,36 @@ namespace CobainSaver
         }
         public async Task SendServerLogs(string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
         {
-            if(chatId == "Admin id")
+            if(chatId == "admin id")
             {
                 string currentDirectory = Directory.GetCurrentDirectory() + "\\ServerLogs";
 
                 if (!Directory.Exists(currentDirectory))
                 {
-                    await botClient.SendTextMessageAsync(
-                        chatId: chatId,
-                        text: "There are no logs in your chat",
-                        replyToMessageId: update.Message.MessageId
-                        );
+                    Language language = new Language("rand", "rand");
+                    string lang = await language.GetCurrentLanguage(chatId.ToString());
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "There are no logs in your chat",
+                            replyToMessageId: update.Message.MessageId
+                            );
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "У вашому чаті немає логів",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "В вашем чате нет логов",
+                            replyToMessageId: update.Message.MessageId);
+                    }
                     return;
                 }
 
@@ -166,11 +223,30 @@ namespace CobainSaver
 
                 if (!System.IO.File.Exists(filePath))
                 {
-                    await botClient.SendTextMessageAsync(
-                        chatId: chatId,
-                        text: "There are no logs for that date",
-                        replyToMessageId: update.Message.MessageId
-                        );
+                    Language language = new Language("rand", "rand");
+                    string lang = await language.GetCurrentLanguage(chatId.ToString());
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "There are no logs for that date",
+                            replyToMessageId: update.Message.MessageId
+                            );
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Логів за цю дату немає",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Логи за эту дату отсутствуют.",
+                            replyToMessageId: update.Message.MessageId);
+                    }
                     return;
                 }
                 else
@@ -187,7 +263,7 @@ namespace CobainSaver
         }
         public async Task SendUserLogsToAdmin(string userId, string date, string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
         {
-            if(chatId == "Admin id")
+            if(chatId == "admin id")
             {
                 if (userId == "/userLogs")
                 {
@@ -238,11 +314,30 @@ namespace CobainSaver
                     string folderPath = Path.Combine(currentDirectory, folderName);
                     if (!Directory.Exists(folderPath))
                     {
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "There are no logs in your chat",
-                            replyToMessageId: update.Message.MessageId
-                            );
+                        Language language = new Language("rand", "rand");
+                        string lang = await language.GetCurrentLanguage(chatId.ToString());
+                        if (lang == "eng")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "There are no logs in your chat",
+                                replyToMessageId: update.Message.MessageId
+                                );
+                        }
+                        if (lang == "ukr")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "У вашому чаті немає логів",
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                        if (lang == "rus")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "В вашем чате нет логов",
+                                replyToMessageId: update.Message.MessageId);
+                        }
                         return;
                     }
 
@@ -252,11 +347,30 @@ namespace CobainSaver
 
                     if (!System.IO.File.Exists(filePath))
                     {
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "There are no logs for that date",
-                            replyToMessageId: update.Message.MessageId
-                            );
+                        Language language = new Language("rand", "rand");
+                        string lang = await language.GetCurrentLanguage(chatId.ToString());
+                        if (lang == "eng")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "There are no logs for that date",
+                                replyToMessageId: update.Message.MessageId
+                                );
+                        }
+                        if (lang == "ukr")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Логів за цю дату немає",
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                        if (lang == "rus")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Логи за эту дату отсутствуют.",
+                                replyToMessageId: update.Message.MessageId);
+                        }
                         return;
                     }
                     else
@@ -274,7 +388,7 @@ namespace CobainSaver
         }
         public async Task CountAllUsers(string date, string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
         {
-            if (chatId == "Admin id")
+            if (chatId == "admin id")
             {
                 string currentDirectory = Directory.GetCurrentDirectory() + "\\UserLogs";
 

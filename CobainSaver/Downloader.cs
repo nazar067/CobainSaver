@@ -78,10 +78,29 @@ namespace CobainSaver
             }
             catch (Exception)
             {
-                await botClient.SendTextMessageAsync(
-                    chatId: chatId,
-                    text: "Sorry, this video has a problem: the video has an age restriction or video to long",
-                    replyToMessageId: update.Message.MessageId);
+                Language language = new Language("rand", "rand");
+                string lang = await language.GetCurrentLanguage(chatId.ToString());
+                if(lang == "eng")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Sorry, this video has a problem: the video has an age restriction or video to long",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "ukr")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Вибачте, це відео має проблему: відео має вікові обмеження або занадто довге відео",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "rus")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Извините, с этим видео возникли проблемы: видео имеет возрастное ограничение или видео слишком длинное",
+                        replyToMessageId: update.Message.MessageId);
+                }
             //throw;
             }
             finally

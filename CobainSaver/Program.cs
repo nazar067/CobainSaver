@@ -26,7 +26,8 @@ namespace CobainSaver
             {
                 AllowedUpdates = new[] // Тут указываем типы получаемых Update`ов, о них подробнее расказано тут https://core.telegram.org/bots/api#update
                 {
-                UpdateType.Message, // Сообщения (текст, фото/видео, голосовые/видео сообщения и т.д.)
+                UpdateType.Message,// Сообщения (текст, фото/видео, голосовые/видео сообщения и т.д.)
+                UpdateType.CallbackQuery,
             },
                 // Параметр, отвечающий за обработку сообщений, пришедших за то время, когда ваш бот был оффлайн
                 // True - не обрабатывать, False (стоит по умолчанию) - обрабаывать
@@ -63,6 +64,7 @@ namespace CobainSaver
                             var chat = message.Chat;
                             Logs logs = new Logs(message.Chat.Id, message.From.Id, message.From.Username, message.Text, null);
                             await logs.WriteUserLogs();
+
                             if (message.Text.Contains("https://www.youtube.com") || message.Text.Contains("https://youtu.be") || message.Text.Contains("https://youtube.com"))
                             {
                                 await video.YoutubeDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
@@ -90,18 +92,60 @@ namespace CobainSaver
                             }
                             else if (message.Text == "/start" || message.Text.StartsWith($"/start@{cobain.Username}"))
                             {
-                                await botClient.SendTextMessageAsync(
-                                    chatId: chat.Id,
-                                    text: "Hi, I'm CobainSaver, just send me video's link"
-                                    );
+                                Language language = new Language("rand", "rand");
+                                string lang = await language.GetCurrentLanguage(chat.Id.ToString());
+                                if (lang == "eng")
+                                {
+                                    await botClient.SendTextMessageAsync(
+                                        chatId: chat.Id,
+                                        text: "Hi, I'm CobainSaver, just send me video's link",
+                                        replyToMessageId: update.Message.MessageId
+                                        );
+                                }
+                                if (lang == "ukr")
+                                {
+                                    await botClient.SendTextMessageAsync(
+                                        chatId: chat.Id,
+                                        text: "Привіт, я CobainSaver, відправ мені посилання на відео",
+                                        replyToMessageId: update.Message.MessageId);
+                                }
+                                if (lang == "rus")
+                                {
+                                    await botClient.SendTextMessageAsync(
+                                        chatId: chat.Id,
+                                        text: "Привет, я CobainSaver, отправь мне ссылку на видео",
+                                        replyToMessageId: update.Message.MessageId);
+                                }
                             }
                             else if(message.Text == "/help" || message.Text.StartsWith($"/help@{cobain.Username}"))
                             {
-                                await botClient.SendTextMessageAsync(
-                                    chatId: chat.Id,
-                                    text: "/help - see all commands\n /logs - look at chat server logs",
-                                    replyToMessageId: update.Message.MessageId
-                                    );
+                                Language language = new Language("rand", "rand");
+                                string lang = await language.GetCurrentLanguage(chat.Id.ToString());
+                                if (lang == "eng")
+                                {
+                                    await botClient.SendTextMessageAsync(
+                                        chatId: chat.Id,
+                                        text: "/help - see all commands\n /logs - look at chat server logs\n " +
+                                        "/changelang - change bot's language",
+                                        replyToMessageId: update.Message.MessageId
+                                        );
+                                }
+                                if (lang == "ukr")
+                                {
+                                    await botClient.SendTextMessageAsync(
+                                        chatId: chat.Id,
+                                        text: "/help - переглянути всі команді\n /logs - переглянути ваші логи\n " +
+                                        "/changelang - змінити мову",
+                                        replyToMessageId: update.Message.MessageId);
+                                }
+                                if (lang == "rus")
+                                {
+                                    await botClient.SendTextMessageAsync(
+                                        chatId: chat.Id,
+                                        text: "/help - посмотреть все команді\n /logs - посмотреть ваши логи\n " +
+                                        "/changelang - сменить язык",
+                                        replyToMessageId: update.Message.MessageId);
+                                }
                             }
                             else if(message.Text == "/countUsers")
                             {
@@ -119,7 +163,72 @@ namespace CobainSaver
                             {
                                 await logs.SendServerLogs(chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                             }
+                            else if(message.Text == "/changelang" || message.Text.StartsWith($"/changelang@{cobain.Username}"))
+                            {
+                                InlineKeyboardMarkup inlineKeyboard = new(new[]
+                                {
+                                    // first row
+                                    new []
+                                    {
+                                        InlineKeyboardButton.WithCallbackData(text: "Українська", callbackData: "ukr"),
+                                        InlineKeyboardButton.WithCallbackData(text: "English", callbackData: "eng"),
+                                        InlineKeyboardButton.WithCallbackData(text: "Русский", callbackData: "rus"),
+                                    },
+                                });
+                                Language language = new Language("rand", "rand");
+                                string lang = await language.GetCurrentLanguage(chat.Id.ToString());
+                                if (lang == "eng")
+                                {
+                                    await botClient.SendTextMessageAsync(
+                                        chatId: chat.Id,
+                                        replyMarkup: inlineKeyboard,
+                                        text: "Choose language"
+                                    );
+                                }
+                                if (lang == "ukr")
+                                {
+                                    await botClient.SendTextMessageAsync(
+                                        chatId: chat.Id,
+                                        replyMarkup: inlineKeyboard,
+                                        text: "Виберіть мову"
+                                    );
+                                }
+                                if (lang == "rus")
+                                {
+                                    await botClient.SendTextMessageAsync(
+                                        chatId: chat.Id,
+                                        replyMarkup: inlineKeyboard,
+                                        text: "Выберите язык"
+                                    );
+                                }
+                            }
                             return;
+                        }
+                    case UpdateType.CallbackQuery:
+                        {
+                            var callbackQuery = update.CallbackQuery;
+                            if (callbackQuery.Data.Contains("ukr"))
+                            {
+                                string msg = "Мова змінена";
+                                Language language = new Language(callbackQuery.Data, msg);
+                                await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
+                                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                            }
+                            if (callbackQuery.Data.Contains("eng"))
+                            {
+                                string msg = "Language has been changed";
+                                Language language = new Language(callbackQuery.Data, msg);
+                                await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
+                                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                            }
+                            if (callbackQuery.Data.Contains("rus"))
+                            {
+                                string msg = "Язык изменен";
+                                Language language = new Language(callbackQuery.Data, msg);
+                                await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
+                                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                            }
+                            break;
                         }
                 }
             }
