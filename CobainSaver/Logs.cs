@@ -41,10 +41,16 @@ namespace CobainSaver
             {
                 Directory.CreateDirectory(folderPath);
             }
+            string lastFolderName = "logs";
+            string lastFolderPath = Path.Combine(folderPath, lastFolderName);
+            if (!Directory.Exists(lastFolderPath))
+            {
+                Directory.CreateDirectory(lastFolderPath);
+            }
 
             string currentDate = DateTime.Now.ToString("dd-MM-yyyy");
             string file = $"{currentDate}.txt";
-            string filePath = Path.Combine(folderPath, file);
+            string filePath = Path.Combine(lastFolderPath, file);
             if (!System.IO.File.Exists(filePath))
             {
                 System.IO.File.WriteAllText(filePath, DateTime.Now.ToLongTimeString() + ": " + UserName + "(" + UserId.ToString() + ")" + Msg);
@@ -91,6 +97,47 @@ namespace CobainSaver
                 System.IO.File.AppendAllText(filePath, $"{Environment.NewLine}{DateTime.Now.ToLongTimeString() + ": " + ServerMsg}");
             }
         }
+        public async Task WriteUserReviews(string reviews, string pollId)
+        {
+            string currentDirectory = Directory.GetCurrentDirectory();
+
+            string userFolderName = "UserLogs";
+            string userFolderPath = Path.Combine(currentDirectory, userFolderName);
+
+            string folderName = ChatId.ToString();
+            string folderPath = Path.Combine(userFolderPath, folderName);
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+            string lastFolderName = "reviews";
+            string lastFolderPath = Path.Combine(folderPath, lastFolderName);
+            if (!Directory.Exists(lastFolderPath))
+            {
+                Directory.CreateDirectory(lastFolderPath);
+            }
+            string date = DateTime.Now.ToShortDateString();
+            string file = $"{date}({pollId}).txt";
+            string filePath = Path.Combine(lastFolderPath, file);
+            if (!System.IO.File.Exists(filePath))
+            {
+                System.IO.File.WriteAllText(filePath,
+                        $"Yeah Im 100% satisfied!" + " " + $"{0}\n" +
+                        $"Satisfied" + " " + $"{0}\n" +
+                        $"Its fine" + " " + $"{0}\n" +
+                        $"Unhappy" + " " + $"{0}\n" +
+                        $"I didnt like it at all!" + " " + $"{0}\n");
+            }
+            else
+            {
+                System.IO.File.WriteAllText(filePath,
+                        $"Yeah Im 100% satisfied!" + " " + $"{0}\n" +
+                        $"Satisfied" + " " + $"{0}\n" +
+                        $"Its fine" + " " + $"{0}\n" +
+                        $"Unhappy" + " " + $"{0}\n" +
+                        $"I didnt like it at all!" + " " + $"{0}\n");
+            }
+        }
         public async Task SendUserLogs(string date, string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
         {
             if(date == "/logs" || date == $"/logs@{cobain}")
@@ -110,7 +157,9 @@ namespace CobainSaver
             string folderName = chatId;
 
             string folderPath = Path.Combine(currentDirectory, folderName);
-            if (!Directory.Exists(folderPath))
+            string lastFolderName = "logs";
+            string lastFolderPath = Path.Combine(folderPath, lastFolderName);
+            if (!Directory.Exists(lastFolderPath))
             {
                 Language language = new Language("rand", "rand");
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
@@ -141,7 +190,7 @@ namespace CobainSaver
 
             string file = $"{date}.txt";
 
-            string filePath = Path.Combine(folderPath, file);
+            string filePath = Path.Combine(lastFolderPath, file);
 
             if (!System.IO.File.Exists(filePath))
             {
@@ -184,7 +233,7 @@ namespace CobainSaver
         }
         public async Task SendServerLogs(string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
         {
-            if(chatId == "admin id")
+            if(chatId == "Admin id")
             {
                 string currentDirectory = Directory.GetCurrentDirectory() + "\\ServerLogs";
 
@@ -263,7 +312,7 @@ namespace CobainSaver
         }
         public async Task SendUserLogsToAdmin(string userId, string date, string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
         {
-            if(chatId == "admin id")
+            if(chatId == "Admin id")
             {
                 if (userId == "/userLogs")
                 {
@@ -287,7 +336,7 @@ namespace CobainSaver
 
                     if (date.StartsWith("/userLogs "))
                     {
-                        string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{userId}";
+                        string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{userId}" + $"\\logs";
                         string[] files = Directory.GetFiles(directory);
                         foreach (var userFile in files)
                         {
@@ -312,7 +361,9 @@ namespace CobainSaver
                     string folderName = userId;
 
                     string folderPath = Path.Combine(currentDirectory, folderName);
-                    if (!Directory.Exists(folderPath))
+                    string lastFolderName = "logs";
+                    string lastFolderPath = Path.Combine(folderPath, lastFolderName);
+                    if (!Directory.Exists(lastFolderPath))
                     {
                         Language language = new Language("rand", "rand");
                         string lang = await language.GetCurrentLanguage(chatId.ToString());
@@ -343,7 +394,7 @@ namespace CobainSaver
 
                     string file = $"{date}.txt";
 
-                    string filePath = Path.Combine(folderPath, file);
+                    string filePath = Path.Combine(lastFolderPath, file);
 
                     if (!System.IO.File.Exists(filePath))
                     {
@@ -388,7 +439,7 @@ namespace CobainSaver
         }
         public async Task CountAllUsers(string date, string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
         {
-            if (chatId == "admin id")
+            if (chatId == "Admin id")
             {
                 string currentDirectory = Directory.GetCurrentDirectory() + "\\UserLogs";
 

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -28,6 +29,8 @@ namespace CobainSaver
                 {
                 UpdateType.Message,// Сообщения (текст, фото/видео, голосовые/видео сообщения и т.д.)
                 UpdateType.CallbackQuery,
+                UpdateType.PollAnswer,
+                UpdateType.Poll
             },
                 // Параметр, отвечающий за обработку сообщений, пришедших за то время, когда ваш бот был оффлайн
                 // True - не обрабатывать, False (стоит по умолчанию) - обрабаывать
@@ -73,7 +76,7 @@ namespace CobainSaver
                             {
                                 await video.TikTokDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                             }
-                            else if(message.Text.Contains("https://www.reddit.com") || message.Text.Contains("https://redd.it/"))
+                            else if (message.Text.Contains("https://www.reddit.com") || message.Text.Contains("https://redd.it/"))
                             {
                                 await video.ReditDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                             }
@@ -85,7 +88,7 @@ namespace CobainSaver
                             {
                                 await video.InstagramDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                             }
-                            else if(message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
+                            else if (message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
                             {
                                 string dateLog = message.Text.Split(' ').Last();
                                 await logs.SendUserLogs(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
@@ -117,7 +120,7 @@ namespace CobainSaver
                                         replyToMessageId: update.Message.MessageId);
                                 }
                             }
-                            else if(message.Text == "/help" || message.Text.StartsWith($"/help@{cobain.Username}"))
+                            else if (message.Text == "/help" || message.Text.StartsWith($"/help@{cobain.Username}"))
                             {
                                 Language language = new Language("rand", "rand");
                                 string lang = await language.GetCurrentLanguage(chat.Id.ToString());
@@ -147,23 +150,23 @@ namespace CobainSaver
                                         replyToMessageId: update.Message.MessageId);
                                 }
                             }
-                            else if(message.Text == "/countUsers")
+                            else if (message.Text == "/countUsers")
                             {
                                 string dateLog = message.Text.Split(' ').Last();
                                 await logs.CountAllUsers(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                             }
-                            else if(message.Text.StartsWith("/userLogs"))
-                            { 
+                            else if (message.Text.StartsWith("/userLogs"))
+                            {
                                 string dateLog = message.Text.Split(' ').Last();
                                 if (!dateLog.Contains("/") && !dateLog.Contains("-") && !dateLog.Contains("."))
                                     dateLog = "/userLogs ";
                                 await logs.SendUserLogsToAdmin(message.Text, dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                             }
-                            else if(message.Text == "/serverLogs")
+                            else if (message.Text == "/serverLogs")
                             {
                                 await logs.SendServerLogs(chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                             }
-                            else if(message.Text == "/changelang" || message.Text.StartsWith($"/changelang@{cobain.Username}"))
+                            else if (message.Text == "/changelang" || message.Text.StartsWith($"/changelang@{cobain.Username}"))
                             {
                                 InlineKeyboardMarkup inlineKeyboard = new(new[]
                                 {
@@ -202,6 +205,8 @@ namespace CobainSaver
                                     );
                                 }
                             }
+                            Reviews reviews = new Reviews();
+                            await reviews.UserReviews(chat.Id.ToString(), (TelegramBotClient)botClient);
                             return;
                         }
                     case UpdateType.CallbackQuery:
@@ -230,16 +235,50 @@ namespace CobainSaver
                             }
                             break;
                         }
+                    case UpdateType.PollAnswer:
+                        {
+                            var pollAnswer = update.PollAnswer;
+                            string userId = pollAnswer.User.Id.ToString();
+                            Reviews reviews = new Reviews();
+                            if (pollAnswer.OptionIds.Contains(0))
+                            {
+                                await reviews.LogsUserReviews(pollAnswer.PollId, 1, 0, 0, 0, 0, userId);
+                            }
+                            else if (pollAnswer.OptionIds.Contains(1))
+                            {
+                                await reviews.LogsUserReviews(pollAnswer.PollId, 0, 1, 0, 0, 0, userId);
+                            }
+                            else if (pollAnswer.OptionIds.Contains(2))
+                            {
+                                await reviews.LogsUserReviews(pollAnswer.PollId, 0, 0, 1, 0, 0, userId);
+                            }
+                            else if (pollAnswer.OptionIds.Contains(3))
+                            {
+                                await reviews.LogsUserReviews(pollAnswer.PollId, 0, 0, 0, 1, 0, userId);
+                            }
+                            else if (pollAnswer.OptionIds.Contains(4))
+                            {
+                                await reviews.LogsUserReviews(pollAnswer.PollId, 0, 0, 0, 0, 1, userId);
+                            }
+                            break;
+                        }
                 }
             }
             catch (Exception ex)
             {
                 //Console.WriteLine(ex.ToString());
-                var message = update.Message;
-                var user = message.From;
-                var chat = message.Chat;
-                Logs logs = new Logs(chat.Id, user.Id, user.Username, null, ex.ToString());
-                await logs.WriteServerLogs();
+                try
+                {
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, null, ex.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception e)
+                {
+                    return;
+                }
             }
         }
 
