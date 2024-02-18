@@ -85,13 +85,15 @@ namespace CobainSaver
 
             string folderName = chatId;
             string folderPath = Path.Combine(userFolderPath, folderName);
-            if (!Directory.Exists(folderPath))
+            string lastFolderName = "serv";
+            string lastFolderPath = Path.Combine(folderPath, lastFolderName);
+            if (!Directory.Exists(lastFolderPath))
             {
                 return "eng";
             }
-            string filePathCheckUkr = Path.Combine(folderPath, "ukr.txt");
-            string filePathCheckEng = Path.Combine(folderPath, "eng.txt");
-            string filePathCheckRus = Path.Combine(folderPath, "rus.txt");
+            string filePathCheckUkr = Path.Combine(lastFolderPath, "ukr.txt");
+            string filePathCheckEng = Path.Combine(lastFolderPath, "eng.txt");
+            string filePathCheckRus = Path.Combine(lastFolderPath, "rus.txt");
             if (System.IO.File.Exists(filePathCheckUkr))
             {
                 return "ukr";
