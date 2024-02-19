@@ -138,19 +138,11 @@ namespace CobainSaver
                         $"I didnt like it at all!" + " " + $"{0}\n");
             }
         }
-        public async Task SendUserLogs(string date, string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
+        public async Task SendUserLogs(string date, string chatId, Update update, TelegramBotClient botClient)
         {
-            if(date == "/logs" || date == $"/logs@{cobain}")
+            if(date == null)
             {
-                date = DateTime.Now.ToString("dd-MM-yyyy");
-            }
-            if (date.Contains("/"))
-            {
-                date = date.Replace('.', '-');
-            }
-            if(date.Contains("."))
-            {
-                date = date.Replace('.', '-');
+                return;
             }
             string currentDirectory = Directory.GetCurrentDirectory() + "\\UserLogs";
 
@@ -167,23 +159,20 @@ namespace CobainSaver
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "There are no logs in your chat",
-                        replyToMessageId: update.Message.MessageId
+                        text: "There are no logs in your chat"
                         );
                 }
                 if (lang == "ukr")
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "У вашому чаті немає логів",
-                        replyToMessageId: update.Message.MessageId);
+                        text: "У вашому чаті немає логів");
                 }
                 if (lang == "rus")
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "В вашем чате нет логов",
-                        replyToMessageId: update.Message.MessageId);
+                        text: "В вашем чате нет логов");
                 }
                 return;
             }
@@ -200,23 +189,20 @@ namespace CobainSaver
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "There are no logs for that date",
-                        replyToMessageId: update.Message.MessageId
+                        text: "There are no logs for that date"
                         );
                 }
                 if (lang == "ukr")
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Логів за цю дату немає",
-                        replyToMessageId: update.Message.MessageId);
+                        text: "Логів за цю дату немає");
                 }
                 if (lang == "rus")
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Логи за эту дату отсутствуют.",
-                        replyToMessageId: update.Message.MessageId);
+                        text: "Логи за эту дату отсутствуют.");
                 }
                 return;
             }
@@ -225,10 +211,50 @@ namespace CobainSaver
                 await using Stream stream = System.IO.File.OpenRead($"{filePath}");
                 await botClient.SendDocumentAsync(
                     chatId: chatId,
-                    document: InputFile.FromStream(stream: stream, fileName:"logs.txt(" + date + ")"),
-                    replyToMessageId: update.Message.MessageId
+                    document: InputFile.FromStream(stream: stream, fileName:"logs.txt(" + date + ")")
                     );
                 stream.Close();
+            }
+        }
+        public async Task SendAllDates(TelegramBotClient botClient, string chatId)
+        {
+            string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\logs";
+            string[] files = Directory.GetFiles(directory);
+            var buttonsList = new List<InlineKeyboardButton[]>();
+            foreach (string userFile in files)
+            {
+                string id = userFile.Split("\\").Last();
+                buttonsList.Add(new[]
+                {
+                        InlineKeyboardButton.WithCallbackData(text: id, callbackData: id + " " + chatId),
+                });
+            }
+            InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(buttonsList);
+            Language language = new Language("rand", "rand");
+            string lang = await language.GetCurrentLanguage(chatId.ToString());
+            if (lang == "eng")
+            {
+                await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    replyMarkup: inlineKeyboard,
+                    text: "Choose date"
+                );
+            }
+            else if(lang == "ukr")
+            {
+                await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    replyMarkup: inlineKeyboard,
+                    text: "Виберіть дату"
+                );
+            }
+            else if (lang == "rus")
+            {
+                await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    replyMarkup: inlineKeyboard,
+                    text: "Выберите дату"
+                );
             }
         }
         public async Task SendServerLogs(string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)

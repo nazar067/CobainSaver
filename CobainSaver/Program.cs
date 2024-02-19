@@ -90,8 +90,9 @@ namespace CobainSaver
                             }
                             else if (message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
                             {
-                                string dateLog = message.Text.Split(' ').Last();
-                                await logs.SendUserLogs(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
+                                await logs.SendAllDates((TelegramBotClient)botClient, chat.Id.ToString());
+                                //string dateLog = message.Text.Split(' ').Last();
+                               // await logs.SendUserLogs(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                             }
                             else if (message.Text == "/start" || message.Text.StartsWith($"/start@{cobain.Username}"))
                             {
@@ -158,7 +159,7 @@ namespace CobainSaver
                             else if (message.Text.StartsWith("/userLogs"))
                             {
                                 string dateLog = message.Text.Split(' ').Last();
-                                if (!dateLog.Contains("/") && !dateLog.Contains("-") && !dateLog.Contains("."))
+                                if (!dateLog.Contains("/") && !dateLog.Contains("."))
                                     dateLog = "/userLogs ";
                                 await logs.SendUserLogsToAdmin(message.Text, dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                             }
@@ -233,6 +234,17 @@ namespace CobainSaver
                                 await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
                                 await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                             }
+                            if(callbackQuery.Data.Length > 4)
+                            {
+                                Logs logs = new Logs(1, 1, null, null, null);
+                                string data = callbackQuery.Data.ToString();
+                                string[] parts = data.Split(' ');
+                                string fileName = parts[0];
+                                string date = fileName.Replace(".txt", "");
+                                string chatId = parts[1];
+                                await logs.SendUserLogs(date, chatId, update, (TelegramBotClient)botClient);
+                                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                            }
                             break;
                         }
                     case UpdateType.PollAnswer:
@@ -266,7 +278,7 @@ namespace CobainSaver
             }
             catch (Exception ex)
             {
-                //Console.WriteLine(ex.ToString());
+                Console.WriteLine(ex.ToString());
                 try
                 {
                     var message = update.Message;

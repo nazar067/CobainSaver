@@ -143,11 +143,42 @@ namespace CobainSaver
                         replyToMessageId: update.Message.MessageId); ;
                 }
                 string music = jsonObject["data"]["music"].ToString();
+                string perfomer = jsonObject["data"]["music_info"]["author"].ToString();
+                string title = jsonObject["data"]["music_info"]["title"].ToString();
+                int duration = Convert.ToInt32(jsonObject["data"]["music_info"]["duration"]);
+                string thumbnail = jsonObject["data"]["music_info"]["cover"].ToString();
+
+                string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                if (!Directory.Exists(audioPath))
+                {
+                    Directory.CreateDirectory(audioPath);
+                }
+                string filePath = Path.Combine(audioPath, "audio.mp3");
+                string thumbnailPath = Path.Combine(audioPath, "thumb.jpeg");
+                using (var client = new WebClient())
+                {
+                    client.DownloadFile(music, filePath);
+                }
+                using (var client = new WebClient())
+                {
+                    client.DownloadFile(thumbnail, thumbnailPath);
+                }
+                await using Stream stream = System.IO.File.OpenRead(filePath);
+                await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
                 await botClient.SendAudioAsync(
                     chatId: chatId,
-                    audio: InputFile.FromUri(music),
+                    audio: InputFile.FromStream(stream),
+                    performer: perfomer,
+                    title: title,
+                    duration: duration,
+                    thumbnail: InputFile.FromStream(streamThumb),
                     replyToMessageId: update.Message.MessageId
                     );
+                stream.Close();
+                streamThumb.Close();
+
+                System.IO.File.Delete(filePath);
+                System.IO.File.Delete(thumbnailPath);
             }
             else
             {
