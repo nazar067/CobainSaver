@@ -90,7 +90,7 @@ namespace CobainSaver
                             }
                             else if (message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
                             {
-                                await logs.SendAllDates((TelegramBotClient)botClient, chat.Id.ToString());
+                                await logs.SendAllYears((TelegramBotClient)botClient, chat.Id.ToString(), 0);
                                 //string dateLog = message.Text.Split(' ').Last();
                                // await logs.SendUserLogs(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                             }
@@ -234,15 +234,62 @@ namespace CobainSaver
                                 await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
                                 await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                             }
-                            if(callbackQuery.Data.Length > 4)
+                            if(callbackQuery.Data.StartsWith("Year"))
                             {
                                 Logs logs = new Logs(1, 1, null, null, null);
                                 string data = callbackQuery.Data.ToString();
                                 string[] parts = data.Split(' ');
-                                string fileName = parts[0];
-                                string date = fileName.Replace(".txt", "");
+                                string year = parts[1];
+                                //string date = fileName.Replace(".txt", "");
+                                string chatId = parts[2];
+                                string messageId = parts[3];
+                                await logs.SendAllMonths((TelegramBotClient)botClient, chatId, year, Convert.ToInt32(messageId));
+                                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                            }
+                            if (callbackQuery.Data.StartsWith("Month"))
+                            {
+                                Logs logs = new Logs(1, 1, null, null, null);
+                                string data = callbackQuery.Data.ToString();
+                                string[] parts = data.Split(' ');
+                                string month = parts[1];
+                                string year = parts[2];
+                                string chatId = parts[3];
+                                string messageId = parts[4];
+                                await logs.SendAllDates((TelegramBotClient)botClient, chatId, year, month, Convert.ToInt32(messageId));
+                                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                            }
+                            if (callbackQuery.Data.StartsWith("Date"))
+                            {
+                                Logs logs = new Logs(1, 1, null, null, null);
+                                string data = callbackQuery.Data.ToString();
+                                string[] parts = data.Split(' ');
                                 string chatId = parts[1];
-                                await logs.SendUserLogs(date, chatId, update, (TelegramBotClient)botClient);
+                                string month = parts[2];
+                                string fileName = parts[3];
+                                string date = fileName.Replace(".txt", "");
+                                string year = parts[4];
+                                await logs.SendUserLogs(year, month, date, chatId, update, (TelegramBotClient)botClient);
+                                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                            }
+                            if (callbackQuery.Data.StartsWith("BackToYear"))
+                            {
+                                Logs logs = new Logs(1, 1, null, null, null);
+                                string data = callbackQuery.Data.ToString();
+                                string[] parts = data.Split(' ');
+                                string chatId = parts[1];
+                                string messageId = parts[2];
+                                await logs.SendAllYears((TelegramBotClient)botClient, chatId.ToString(), Convert.ToInt32(messageId));
+                                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                            }
+                            if (callbackQuery.Data.StartsWith("BackToMonth"))
+                            {
+                                Logs logs = new Logs(1, 1, null, null, null);
+                                string data = callbackQuery.Data.ToString();
+                                string[] parts = data.Split(' ');
+                                string chatId = parts[1];
+                                string year = parts[2];
+                                string messageId = parts[3];
+                                await logs.SendAllMonths((TelegramBotClient)botClient, chatId.ToString(), year, Convert.ToInt32(messageId));
                                 await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                             }
                             break;
@@ -278,7 +325,7 @@ namespace CobainSaver
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                //Console.WriteLine(ex.ToString());
                 try
                 {
                     var message = update.Message;

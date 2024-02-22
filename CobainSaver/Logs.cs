@@ -9,6 +9,8 @@ using Telegram.Bot.Types.ReplyMarkups;
 using Telegram.Bot.Types.Enums;
 using AngleSharp.Text;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using static System.Net.Mime.MediaTypeNames;
+using System.Runtime.CompilerServices;
 
 namespace CobainSaver
 {
@@ -47,10 +49,22 @@ namespace CobainSaver
             {
                 Directory.CreateDirectory(lastFolderPath);
             }
+            string yearFolder = DateTime.Now.Year.ToString();
+            string yearFolderPath = Path.Combine(lastFolderPath, yearFolder);
+            if (!Directory.Exists(yearFolderPath))
+            {
+                Directory.CreateDirectory(yearFolderPath);
+            }
+            string monthFolder = DateTime.Now.Month.ToString();
+            string monthFolderPath = Path.Combine(yearFolderPath, monthFolder);
+            if (!Directory.Exists(monthFolderPath))
+            {
+                Directory.CreateDirectory(monthFolderPath);
+            }
 
             string currentDate = DateTime.Now.ToString("dd-MM-yyyy");
             string file = $"{currentDate}.txt";
-            string filePath = Path.Combine(lastFolderPath, file);
+            string filePath = Path.Combine(monthFolderPath, file);
             if (!System.IO.File.Exists(filePath))
             {
                 System.IO.File.WriteAllText(filePath, DateTime.Now.ToLongTimeString() + ": " + UserName + "(" + UserId.ToString() + ")" + Msg);
@@ -138,7 +152,7 @@ namespace CobainSaver
                         $"I didnt like it at all!" + " " + $"{0}\n");
             }
         }
-        public async Task SendUserLogs(string date, string chatId, Update update, TelegramBotClient botClient)
+        public async Task SendUserLogs(string year, string month, string date, string chatId, Update update, TelegramBotClient botClient)
         {
             if(date == null)
             {
@@ -177,9 +191,65 @@ namespace CobainSaver
                 return;
             }
 
+            string yearFolder = year;
+            string yearFolderPath = Path.Combine(lastFolderPath, yearFolder);
+            if (!Directory.Exists(yearFolderPath))
+            {
+                Language language = new Language("rand", "rand");
+                string lang = await language.GetCurrentLanguage(chatId.ToString());
+                if (lang == "eng")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "There are no logs for that year"
+                        );
+                }
+                if (lang == "ukr")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Логів за цей рік немає");
+                }
+                if (lang == "rus")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Логов за этот год нету");
+                }
+                return;
+            }
+
+            string monthFolder = month;
+            string monthFolderPath = Path.Combine(yearFolderPath, monthFolder);
+            if (!Directory.Exists(yearFolderPath))
+            {
+                Language language = new Language("rand", "rand");
+                string lang = await language.GetCurrentLanguage(chatId.ToString());
+                if (lang == "eng")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "There are no logs for that year"
+                        );
+                }
+                if (lang == "ukr")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Логів за цей рік немає");
+                }
+                if (lang == "rus")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Логов за этот год нету");
+                }
+                return;
+            }
+
             string file = $"{date}.txt";
 
-            string filePath = Path.Combine(lastFolderPath, file);
+            string filePath = Path.Combine(monthFolderPath, file);
 
             if (!System.IO.File.Exists(filePath))
             {
@@ -211,49 +281,622 @@ namespace CobainSaver
                 await using Stream stream = System.IO.File.OpenRead($"{filePath}");
                 await botClient.SendDocumentAsync(
                     chatId: chatId,
-                    document: InputFile.FromStream(stream: stream, fileName:"logs.txt(" + date + ")")
+                    document: InputFile.FromStream(stream: stream, fileName:$"logs {date}.txt")
                     );
                 stream.Close();
             }
         }
-        public async Task SendAllDates(TelegramBotClient botClient, string chatId)
+        public async Task SendAllUsers(TelegramBotClient botClient, string chatId)
         {
-            string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\logs";
-            string[] files = Directory.GetFiles(directory);
+            string currentDirectory = Directory.GetCurrentDirectory() + "\\UserLogs";
+
+            string[] directories = Directory.GetDirectories(currentDirectory);
             var buttonsList = new List<InlineKeyboardButton[]>();
-            foreach (string userFile in files)
+            InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(buttonsList);
+            foreach (string userDirectory in directories)
             {
-                string id = userFile.Split("\\").Last();
+                string userId = userDirectory.Split("\\").Last();
                 buttonsList.Add(new[]
                 {
-                        InlineKeyboardButton.WithCallbackData(text: id, callbackData: id + " " + chatId),
+                    InlineKeyboardButton.WithCallbackData(text: userId, callbackData: "BackToYear" + " " + userId + " " + 0),
                 });
             }
-            InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(buttonsList);
+            await botClient.SendTextMessageAsync(
+                chatId: chatId,
+                replyMarkup: inlineKeyboard,
+                text: "Choose user"
+            );
+        }
+        public async Task SendAllYears(TelegramBotClient botClient, string chatId, int messageId)
+        {
+            if(messageId == 0)
+            {
+                Message message = null;
+                string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\logs";
+                string[] directories = Directory.GetDirectories(directory);
+                var buttonsList = new List<InlineKeyboardButton[]>();
+                InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(buttonsList);
+                Language language = new Language("rand", "rand");
+                string lang = await language.GetCurrentLanguage(chatId.ToString());
+                if (lang == "eng")
+                {
+                    message = await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Choose year"
+                    );
+                }
+                else if (lang == "ukr")
+                {
+                    message = await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Виберіть рік"
+                    );
+                }
+                else if (lang == "rus")
+                {
+                    message = await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Выберите год"
+                    );
+                }
+
+                foreach (string userDirectory in directories)
+                {
+                    string year = userDirectory.Split("\\").Last();
+                    buttonsList.Add(new[]
+                    {
+                        InlineKeyboardButton.WithCallbackData(text: year, callbackData: "Year" + " " + year + " " + chatId + " " + message.MessageId),
+                    });
+                }
+
+                if (lang == "eng")
+                {
+                    await botClient.EditMessageTextAsync(
+                        messageId: message.MessageId,
+                        chatId: chatId,
+                        replyMarkup: inlineKeyboard,
+                        text: "Choose year"
+                    );
+                }
+                else if (lang == "ukr")
+                {
+                    await botClient.EditMessageTextAsync(
+                        messageId: message.MessageId,
+                        chatId: chatId,
+                        replyMarkup: inlineKeyboard,
+                        text: "Виберіть рік"
+                    );
+                }
+                else if (lang == "rus")
+                {
+                    await botClient.EditMessageTextAsync(
+                        messageId: message.MessageId,
+                        chatId: chatId,
+                        replyMarkup: inlineKeyboard,
+                        text: "Выберите год"
+                    );
+                }
+            }
+            else
+            {
+                string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\logs";
+                string[] directories = Directory.GetDirectories(directory);
+                var buttonsList = new List<InlineKeyboardButton[]>();
+                InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(buttonsList);
+                Language language = new Language("rand", "rand");
+                string lang = await language.GetCurrentLanguage(chatId.ToString());
+                foreach (string userDirectory in directories)
+                {
+                    string year = userDirectory.Split("\\").Last();
+                    buttonsList.Add(new[]
+                    {
+                        InlineKeyboardButton.WithCallbackData(text: year, callbackData: "Year" + " " + year + " " + chatId + " " + messageId),
+                });
+                }
+
+                if (lang == "eng")
+                {
+                    await botClient.EditMessageTextAsync(
+                        messageId: messageId,
+                        chatId: chatId,
+                        replyMarkup: inlineKeyboard,
+                        text: "Choose year"
+                    );
+                }
+                else if (lang == "ukr")
+                {
+                    await botClient.EditMessageTextAsync(
+                        messageId: messageId,
+                        chatId: chatId,
+                        replyMarkup: inlineKeyboard,
+                        text: "Виберіть рік"
+                    );
+                }
+                else if (lang == "rus")
+                {
+                    await botClient.EditMessageTextAsync(
+                        messageId: messageId,
+                        chatId: chatId,
+                        replyMarkup: inlineKeyboard,
+                        text: "Выберите год"
+                    );
+                }
+            }
+        }
+        public async Task SendAllMonths(TelegramBotClient botClient, string chatId, string year, int messageId)
+        {
             Language language = new Language("rand", "rand");
             string lang = await language.GetCurrentLanguage(chatId.ToString());
+
+            string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\logs" + $"\\{year}";
+            string[] directories = Directory.GetDirectories(directory);
+            var buttonsList = new List<InlineKeyboardButton[]>();
             if (lang == "eng")
             {
-                await botClient.SendTextMessageAsync(
+                buttonsList.Add(new[]
+                {
+                    InlineKeyboardButton.WithCallbackData(text: "Back", callbackData: "BackToYear" + " " + chatId + " " + messageId),
+                });
+            }
+            if (lang == "ukr")
+            {
+                buttonsList.Add(new[]
+                {
+                    InlineKeyboardButton.WithCallbackData(text: "Назад", callbackData: "BackToYear" + " " + chatId + " " + messageId),
+                });
+            }
+            if (lang == "rus")
+            {
+                buttonsList.Add(new[]
+                {
+                    InlineKeyboardButton.WithCallbackData(text: "Назад", callbackData: "BackToYear" + " " + chatId + " " + messageId),
+                });
+            }
+            foreach (string userDirectory in directories)
+            {
+                string month = userDirectory.Split("\\").Last();
+                if(lang == "eng")
+                {
+                    if (month == "1")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "January", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "2")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "February", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "3")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "March", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "4")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "April", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "5")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "May", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "6")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "June", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "7")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "July", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "8")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "August", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "9")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "September", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "10")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "October", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "11")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "November", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "12")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "December", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                }
+                if (lang == "ukr")
+                {
+                    if (month == "1")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Січень", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "2")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Лютий", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "3")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Березень", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "4")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Квітень", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "5")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Травень", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "6")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Червень", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "7")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Липень", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "8")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Серпень", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "9")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Вересень", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "10")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Жовтень", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "11")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Листопад", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "12")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Грудень", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                }
+                if (lang == "rus")
+                {
+                    if (month == "1")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Январь", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "2")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Февраль", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "3")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Март", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "4")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Апрель", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "5")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Май", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "6")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Июнь", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "7")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Июль", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "8")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Август", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "9")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Сентябрь", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "10")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Октябрь", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "11")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Ноябрь", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                    if (month == "12")
+                    {
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: "Декабрь", callbackData: "Month" + " " + month + " " + year + " " + chatId + " " + messageId),
+                        });
+                    }
+                }
+            }
+            InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(buttonsList);
+            if (lang == "eng")
+            {
+                await botClient.EditMessageTextAsync(
+                    messageId: messageId, 
                     chatId: chatId,
                     replyMarkup: inlineKeyboard,
-                    text: "Choose date"
+                    text: $"Selected year: {year}\n" +
+                    "Choose month"
                 );
             }
-            else if(lang == "ukr")
+            else if (lang == "ukr")
             {
-                await botClient.SendTextMessageAsync(
+                await botClient.EditMessageTextAsync(
+                    messageId: messageId,
                     chatId: chatId,
                     replyMarkup: inlineKeyboard,
-                    text: "Виберіть дату"
+                    text: $"Вибраний рік: {year}\n" +
+                    "Виберіть місяць"
                 );
             }
             else if (lang == "rus")
             {
-                await botClient.SendTextMessageAsync(
+                await botClient.EditMessageTextAsync(
+                    messageId: messageId,
                     chatId: chatId,
                     replyMarkup: inlineKeyboard,
-                    text: "Выберите дату"
+                    text: $"Выбранный год: {year}\n" +
+                    "Виберите месяц"
+                );
+            }
+        }
+        public async Task SendAllDates(TelegramBotClient botClient, string chatId, string year, string month, int messageId)
+        {
+            Language language = new Language("rand", "rand");
+            string lang = await language.GetCurrentLanguage(chatId.ToString());
+
+            string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\logs" + $"\\{year}" + $"\\{month}";
+            string[] files = Directory.GetFiles(directory);
+            var buttonsList = new List<InlineKeyboardButton[]>();
+            if (lang == "eng")
+            {
+                buttonsList.Add(new[]
+                {
+                    InlineKeyboardButton.WithCallbackData(text: "Back", callbackData: "BackToMonth" + " " + chatId + " " + year + " " + messageId),
+                });
+            }
+            if (lang == "ukr")
+            {
+                buttonsList.Add(new[]
+                {
+                    InlineKeyboardButton.WithCallbackData(text: "Назад", callbackData: "BackToMonth" + " " + chatId + " " + year + " " + messageId),
+                });
+            }
+            if (lang == "rus")
+            {
+                buttonsList.Add(new[]
+                {
+                    InlineKeyboardButton.WithCallbackData(text: "Назад", callbackData: "BackToMonth" + " " + chatId + " " + year + " " + messageId),
+                });
+            }
+            foreach (string userFiles in files)
+            {
+                string dates = userFiles.Split("\\").Last();
+                buttonsList.Add(new[]
+                {
+                        InlineKeyboardButton.WithCallbackData(text: dates, callbackData: "Date" + " " + chatId + " " + month + " " + dates + " " + year),
+                });
+            }
+            InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(buttonsList);
+
+            string monthName = null;
+
+            if (lang == "eng")
+            {
+                if(month == "1")
+                    monthName = "January";
+                if (month == "2")
+                    monthName = "February";
+                if (month == "3")
+                    monthName = "March";
+                if (month == "4")
+                    monthName = "April";
+                if (month == "5")
+                    monthName = "May";
+                if (month == "6")
+                    monthName = "June";
+                if (month == "7")
+                    monthName = "July";
+                if (month == "8")
+                    monthName = "August";
+                if (month == "9")
+                    monthName = "September";
+                if (month == "10")
+                    monthName = "October";
+                if (month == "11")
+                    monthName = "November";
+                if (month == "12")
+                    monthName = "December";
+
+
+                await botClient.EditMessageTextAsync(
+                    messageId: messageId,
+                    chatId: chatId,
+                    replyMarkup: inlineKeyboard,
+                    text: $"Selected year: {year}\n" +
+                    $"Selected month: {monthName}\n" +
+                    "Choose date"
+                );
+            }
+            else if (lang == "ukr")
+            {
+                if (month == "1")
+                    monthName = "Січень";
+                if (month == "2")
+                    monthName = "Лютий";
+                if (month == "3")
+                    monthName = "Березень";
+                if (month == "4")
+                    monthName = "Квітень";
+                if (month == "5")
+                    monthName = "Травень";
+                if (month == "6")
+                    monthName = "Червень";
+                if (month == "7")
+                    monthName = "Липень";
+                if (month == "8")
+                    monthName = "Серпень";
+                if (month == "9")
+                    monthName = "Вересень";
+                if (month == "10")
+                    monthName = "Жовтень";
+                if (month == "11")
+                    monthName = "Листопад";
+                if (month == "12")
+                    monthName = "Грудень";
+
+                await botClient.EditMessageTextAsync(
+                    messageId: messageId,
+                    chatId: chatId,
+                    replyMarkup: inlineKeyboard,
+                    text: $"Вибранний рік: {year}\n" +
+                    $"Вибранний місяць: {monthName}\n" +
+                    "Виберіть дату"
+                );
+            }
+            else if (lang == "rus")
+            {
+                if (month == "1")
+                    monthName = "Январь";
+                if (month == "2")
+                    monthName = "Февраль";
+                if (month == "3")
+                    monthName = "Март";
+                if (month == "4")
+                    monthName = "Апрель";
+                if (month == "5")
+                    monthName = "Май";
+                if (month == "6")
+                    monthName = "Июнь";
+                if (month == "7")
+                    monthName = "Июль";
+                if (month == "8")
+                    monthName = "Август";
+                if (month == "9")
+                    monthName = "Сентябрь";
+                if (month == "10")
+                    monthName = "Октябрь";
+                if (month == "11")
+                    monthName = "Ноябрь";
+                if (month == "12")
+                    monthName = "Декабрь";
+
+                await botClient.EditMessageTextAsync(
+                    messageId: messageId,
+                    chatId: chatId,
+                    replyMarkup: inlineKeyboard,
+                    text: $"Выбранный год: {year}\n" +
+                    $"Выбранный месяц: {monthName} \n" +
+                    "Виберите дату"
                 );
             }
         }
@@ -340,7 +983,8 @@ namespace CobainSaver
         {
             if(chatId == "Admin id")
             {
-                if (userId == "/userLogs")
+                await SendAllUsers(botClient, chatId);
+                /*if (userId == "/userLogs")
                 {
                     string currentDirectory = Directory.GetCurrentDirectory() + "\\UserLogs";
 
@@ -455,12 +1099,12 @@ namespace CobainSaver
                         await using Stream stream = System.IO.File.OpenRead($"{filePath}");
                         await botClient.SendDocumentAsync(
                             chatId: chatId,
-                            document: InputFile.FromStream(stream: stream, fileName: "logs.txt(" + date + ")"),
+                            document: InputFile.FromStream(stream: stream, fileName: $"logs {date}.txt"),
                             replyToMessageId: update.Message.MessageId
                             );
                         stream.Close();
                     }
-                }
+                }*/
             }
         }
         public async Task CountAllUsers(string date, string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
