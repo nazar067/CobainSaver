@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.IO;
 using System.Threading;
 using Telegram.Bot;
@@ -22,7 +24,9 @@ namespace CobainSaver
 
         static async Task Main()
         {
-            var botClient = new TelegramBotClient("Your API key");
+            string jsonString = System.IO.File.ReadAllText("source.json");
+            JObject jsonObject = JObject.Parse(jsonString);
+            var botClient = new TelegramBotClient(jsonObject["BotAPI"][0].ToString());
             _receiverOptions = new ReceiverOptions // Также присваем значение настройкам бота
             {
                 AllowedUpdates = new[] // Тут указываем типы получаемых Update`ов, о них подробнее расказано тут https://core.telegram.org/bots/api#update
@@ -90,7 +94,7 @@ namespace CobainSaver
                             }
                             else if (message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
                             {
-                                await logs.SendAllYears((TelegramBotClient)botClient, chat.Id.ToString(), 0);
+                                await logs.SendAllYears((TelegramBotClient)botClient, chat.Id.ToString(), 0, chat.Id.ToString());
                                 //string dateLog = message.Text.Split(' ').Last();
                                // await logs.SendUserLogs(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                             }
@@ -161,7 +165,7 @@ namespace CobainSaver
                                 string dateLog = message.Text.Split(' ').Last();
                                 if (!dateLog.Contains("/") && !dateLog.Contains("."))
                                     dateLog = "/userLogs ";
-                                await logs.SendUserLogsToAdmin(message.Text, dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
+                                await logs.SendUserLogsToAdmin(message.Text, dateLog, chat.Id.ToString(), update, cancellationToken, message, (TelegramBotClient)botClient, cobain.Username);
                             }
                             else if (message.Text == "/serverLogs")
                             {
@@ -243,7 +247,8 @@ namespace CobainSaver
                                 //string date = fileName.Replace(".txt", "");
                                 string chatId = parts[2];
                                 string messageId = parts[3];
-                                await logs.SendAllMonths((TelegramBotClient)botClient, chatId, year, Convert.ToInt32(messageId));
+                                string chatToSend = parts[4];
+                                await logs.SendAllMonths((TelegramBotClient)botClient, chatId, year, Convert.ToInt32(messageId), chatToSend);
                                 await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                             }
                             if (callbackQuery.Data.StartsWith("Month"))
@@ -255,7 +260,8 @@ namespace CobainSaver
                                 string year = parts[2];
                                 string chatId = parts[3];
                                 string messageId = parts[4];
-                                await logs.SendAllDates((TelegramBotClient)botClient, chatId, year, month, Convert.ToInt32(messageId));
+                                string chatToSend = parts[5];
+                                await logs.SendAllDates((TelegramBotClient)botClient, chatId, year, month, Convert.ToInt32(messageId), chatToSend);
                                 await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                             }
                             if (callbackQuery.Data.StartsWith("Date"))
@@ -268,7 +274,8 @@ namespace CobainSaver
                                 string fileName = parts[3];
                                 string date = fileName.Replace(".txt", "");
                                 string year = parts[4];
-                                await logs.SendUserLogs(year, month, date, chatId, update, (TelegramBotClient)botClient);
+                                string chatToSend = parts[5];
+                                await logs.SendUserLogs(year, month, date, chatId, update, (TelegramBotClient)botClient, chatToSend);
                                 await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                             }
                             if (callbackQuery.Data.StartsWith("BackToYear"))
@@ -278,7 +285,8 @@ namespace CobainSaver
                                 string[] parts = data.Split(' ');
                                 string chatId = parts[1];
                                 string messageId = parts[2];
-                                await logs.SendAllYears((TelegramBotClient)botClient, chatId.ToString(), Convert.ToInt32(messageId));
+                                string chatToSend = parts[3];
+                                await logs.SendAllYears((TelegramBotClient)botClient, chatId.ToString(), Convert.ToInt32(messageId), chatToSend);
                                 await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                             }
                             if (callbackQuery.Data.StartsWith("BackToMonth"))
@@ -289,7 +297,8 @@ namespace CobainSaver
                                 string chatId = parts[1];
                                 string year = parts[2];
                                 string messageId = parts[3];
-                                await logs.SendAllMonths((TelegramBotClient)botClient, chatId.ToString(), year, Convert.ToInt32(messageId));
+                                string chatToSend = parts[4];
+                                await logs.SendAllMonths((TelegramBotClient)botClient, chatId.ToString(), year, Convert.ToInt32(messageId), chatToSend);
                                 await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                             }
                             break;

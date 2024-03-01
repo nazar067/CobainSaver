@@ -110,6 +110,8 @@ namespace CobainSaver
         }
         public async Task TikTokDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient) 
         {
+            string jsonString = System.IO.File.ReadAllText("source.json");
+            JObject jsonObjectAPI = JObject.Parse(jsonString);
             string normallMsg = await DeleteNotUrl(messageText);
             var values = new Dictionary<string, string>
             {
@@ -119,7 +121,7 @@ namespace CobainSaver
 
             var content = new FormUrlEncodedContent(values);
 
-            var response = await client.PostAsync("https://www.tikwm.com/api/", content);
+            var response = await client.PostAsync(jsonObjectAPI["TTAPI"][0].ToString(), content);
 
             var responseString = await response.Content.ReadAsStringAsync();
             //await Console.Out.WriteLineAsync(responseString);
@@ -192,6 +194,8 @@ namespace CobainSaver
         }
         public async Task ReditDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
+            string jsonString = System.IO.File.ReadAllText("source.json");
+            JObject jsonObjectAPI = JObject.Parse(jsonString);
             string normallMsg = await DeleteNotUrl(messageText);
             string postId = await GetPostId(normallMsg);
             if (postId == null)
@@ -199,7 +203,7 @@ namespace CobainSaver
                 await Console.Out.WriteLineAsync("null");
                 return;
             }
-            string url = "https://api.reddit.com/api/info/?id=t3_" + postId;
+            string url = jsonObjectAPI["RedditAPI"][0] + postId;
 
             var response = await redditClient.GetAsync(url);
             var responseString = await response.Content.ReadAsStringAsync();
@@ -232,7 +236,7 @@ namespace CobainSaver
                 DateTime currentTime = DateTime.UtcNow;
                 int unixTime = Convert.ToInt32(((DateTimeOffset)currentTime).ToUnixTimeSeconds());
                 result += $"video-{unixTime}.mp4";
-                ProcessStartInfo startInfo = new ProcessStartInfo("C:\\bin\\ffmpeg.exe");
+                ProcessStartInfo startInfo = new ProcessStartInfo(jsonObjectAPI["ffmpegPath"][0].ToString());
                 startInfo.Arguments = $"\"-reconnect\" \"1\" \"-reconnect_streamed\" \"1\" \"-reconnect_delay_max\" \"5\" -c:a aac -strict experimental \"-loglevel\" \"warning\" -i \"{video}\" -i \"{audio}\" \"{result}\"";
                 var proc = System.Diagnostics.Process.Start(startInfo);
                 proc.WaitForExit();
@@ -262,6 +266,8 @@ namespace CobainSaver
         }
         public async Task TwitterDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
+            string jsonString = System.IO.File.ReadAllText("source.json");
+            JObject jsonObjectAPI = JObject.Parse(jsonString);
             string normallMsg = await DeleteNotUrl(messageText);
             string mediaId = null;
             if (normallMsg.Contains("https://x.com/"))
@@ -276,7 +282,7 @@ namespace CobainSaver
                     mediaId = normallMsg.Remove(normallMsg.LastIndexOf("/"));
                 }
             }
-            var response = await client.GetAsync("https://api.vxtwitter.com/Twitter/status/" + mediaId);
+            var response = await client.GetAsync(jsonObjectAPI["XAPI"][0] + mediaId);
             var responseString = await response.Content.ReadAsStringAsync();
             JObject jsonObject = JObject.Parse(responseString);
             string caption = jsonObject["text"].ToString();

@@ -1,0 +1,20 @@
+{
+  "BotAPI": [
+    "BotAPI"
+  ],
+  "TTAPI": [
+    "https://www.tikwm.com/api/"
+  ],
+  "RedditAPI": [
+    "https://api.reddit.com/api/info/?id=t3_"
+  ],
+  "XAPI": [
+    "https://api.vxtwitter.com/Twitter/status/"
+  ],
+  "AdminId": [
+    "Admin id"
+  ],
+  "ffmpegPath": [
+    "Path to ffmeg"
+  ]
+}
