@@ -15,6 +15,6 @@
     "Admin id"
   ],
   "ffmpegPath": [
-    "Path to ffmeg"
+    "Path to ffmpeg"
   ]
 }

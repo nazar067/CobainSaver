@@ -318,7 +318,8 @@ namespace CobainSaver
                     }
                     else
                     {
-                        userName = jsonObject["result"]["title"].ToString();
+                        if(jsonObject["result"]["title"] != null)
+                            userName = jsonObject["result"]["title"].ToString();
                     }
                 }
                 buttonsList.Add(new[]
