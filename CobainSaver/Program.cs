@@ -74,32 +74,39 @@ namespace CobainSaver
 
                             if (message.Text.Contains("https://www.youtube.com") || message.Text.Contains("https://youtu.be") || message.Text.Contains("https://youtube.com"))
                             {
+                                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                                 await video.YoutubeDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                             }
-                            else if (message.Text.Contains("https://vm.tiktok.com") || message.Text.Contains("https://www.tiktok.com"))
+                            else if (message.Text.Contains("https://vm.tiktok.com") || message.Text.Contains("https://www.tiktok.com") || message.Text.Contains("https://m.tiktok.com"))
                             {
+                                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                                 await video.TikTokDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                             }
                             else if (message.Text.Contains("https://www.reddit.com") || message.Text.Contains("https://redd.it/"))
                             {
+                                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                                 await video.ReditDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                             }
                             else if (message.Text.Contains("https://x.com/") || message.Text.Contains("https://twitter.com/"))
                             {
+                                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                                 await video.TwitterDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                             }
                             else if (message.Text.Contains("https://www.instagram.com"))
                             {
+                                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                                 await video.InstagramDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                             }
                             else if (message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
                             {
+                                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                                 await logs.SendAllYears((TelegramBotClient)botClient, chat.Id.ToString(), 0, chat.Id.ToString());
                                 //string dateLog = message.Text.Split(' ').Last();
                                // await logs.SendUserLogs(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                             }
                             else if (message.Text == "/start" || message.Text.StartsWith($"/start@{cobain.Username}"))
                             {
+                                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                                 Language language = new Language("rand", "rand");
                                 string lang = await language.GetCurrentLanguage(chat.Id.ToString());
                                 if (lang == "eng")
@@ -127,6 +134,7 @@ namespace CobainSaver
                             }
                             else if (message.Text == "/help" || message.Text.StartsWith($"/help@{cobain.Username}"))
                             {
+                                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                                 Language language = new Language("rand", "rand");
                                 string lang = await language.GetCurrentLanguage(chat.Id.ToString());
                                 if (lang == "eng")
@@ -157,11 +165,13 @@ namespace CobainSaver
                             }
                             else if (message.Text == "/countUsers")
                             {
+                                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                                 string dateLog = message.Text.Split(' ').Last();
                                 await logs.CountAllUsers(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                             }
                             else if (message.Text.StartsWith("/userLogs"))
                             {
+                                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                                 string dateLog = message.Text.Split(' ').Last();
                                 if (!dateLog.Contains("/") && !dateLog.Contains("."))
                                     dateLog = "/userLogs ";
@@ -169,10 +179,12 @@ namespace CobainSaver
                             }
                             else if (message.Text == "/serverLogs")
                             {
+                                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                                 await logs.SendServerLogs(chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                             }
                             else if (message.Text == "/changelang" || message.Text.StartsWith($"/changelang@{cobain.Username}"))
                             {
+                                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                                 InlineKeyboardMarkup inlineKeyboard = new(new[]
                                 {
                                     // first row

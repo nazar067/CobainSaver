@@ -1,6 +1,6 @@
 {
   "BotAPI": [
-    "BotAPI"
+    "Your API key"
   ],
   "TTAPI": [
     "https://www.tikwm.com/api/"
@@ -11,10 +11,15 @@
   "XAPI": [
     "https://api.vxtwitter.com/Twitter/status/"
   ],
+  "InstagramAPI": [
+    "https://instagram-downloader-download-instagram-videos-stories.p.rapidapi.com/index?url=",
+    "Your rapidapi key",
+    "Your rapidapihost"
+  ],
   "AdminId": [
     "Admin id"
   ],
   "ffmpegPath": [
-    "Path to ffmpeg"
+    "Path to ffmepg"
   ]
 }
