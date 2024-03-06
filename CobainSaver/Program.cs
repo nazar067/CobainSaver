@@ -72,29 +72,27 @@ namespace CobainSaver
                             Logs logs = new Logs(message.Chat.Id, message.From.Id, message.From.Username, message.Text, null);
                             await logs.WriteUserLogs();
 
-                            if (message.Text.Contains("https://www.youtube.com") || message.Text.Contains("https://youtu.be") || message.Text.Contains("https://youtube.com"))
+                            if (message.Text.Contains("https://www.youtube.com") || message.Text.Contains("https://youtu.be") || message.Text.Contains("https://youtube.com") || message.Text.Contains("https://m.youtube.com"))
                             {
-                                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
+                                await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVideo);
                                 await video.YoutubeDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                             }
                             else if (message.Text.Contains("https://vm.tiktok.com") || message.Text.Contains("https://www.tiktok.com") || message.Text.Contains("https://m.tiktok.com"))
                             {
-                                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                                 await video.TikTokDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                             }
                             else if (message.Text.Contains("https://www.reddit.com") || message.Text.Contains("https://redd.it/"))
                             {
-                                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                                 await video.ReditDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                             }
                             else if (message.Text.Contains("https://x.com/") || message.Text.Contains("https://twitter.com/"))
                             {
-                                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
+                                await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
                                 await video.TwitterDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                             }
                             else if (message.Text.Contains("https://www.instagram.com"))
                             {
-                                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
+                                await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
                                 await video.InstagramDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                             }
                             else if (message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
@@ -287,6 +285,7 @@ namespace CobainSaver
                                 string date = fileName.Replace(".txt", "");
                                 string year = parts[4];
                                 string chatToSend = parts[5];
+                                await botClient.SendChatActionAsync(chatId, ChatAction.UploadDocument);
                                 await logs.SendUserLogs(year, month, date, chatId, update, (TelegramBotClient)botClient, chatToSend);
                                 await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                             }

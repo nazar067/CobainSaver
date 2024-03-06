@@ -158,6 +158,7 @@ namespace CobainSaver
                 }
                 int rowSize = 10;
                 List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
+                await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
                 foreach (var item in result)
                 {
                     await botClient.SendMediaGroupAsync(
@@ -165,6 +166,7 @@ namespace CobainSaver
                         media: item,
                         replyToMessageId: update.Message.MessageId); ;
                 }
+                await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
                 string music = jsonObject["data"]["music"].ToString();
                 string perfomer = jsonObject["data"]["music_info"]["author"].ToString();
                 string title = jsonObject["data"]["music_info"]["title"].ToString();
@@ -205,12 +207,53 @@ namespace CobainSaver
             }
             else
             {
+                await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
                 string video = jsonObject["data"]["play"].ToString();
+                string title = jsonObject["data"]["title"].ToString();
                 await botClient.SendVideoAsync(
                     chatId: chatId,
                     video: InputFile.FromUri(video),
+                    caption: title,
                     replyToMessageId: update.Message.MessageId
                     );
+                await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
+                string music = jsonObject["data"]["music"].ToString();
+                string perfomer = jsonObject["data"]["music_info"]["author"].ToString();
+                string musicTitle = jsonObject["data"]["music_info"]["title"].ToString();
+                int duration = Convert.ToInt32(jsonObject["data"]["music_info"]["duration"]);
+                string thumbnail = jsonObject["data"]["music_info"]["cover"].ToString();
+
+                string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                if (!Directory.Exists(audioPath))
+                {
+                    Directory.CreateDirectory(audioPath);
+                }
+                string filePath = Path.Combine(audioPath, "audio.mp3");
+                string thumbnailPath = Path.Combine(audioPath, "thumb.jpeg");
+                using (var client = new WebClient())
+                {
+                    client.DownloadFile(music, filePath);
+                }
+                using (var client = new WebClient())
+                {
+                    client.DownloadFile(thumbnail, thumbnailPath);
+                }
+                await using Stream stream = System.IO.File.OpenRead(filePath);
+                await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
+                await botClient.SendAudioAsync(
+                    chatId: chatId,
+                    audio: InputFile.FromStream(stream),
+                    performer: perfomer,
+                    title: musicTitle,
+                    duration: duration,
+                    thumbnail: InputFile.FromStream(streamThumb),
+                    replyToMessageId: update.Message.MessageId
+                    );
+                stream.Close();
+                streamThumb.Close();
+
+                System.IO.File.Delete(filePath);
+                System.IO.File.Delete(thumbnailPath);
             }
         }
         public async Task ReditDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
@@ -238,6 +281,7 @@ namespace CobainSaver
             {
                 string photoUrl = jsonObject["data"]["children"][0]["data"]["url"].ToString();
                 string caption = jsonObject["data"]["children"][0]["data"]["title"].ToString();
+                await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
                 await botClient.SendPhotoAsync(
                     chatId: chatId,
                     photo: InputFile.FromUri(photoUrl),
@@ -263,6 +307,7 @@ namespace CobainSaver
                 proc.WaitForExit();
                 await using Stream stream = System.IO.File.OpenRead(result);
                 string caption = jsonObject["data"]["children"][0]["data"]["title"].ToString();
+                await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
                 if (caption != null)
                 {
                     await botClient.SendVideoAsync(
