@@ -13,13 +13,18 @@
   ],
   "InstagramAPI": [
     "https://instagram-downloader-download-instagram-videos-stories.p.rapidapi.com/index?url=",
-    "Your rapidapi key",
-    "Your rapidapihost"
+    "Your rapid key",
+    "Your rapid host"
   ],
   "AdminId": [
     "Admin id"
   ],
   "ffmpegPath": [
-    "Path to ffmepg"
+    "Path to ffmpeg"
+  ],
+  "Proxy": [
+    "Proxy for reddit, if you need",
+    "Proxy host",
+    "Proxy key"
   ]
 }

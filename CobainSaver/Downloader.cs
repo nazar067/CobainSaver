@@ -35,10 +35,28 @@ namespace CobainSaver
 {
     internal class Downloader
     {
+        static string jsonString = System.IO.File.ReadAllText("source.json");
+        static JObject jsonObjectAPI = JObject.Parse(jsonString);
+
+        static string proxyURL = jsonObjectAPI["Proxy"][0].ToString();
+        static string proxyUsername = jsonObjectAPI["Proxy"][1].ToString();
+        static string proxyPassword = jsonObjectAPI["Proxy"][2].ToString();
+
+        static WebProxy webProxy = new WebProxy
+        {
+            Address = new Uri(proxyURL),
+            // specify the proxy credentials
+            Credentials = new NetworkCredential(
+                userName: proxyUsername,
+                password: proxyPassword
+          )
+        };
+
         private static readonly HttpClient client = new HttpClient();
         private static HttpClientHandler handler = new HttpClientHandler()
         {
-            AllowAutoRedirect = false
+            AllowAutoRedirect = false,
+            Proxy = webProxy
         };
         private static readonly HttpClient redditClient = new HttpClient(handler);
         public Downloader()
@@ -348,10 +366,10 @@ namespace CobainSaver
                     Method = System.Net.Http.HttpMethod.Get,
                     RequestUri = new Uri(jsonObjectAPI["InstagramAPI"][0] + link),
                     Headers =
-                {
-                    { "X-RapidAPI-Key", jsonObjectAPI["InstagramAPI"][1].ToString() },
-                    { "X-RapidAPI-Host", jsonObjectAPI["InstagramAPI"][2].ToString() }
-                }
+                    {
+                        { "X-RapidAPI-Key", jsonObjectAPI["InstagramAPI"][1].ToString() },
+                        { "X-RapidAPI-Host", jsonObjectAPI["InstagramAPI"][2].ToString() }
+                    }
                 };
                 using (var response = await client.SendAsync(request))
                 {
