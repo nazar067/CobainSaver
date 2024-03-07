@@ -63,284 +63,16 @@ namespace CobainSaver
                 {
                     case UpdateType.Message:
                         {
-                            /*                            // эта переменная будет содержать в себе все связанное с сообщениями
-                                                        var message = update.Message;
-                                                        Downloader video = new Downloader();
-                                                        // From - это от кого пришло сообщение (или любой другой Update)
-                                                        var user = message.From;
-                                                        var chat = message.Chat;
-                                                        Logs logs = new Logs(message.Chat.Id, message.From.Id, message.From.Username, message.Text, null);
-                                                        await logs.WriteUserLogs();
-
-                                                        if (message.Text.Contains("https://www.youtube.com") || message.Text.Contains("https://youtu.be") || message.Text.Contains("https://youtube.com") || message.Text.Contains("https://m.youtube.com"))
-                                                        {
-                                                            await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVideo);
-                                                            await video.YoutubeDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
-                                                        }
-                                                        else if (message.Text.Contains("https://vm.tiktok.com") || message.Text.Contains("https://www.tiktok.com") || message.Text.Contains("https://m.tiktok.com"))
-                                                        {
-                                                            await video.TikTokDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
-                                                        }
-                                                        else if (message.Text.Contains("https://www.reddit.com") || message.Text.Contains("https://redd.it/"))
-                                                        {
-                                                            await video.ReditDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
-                                                        }
-                                                        else if (message.Text.Contains("https://x.com/") || message.Text.Contains("https://twitter.com/"))
-                                                        {
-                                                            await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
-                                                            await video.TwitterDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
-                                                        }
-                                                        else if (message.Text.Contains("https://www.instagram.com"))
-                                                        {
-                                                            await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
-                                                            await video.InstagramDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
-                                                        }
-                                                        else if (message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
-                                                        {
-                                                            await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
-                                                            await logs.SendAllYears((TelegramBotClient)botClient, chat.Id.ToString(), 0, chat.Id.ToString());
-                                                            //string dateLog = message.Text.Split(' ').Last();
-                                                           // await logs.SendUserLogs(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
-                                                        }
-                                                        else if (message.Text == "/start" || message.Text.StartsWith($"/start@{cobain.Username}"))
-                                                        {
-                                                            await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
-                                                            Language language = new Language("rand", "rand");
-                                                            string lang = await language.GetCurrentLanguage(chat.Id.ToString());
-                                                            if (lang == "eng")
-                                                            {
-                                                                await botClient.SendTextMessageAsync(
-                                                                    chatId: chat.Id,
-                                                                    text: "Hi, I'm CobainSaver, just send me video's link",
-                                                                    replyToMessageId: update.Message.MessageId
-                                                                    );
-                                                            }
-                                                            if (lang == "ukr")
-                                                            {
-                                                                await botClient.SendTextMessageAsync(
-                                                                    chatId: chat.Id,
-                                                                    text: "Привіт, я CobainSaver, відправ мені посилання на відео",
-                                                                    replyToMessageId: update.Message.MessageId);
-                                                            }
-                                                            if (lang == "rus")
-                                                            {
-                                                                await botClient.SendTextMessageAsync(
-                                                                    chatId: chat.Id,
-                                                                    text: "Привет, я CobainSaver, отправь мне ссылку на видео",
-                                                                    replyToMessageId: update.Message.MessageId);
-                                                            }
-                                                        }
-                                                        else if (message.Text == "/help" || message.Text.StartsWith($"/help@{cobain.Username}"))
-                                                        {
-                                                            await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
-                                                            Language language = new Language("rand", "rand");
-                                                            string lang = await language.GetCurrentLanguage(chat.Id.ToString());
-                                                            if (lang == "eng")
-                                                            {
-                                                                await botClient.SendTextMessageAsync(
-                                                                    chatId: chat.Id,
-                                                                    text: "/help - see all commands\n /logs - look at chat server logs\n " +
-                                                                    "/changelang - change bot's language",
-                                                                    replyToMessageId: update.Message.MessageId
-                                                                    );
-                                                            }
-                                                            if (lang == "ukr")
-                                                            {
-                                                                await botClient.SendTextMessageAsync(
-                                                                    chatId: chat.Id,
-                                                                    text: "/help - переглянути всі команді\n /logs - переглянути ваші логи\n " +
-                                                                    "/changelang - змінити мову",
-                                                                    replyToMessageId: update.Message.MessageId);
-                                                            }
-                                                            if (lang == "rus")
-                                                            {
-                                                                await botClient.SendTextMessageAsync(
-                                                                    chatId: chat.Id,
-                                                                    text: "/help - посмотреть все команді\n /logs - посмотреть ваши логи\n " +
-                                                                    "/changelang - сменить язык",
-                                                                    replyToMessageId: update.Message.MessageId);
-                                                            }
-                                                        }
-                                                        else if (message.Text == "/countUsers")
-                                                        {
-                                                            await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
-                                                            string dateLog = message.Text.Split(' ').Last();
-                                                            await logs.CountAllUsers(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
-                                                        }
-                                                        else if (message.Text.StartsWith("/userLogs"))
-                                                        {
-                                                            await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
-                                                            string dateLog = message.Text.Split(' ').Last();
-                                                            if (!dateLog.Contains("/") && !dateLog.Contains("."))
-                                                                dateLog = "/userLogs ";
-                                                            await logs.SendUserLogsToAdmin(message.Text, dateLog, chat.Id.ToString(), update, cancellationToken, message, (TelegramBotClient)botClient, cobain.Username);
-                                                        }
-                                                        else if (message.Text == "/serverLogs")
-                                                        {
-                                                            await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
-                                                            await logs.SendServerLogs(chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
-                                                        }
-                                                        else if (message.Text == "/changelang" || message.Text.StartsWith($"/changelang@{cobain.Username}"))
-                                                        {
-                                                            await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
-                                                            InlineKeyboardMarkup inlineKeyboard = new(new[]
-                                                            {
-                                                                // first row
-                                                                new []
-                                                                {
-                                                                    InlineKeyboardButton.WithCallbackData(text: "Українська", callbackData: "ukr"),
-                                                                    InlineKeyboardButton.WithCallbackData(text: "English", callbackData: "eng"),
-                                                                    InlineKeyboardButton.WithCallbackData(text: "Русский", callbackData: "rus"),
-                                                                },
-                                                            });
-                                                            Language language = new Language("rand", "rand");
-                                                            string lang = await language.GetCurrentLanguage(chat.Id.ToString());
-                                                            if (lang == "eng")
-                                                            {
-                                                                await botClient.SendTextMessageAsync(
-                                                                    chatId: chat.Id,
-                                                                    replyMarkup: inlineKeyboard,
-                                                                    text: "Choose language"
-                                                                );
-                                                            }
-                                                            if (lang == "ukr")
-                                                            {
-                                                                await botClient.SendTextMessageAsync(
-                                                                    chatId: chat.Id,
-                                                                    replyMarkup: inlineKeyboard,
-                                                                    text: "Виберіть мову"
-                                                                );
-                                                            }
-                                                            if (lang == "rus")
-                                                            {
-                                                                await botClient.SendTextMessageAsync(
-                                                                    chatId: chat.Id,
-                                                                    replyMarkup: inlineKeyboard,
-                                                                    text: "Выберите язык"
-                                                                );
-                                                            }
-                                                        }
-                                                        Reviews reviews = new Reviews();
-                                                        await reviews.UserReviews(chat.Id.ToString(), (TelegramBotClient)botClient);*/
                             Task.Run(async () => await CheckMsg(update, (TelegramBotClient)botClient, cancellationToken));
                             break;
                         }
                     case UpdateType.CallbackQuery:
                         {
-                            /*                            var callbackQuery = update.CallbackQuery;
-                                                        if (callbackQuery.Data.Contains("ukr"))
-                                                        {
-                                                            string msg = "Мова змінена";
-                                                            Language language = new Language(callbackQuery.Data, msg);
-                                                            await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
-                                                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                                                        }
-                                                        if (callbackQuery.Data.Contains("eng"))
-                                                        {
-                                                            string msg = "Language has been changed";
-                                                            Language language = new Language(callbackQuery.Data, msg);
-                                                            await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
-                                                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                                                        }
-                                                        if (callbackQuery.Data.Contains("rus"))
-                                                        {
-                                                            string msg = "Язык изменен";
-                                                            Language language = new Language(callbackQuery.Data, msg);
-                                                            await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
-                                                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                                                        }
-                                                        if(callbackQuery.Data.StartsWith("Year"))
-                                                        {
-                                                            Logs logs = new Logs(1, 1, null, null, null);
-                                                            string data = callbackQuery.Data.ToString();
-                                                            string[] parts = data.Split(' ');
-                                                            string year = parts[1];
-                                                            //string date = fileName.Replace(".txt", "");
-                                                            string chatId = parts[2];
-                                                            string messageId = parts[3];
-                                                            string chatToSend = parts[4];
-                                                            await logs.SendAllMonths((TelegramBotClient)botClient, chatId, year, Convert.ToInt32(messageId), chatToSend);
-                                                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                                                        }
-                                                        if (callbackQuery.Data.StartsWith("Month"))
-                                                        {
-                                                            Logs logs = new Logs(1, 1, null, null, null);
-                                                            string data = callbackQuery.Data.ToString();
-                                                            string[] parts = data.Split(' ');
-                                                            string month = parts[1];
-                                                            string year = parts[2];
-                                                            string chatId = parts[3];
-                                                            string messageId = parts[4];
-                                                            string chatToSend = parts[5];
-                                                            await logs.SendAllDates((TelegramBotClient)botClient, chatId, year, month, Convert.ToInt32(messageId), chatToSend);
-                                                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                                                        }
-                                                        if (callbackQuery.Data.StartsWith("Date"))
-                                                        {
-                                                            Logs logs = new Logs(1, 1, null, null, null);
-                                                            string data = callbackQuery.Data.ToString();
-                                                            string[] parts = data.Split(' ');
-                                                            string chatId = parts[1];
-                                                            string month = parts[2];
-                                                            string fileName = parts[3];
-                                                            string date = fileName.Replace(".txt", "");
-                                                            string year = parts[4];
-                                                            string chatToSend = parts[5];
-                                                            await botClient.SendChatActionAsync(chatId, ChatAction.UploadDocument);
-                                                            await logs.SendUserLogs(year, month, date, chatId, update, (TelegramBotClient)botClient, chatToSend);
-                                                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                                                        }
-                                                        if (callbackQuery.Data.StartsWith("BackToYear"))
-                                                        {
-                                                            Logs logs = new Logs(1, 1, null, null, null);
-                                                            string data = callbackQuery.Data.ToString();
-                                                            string[] parts = data.Split(' ');
-                                                            string chatId = parts[1];
-                                                            string messageId = parts[2];
-                                                            string chatToSend = parts[3];
-                                                            await logs.SendAllYears((TelegramBotClient)botClient, chatId.ToString(), Convert.ToInt32(messageId), chatToSend);
-                                                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                                                        }
-                                                        if (callbackQuery.Data.StartsWith("BackToMonth"))
-                                                        {
-                                                            Logs logs = new Logs(1, 1, null, null, null);
-                                                            string data = callbackQuery.Data.ToString();
-                                                            string[] parts = data.Split(' ');
-                                                            string chatId = parts[1];
-                                                            string year = parts[2];
-                                                            string messageId = parts[3];
-                                                            string chatToSend = parts[4];
-                                                            await logs.SendAllMonths((TelegramBotClient)botClient, chatId.ToString(), year, Convert.ToInt32(messageId), chatToSend);
-                                                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                                                        }*/
                             Task.Run(async () => await CheckCallbackQuery(update, (TelegramBotClient)botClient, cancellationToken));
                             break;
                         }
                     case UpdateType.PollAnswer:
                         {
-                            /*var pollAnswer = update.PollAnswer;
-                            string userId = pollAnswer.User.Id.ToString();
-                            Reviews reviews = new Reviews();
-                            if (pollAnswer.OptionIds.Contains(0))
-                            {
-                                await reviews.LogsUserReviews(pollAnswer.PollId, 1, 0, 0, 0, 0, userId);
-                            }
-                            else if (pollAnswer.OptionIds.Contains(1))
-                            {
-                                await reviews.LogsUserReviews(pollAnswer.PollId, 0, 1, 0, 0, 0, userId);
-                            }
-                            else if (pollAnswer.OptionIds.Contains(2))
-                            {
-                                await reviews.LogsUserReviews(pollAnswer.PollId, 0, 0, 1, 0, 0, userId);
-                            }
-                            else if (pollAnswer.OptionIds.Contains(3))
-                            {
-                                await reviews.LogsUserReviews(pollAnswer.PollId, 0, 0, 0, 1, 0, userId);
-                            }
-                            else if (pollAnswer.OptionIds.Contains(4))
-                            {
-                                await reviews.LogsUserReviews(pollAnswer.PollId, 0, 0, 0, 0, 1, userId);
-                            }*/
                             Task.Run(async () => await CheckPollAnswer(update, (TelegramBotClient)botClient, cancellationToken));
                             break;
                         }
@@ -365,129 +97,131 @@ namespace CobainSaver
         }
         private static async Task CheckMsg(Update update, TelegramBotClient botClient, CancellationToken cancellationToken)
         {
-            var cobain = await botClient.GetMeAsync();
-            // эта переменная будет содержать в себе все связанное с сообщениями
-            var message = update.Message;
-            Downloader video = new Downloader();
-            // From - это от кого пришло сообщение (или любой другой Update)
-            var user = message.From;
-            var chat = message.Chat;
-            Logs logs = new Logs(message.Chat.Id, message.From.Id, message.From.Username, message.Text, null);
-            await logs.WriteUserLogs();
+            try
+            {
+                var cobain = await botClient.GetMeAsync();
+                // эта переменная будет содержать в себе все связанное с сообщениями
+                var message = update.Message;
+                Downloader video = new Downloader();
+                // From - это от кого пришло сообщение (или любой другой Update)
+                var user = message.From;
+                var chat = message.Chat;
+                Logs logs = new Logs(message.Chat.Id, message.From.Id, message.From.Username, message.Text, null);
+                await logs.WriteUserLogs();
 
-            if (message.Text.Contains("https://www.youtube.com") || message.Text.Contains("https://youtu.be") || message.Text.Contains("https://youtube.com") || message.Text.Contains("https://m.youtube.com"))
-            {
-                await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVideo);
-                await video.YoutubeDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
-            }
-            else if (message.Text.Contains("https://vm.tiktok.com") || message.Text.Contains("https://www.tiktok.com") || message.Text.Contains("https://m.tiktok.com"))
-            {
-                await video.TikTokDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
-            }
-            else if (message.Text.Contains("https://www.reddit.com") || message.Text.Contains("https://redd.it/"))
-            {
-                await video.ReditDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
-            }
-            else if (message.Text.Contains("https://x.com/") || message.Text.Contains("https://twitter.com/"))
-            {
-                await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
-                await video.TwitterDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
-            }
-            else if (message.Text.Contains("https://www.instagram.com"))
-            {
-                await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
-                await video.InstagramDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
-            }
-            else if (message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
-            {
-                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
-                await logs.SendAllYears((TelegramBotClient)botClient, chat.Id.ToString(), 0, chat.Id.ToString());
-                //string dateLog = message.Text.Split(' ').Last();
-                // await logs.SendUserLogs(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
-            }
-            else if (message.Text == "/start" || message.Text.StartsWith($"/start@{cobain.Username}"))
-            {
-                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
-                Language language = new Language("rand", "rand");
-                string lang = await language.GetCurrentLanguage(chat.Id.ToString());
-                if (lang == "eng")
+                if (message.Text.Contains("https://www.youtube.com") || message.Text.Contains("https://youtu.be") || message.Text.Contains("https://youtube.com") || message.Text.Contains("https://m.youtube.com"))
                 {
-                    await botClient.SendTextMessageAsync(
-                        chatId: chat.Id,
-                        text: "Hi, I'm CobainSaver, just send me video's link",
-                        replyToMessageId: update.Message.MessageId
-                        );
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVideo);
+                    await video.YoutubeDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
-                if (lang == "ukr")
+                else if (message.Text.Contains("https://vm.tiktok.com") || message.Text.Contains("https://www.tiktok.com") || message.Text.Contains("https://m.tiktok.com"))
                 {
-                    await botClient.SendTextMessageAsync(
-                        chatId: chat.Id,
-                        text: "Привіт, я CobainSaver, відправ мені посилання на відео",
-                        replyToMessageId: update.Message.MessageId);
+                    await video.TikTokDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
-                if (lang == "rus")
+                else if (message.Text.Contains("https://www.reddit.com") || message.Text.Contains("https://redd.it/"))
                 {
-                    await botClient.SendTextMessageAsync(
-                        chatId: chat.Id,
-                        text: "Привет, я CobainSaver, отправь мне ссылку на видео",
-                        replyToMessageId: update.Message.MessageId);
+                    await video.ReditDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
-            }
-            else if (message.Text == "/help" || message.Text.StartsWith($"/help@{cobain.Username}"))
-            {
-                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
-                Language language = new Language("rand", "rand");
-                string lang = await language.GetCurrentLanguage(chat.Id.ToString());
-                if (lang == "eng")
+                else if (message.Text.Contains("https://x.com/") || message.Text.Contains("https://twitter.com/"))
                 {
-                    await botClient.SendTextMessageAsync(
-                        chatId: chat.Id,
-                        text: "/help - see all commands\n /logs - look at chat server logs\n " +
-                        "/changelang - change bot's language",
-                        replyToMessageId: update.Message.MessageId
-                        );
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
+                    await video.TwitterDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
-                if (lang == "ukr")
+                else if (message.Text.Contains("https://www.instagram.com"))
                 {
-                    await botClient.SendTextMessageAsync(
-                        chatId: chat.Id,
-                        text: "/help - переглянути всі команді\n /logs - переглянути ваші логи\n " +
-                        "/changelang - змінити мову",
-                        replyToMessageId: update.Message.MessageId);
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
+                    await video.InstagramDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
-                if (lang == "rus")
+                else if (message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
                 {
-                    await botClient.SendTextMessageAsync(
-                        chatId: chat.Id,
-                        text: "/help - посмотреть все команді\n /logs - посмотреть ваши логи\n " +
-                        "/changelang - сменить язык",
-                        replyToMessageId: update.Message.MessageId);
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
+                    await logs.SendAllYears((TelegramBotClient)botClient, chat.Id.ToString(), 0, chat.Id.ToString());
+                    //string dateLog = message.Text.Split(' ').Last();
+                    // await logs.SendUserLogs(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                 }
-            }
-            else if (message.Text == "/countUsers")
-            {
-                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
-                string dateLog = message.Text.Split(' ').Last();
-                await logs.CountAllUsers(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
-            }
-            else if (message.Text.StartsWith("/userLogs"))
-            {
-                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
-                string dateLog = message.Text.Split(' ').Last();
-                if (!dateLog.Contains("/") && !dateLog.Contains("."))
-                    dateLog = "/userLogs ";
-                await logs.SendUserLogsToAdmin(message.Text, dateLog, chat.Id.ToString(), update, cancellationToken, message, (TelegramBotClient)botClient, cobain.Username);
-            }
-            else if (message.Text == "/serverLogs")
-            {
-                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
-                await logs.SendServerLogs(chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
-            }
-            else if (message.Text == "/changelang" || message.Text.StartsWith($"/changelang@{cobain.Username}"))
-            {
-                await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
-                InlineKeyboardMarkup inlineKeyboard = new(new[]
+                else if (message.Text == "/start" || message.Text.StartsWith($"/start@{cobain.Username}"))
                 {
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
+                    Language language = new Language("rand", "rand");
+                    string lang = await language.GetCurrentLanguage(chat.Id.ToString());
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chat.Id,
+                            text: "Hi, I'm CobainSaver, just send me video's link",
+                            replyToMessageId: update.Message.MessageId
+                            );
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chat.Id,
+                            text: "Привіт, я CobainSaver, відправ мені посилання на відео",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chat.Id,
+                            text: "Привет, я CobainSaver, отправь мне ссылку на видео",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                }
+                else if (message.Text == "/help" || message.Text.StartsWith($"/help@{cobain.Username}"))
+                {
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
+                    Language language = new Language("rand", "rand");
+                    string lang = await language.GetCurrentLanguage(chat.Id.ToString());
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chat.Id,
+                            text: "/help - see all commands\n /logs - look at chat server logs\n " +
+                            "/changelang - change bot's language",
+                            replyToMessageId: update.Message.MessageId
+                            );
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chat.Id,
+                            text: "/help - переглянути всі команді\n /logs - переглянути ваші логи\n " +
+                            "/changelang - змінити мову",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chat.Id,
+                            text: "/help - посмотреть все команді\n /logs - посмотреть ваши логи\n " +
+                            "/changelang - сменить язык",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                }
+                else if (message.Text == "/countUsers")
+                {
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
+                    string dateLog = message.Text.Split(' ').Last();
+                    await logs.CountAllUsers(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
+                }
+                else if (message.Text.StartsWith("/userLogs"))
+                {
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
+                    string dateLog = message.Text.Split(' ').Last();
+                    if (!dateLog.Contains("/") && !dateLog.Contains("."))
+                        dateLog = "/userLogs ";
+                    await logs.SendUserLogsToAdmin(message.Text, dateLog, chat.Id.ToString(), update, cancellationToken, message, (TelegramBotClient)botClient, cobain.Username);
+                }
+                else if (message.Text == "/serverLogs")
+                {
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
+                    await logs.SendServerLogs(chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
+                }
+                else if (message.Text == "/changelang" || message.Text.StartsWith($"/changelang@{cobain.Username}"))
+                {
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
+                    InlineKeyboardMarkup inlineKeyboard = new(new[]
+                    {
                                     // first row
                                     new []
                                     {
@@ -496,149 +230,204 @@ namespace CobainSaver
                                         InlineKeyboardButton.WithCallbackData(text: "Русский", callbackData: "rus"),
                                     },
                                 });
-                Language language = new Language("rand", "rand");
-                string lang = await language.GetCurrentLanguage(chat.Id.ToString());
-                if (lang == "eng")
-                {
-                    await botClient.SendTextMessageAsync(
-                        chatId: chat.Id,
-                        replyMarkup: inlineKeyboard,
-                        text: "Choose language"
-                    );
+                    Language language = new Language("rand", "rand");
+                    string lang = await language.GetCurrentLanguage(chat.Id.ToString());
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chat.Id,
+                            replyMarkup: inlineKeyboard,
+                            text: "Choose language"
+                        );
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chat.Id,
+                            replyMarkup: inlineKeyboard,
+                            text: "Виберіть мову"
+                        );
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chat.Id,
+                            replyMarkup: inlineKeyboard,
+                            text: "Выберите язык"
+                        );
+                    }
                 }
-                if (lang == "ukr")
+                Reviews reviews = new Reviews();
+                await reviews.UserReviews(chat.Id.ToString(), (TelegramBotClient)botClient);
+            }
+            catch (Exception ex)
+            {
+                //Console.WriteLine(ex.ToString());
+                try
                 {
-                    await botClient.SendTextMessageAsync(
-                        chatId: chat.Id,
-                        replyMarkup: inlineKeyboard,
-                        text: "Виберіть мову"
-                    );
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, null, ex.ToString());
+                    await logs.WriteServerLogs();
                 }
-                if (lang == "rus")
+                catch (Exception e)
                 {
-                    await botClient.SendTextMessageAsync(
-                        chatId: chat.Id,
-                        replyMarkup: inlineKeyboard,
-                        text: "Выберите язык"
-                    );
+                    return;
                 }
             }
-            Reviews reviews = new Reviews();
-            await reviews.UserReviews(chat.Id.ToString(), (TelegramBotClient)botClient);
         }
         private static async Task CheckCallbackQuery(Update update, TelegramBotClient botClient, CancellationToken cancellationToken)
         {
-            var callbackQuery = update.CallbackQuery;
-            if (callbackQuery.Data.Contains("ukr"))
+            try
             {
-                string msg = "Мова змінена";
-                Language language = new Language(callbackQuery.Data, msg);
-                await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
-                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                var callbackQuery = update.CallbackQuery;
+                if (callbackQuery.Data.Contains("ukr"))
+                {
+                    string msg = "Мова змінена";
+                    Language language = new Language(callbackQuery.Data, msg);
+                    await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                }
+                if (callbackQuery.Data.Contains("eng"))
+                {
+                    string msg = "Language has been changed";
+                    Language language = new Language(callbackQuery.Data, msg);
+                    await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                }
+                if (callbackQuery.Data.Contains("rus"))
+                {
+                    string msg = "Язык изменен";
+                    Language language = new Language(callbackQuery.Data, msg);
+                    await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                }
+                if (callbackQuery.Data.StartsWith("Year"))
+                {
+                    Logs logs = new Logs(1, 1, null, null, null);
+                    string data = callbackQuery.Data.ToString();
+                    string[] parts = data.Split(' ');
+                    string year = parts[1];
+                    //string date = fileName.Replace(".txt", "");
+                    string chatId = parts[2];
+                    string messageId = parts[3];
+                    string chatToSend = parts[4];
+                    await logs.SendAllMonths((TelegramBotClient)botClient, chatId, year, Convert.ToInt32(messageId), chatToSend);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                }
+                if (callbackQuery.Data.StartsWith("Month"))
+                {
+                    Logs logs = new Logs(1, 1, null, null, null);
+                    string data = callbackQuery.Data.ToString();
+                    string[] parts = data.Split(' ');
+                    string month = parts[1];
+                    string year = parts[2];
+                    string chatId = parts[3];
+                    string messageId = parts[4];
+                    string chatToSend = parts[5];
+                    await logs.SendAllDates((TelegramBotClient)botClient, chatId, year, month, Convert.ToInt32(messageId), chatToSend);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                }
+                if (callbackQuery.Data.StartsWith("Date"))
+                {
+                    Logs logs = new Logs(1, 1, null, null, null);
+                    string data = callbackQuery.Data.ToString();
+                    string[] parts = data.Split(' ');
+                    string chatId = parts[1];
+                    string month = parts[2];
+                    string fileName = parts[3];
+                    string date = fileName.Replace(".txt", "");
+                    string year = parts[4];
+                    string chatToSend = parts[5];
+                    await botClient.SendChatActionAsync(chatId, ChatAction.UploadDocument);
+                    await logs.SendUserLogs(year, month, date, chatId, update, (TelegramBotClient)botClient, chatToSend);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                }
+                if (callbackQuery.Data.StartsWith("BackToYear"))
+                {
+                    Logs logs = new Logs(1, 1, null, null, null);
+                    string data = callbackQuery.Data.ToString();
+                    string[] parts = data.Split(' ');
+                    string chatId = parts[1];
+                    string messageId = parts[2];
+                    string chatToSend = parts[3];
+                    await logs.SendAllYears((TelegramBotClient)botClient, chatId.ToString(), Convert.ToInt32(messageId), chatToSend);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                }
+                if (callbackQuery.Data.StartsWith("BackToMonth"))
+                {
+                    Logs logs = new Logs(1, 1, null, null, null);
+                    string data = callbackQuery.Data.ToString();
+                    string[] parts = data.Split(' ');
+                    string chatId = parts[1];
+                    string year = parts[2];
+                    string messageId = parts[3];
+                    string chatToSend = parts[4];
+                    await logs.SendAllMonths((TelegramBotClient)botClient, chatId.ToString(), year, Convert.ToInt32(messageId), chatToSend);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                }
             }
-            if (callbackQuery.Data.Contains("eng"))
+            catch (Exception ex)
             {
-                string msg = "Language has been changed";
-                Language language = new Language(callbackQuery.Data, msg);
-                await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
-                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-            }
-            if (callbackQuery.Data.Contains("rus"))
-            {
-                string msg = "Язык изменен";
-                Language language = new Language(callbackQuery.Data, msg);
-                await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
-                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-            }
-            if (callbackQuery.Data.StartsWith("Year"))
-            {
-                Logs logs = new Logs(1, 1, null, null, null);
-                string data = callbackQuery.Data.ToString();
-                string[] parts = data.Split(' ');
-                string year = parts[1];
-                //string date = fileName.Replace(".txt", "");
-                string chatId = parts[2];
-                string messageId = parts[3];
-                string chatToSend = parts[4];
-                await logs.SendAllMonths((TelegramBotClient)botClient, chatId, year, Convert.ToInt32(messageId), chatToSend);
-                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-            }
-            if (callbackQuery.Data.StartsWith("Month"))
-            {
-                Logs logs = new Logs(1, 1, null, null, null);
-                string data = callbackQuery.Data.ToString();
-                string[] parts = data.Split(' ');
-                string month = parts[1];
-                string year = parts[2];
-                string chatId = parts[3];
-                string messageId = parts[4];
-                string chatToSend = parts[5];
-                await logs.SendAllDates((TelegramBotClient)botClient, chatId, year, month, Convert.ToInt32(messageId), chatToSend);
-                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-            }
-            if (callbackQuery.Data.StartsWith("Date"))
-            {
-                Logs logs = new Logs(1, 1, null, null, null);
-                string data = callbackQuery.Data.ToString();
-                string[] parts = data.Split(' ');
-                string chatId = parts[1];
-                string month = parts[2];
-                string fileName = parts[3];
-                string date = fileName.Replace(".txt", "");
-                string year = parts[4];
-                string chatToSend = parts[5];
-                await botClient.SendChatActionAsync(chatId, ChatAction.UploadDocument);
-                await logs.SendUserLogs(year, month, date, chatId, update, (TelegramBotClient)botClient, chatToSend);
-                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-            }
-            if (callbackQuery.Data.StartsWith("BackToYear"))
-            {
-                Logs logs = new Logs(1, 1, null, null, null);
-                string data = callbackQuery.Data.ToString();
-                string[] parts = data.Split(' ');
-                string chatId = parts[1];
-                string messageId = parts[2];
-                string chatToSend = parts[3];
-                await logs.SendAllYears((TelegramBotClient)botClient, chatId.ToString(), Convert.ToInt32(messageId), chatToSend);
-                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-            }
-            if (callbackQuery.Data.StartsWith("BackToMonth"))
-            {
-                Logs logs = new Logs(1, 1, null, null, null);
-                string data = callbackQuery.Data.ToString();
-                string[] parts = data.Split(' ');
-                string chatId = parts[1];
-                string year = parts[2];
-                string messageId = parts[3];
-                string chatToSend = parts[4];
-                await logs.SendAllMonths((TelegramBotClient)botClient, chatId.ToString(), year, Convert.ToInt32(messageId), chatToSend);
-                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                //Console.WriteLine(ex.ToString());
+                try
+                {
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, null, ex.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception e)
+                {
+                    return;
+                }
             }
         }
         private static async Task CheckPollAnswer(Update update, TelegramBotClient botClient, CancellationToken cancellationToken)
         {
-            var pollAnswer = update.PollAnswer;
-            string userId = pollAnswer.User.Id.ToString();
-            Reviews reviews = new Reviews();
-            if (pollAnswer.OptionIds.Contains(0))
+            try
             {
-                await reviews.LogsUserReviews(pollAnswer.PollId, 1, 0, 0, 0, 0, userId);
+                var pollAnswer = update.PollAnswer;
+                string userId = pollAnswer.User.Id.ToString();
+                Reviews reviews = new Reviews();
+                if (pollAnswer.OptionIds.Contains(0))
+                {
+                    await reviews.LogsUserReviews(pollAnswer.PollId, 1, 0, 0, 0, 0, userId);
+                }
+                else if (pollAnswer.OptionIds.Contains(1))
+                {
+                    await reviews.LogsUserReviews(pollAnswer.PollId, 0, 1, 0, 0, 0, userId);
+                }
+                else if (pollAnswer.OptionIds.Contains(2))
+                {
+                    await reviews.LogsUserReviews(pollAnswer.PollId, 0, 0, 1, 0, 0, userId);
+                }
+                else if (pollAnswer.OptionIds.Contains(3))
+                {
+                    await reviews.LogsUserReviews(pollAnswer.PollId, 0, 0, 0, 1, 0, userId);
+                }
+                else if (pollAnswer.OptionIds.Contains(4))
+                {
+                    await reviews.LogsUserReviews(pollAnswer.PollId, 0, 0, 0, 0, 1, userId);
+                }
             }
-            else if (pollAnswer.OptionIds.Contains(1))
+            catch (Exception ex)
             {
-                await reviews.LogsUserReviews(pollAnswer.PollId, 0, 1, 0, 0, 0, userId);
-            }
-            else if (pollAnswer.OptionIds.Contains(2))
-            {
-                await reviews.LogsUserReviews(pollAnswer.PollId, 0, 0, 1, 0, 0, userId);
-            }
-            else if (pollAnswer.OptionIds.Contains(3))
-            {
-                await reviews.LogsUserReviews(pollAnswer.PollId, 0, 0, 0, 1, 0, userId);
-            }
-            else if (pollAnswer.OptionIds.Contains(4))
-            {
-                await reviews.LogsUserReviews(pollAnswer.PollId, 0, 0, 0, 0, 1, userId);
+                //Console.WriteLine(ex.ToString());
+                try
+                {
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, null, ex.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception e)
+                {
+                    return;
+                }
             }
         }
         private static Task ErrorHandler(ITelegramBotClient botClient, Exception error, CancellationToken cancellationToken)

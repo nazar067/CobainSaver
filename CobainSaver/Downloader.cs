@@ -210,6 +210,10 @@ namespace CobainSaver
                 await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
                 string video = jsonObject["data"]["play"].ToString();
                 string title = jsonObject["data"]["title"].ToString();
+                if (title.Contains("#"))
+                {
+                    title = Regex.Replace(title, @"#.*", "");
+                }
                 await botClient.SendVideoAsync(
                     chatId: chatId,
                     video: InputFile.FromUri(video),
