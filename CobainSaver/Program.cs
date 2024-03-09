@@ -116,10 +116,12 @@ namespace CobainSaver
                 }
                 else if (message.Text.Contains("https://vm.tiktok.com") || message.Text.Contains("https://www.tiktok.com") || message.Text.Contains("https://m.tiktok.com"))
                 {
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
                     await video.TikTokDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
                 else if (message.Text.Contains("https://www.reddit.com") || message.Text.Contains("https://redd.it/"))
                 {
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
                     await video.ReditDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
                 else if (message.Text.Contains("https://x.com/") || message.Text.Contains("https://twitter.com/"))
@@ -200,13 +202,11 @@ namespace CobainSaver
                 }
                 else if (message.Text == "/countUsers")
                 {
-                    await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                     string dateLog = message.Text.Split(' ').Last();
                     await logs.CountAllUsers(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                 }
                 else if (message.Text.StartsWith("/userLogs"))
                 {
-                    await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                     string dateLog = message.Text.Split(' ').Last();
                     if (!dateLog.Contains("/") && !dateLog.Contains("."))
                         dateLog = "/userLogs ";
@@ -214,7 +214,6 @@ namespace CobainSaver
                 }
                 else if (message.Text == "/serverLogs")
                 {
-                    await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                     await logs.SendServerLogs(chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                 }
                 else if (message.Text == "/changelang" || message.Text.StartsWith($"/changelang@{cobain.Username}"))

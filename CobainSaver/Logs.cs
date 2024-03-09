@@ -933,6 +933,7 @@ namespace CobainSaver
             JObject jsonObject = JObject.Parse(jsonString);
             if (chatId == jsonObject["AdminId"][0].ToString())
             {
+                await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
                 string currentDirectory = Directory.GetCurrentDirectory() + "\\ServerLogs";
 
                 if (!Directory.Exists(currentDirectory))
@@ -1014,128 +1015,8 @@ namespace CobainSaver
             JObject jsonObject = JObject.Parse(jsonString);
             if (chatId == jsonObject["AdminId"][0].ToString())
             {
+                await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
                 await SendAllUsers(botClient, chatId);
-                /*if (userId == "/userLogs")
-                {
-                    string currentDirectory = Directory.GetCurrentDirectory() + "\\UserLogs";
-
-                    string[] directories = Directory.GetDirectories(currentDirectory);
-
-                    foreach (var directory in directories)
-                    {
-                        string id = directory.Split("\\").Last();
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: id
-                            );
-                    }
-                }
-                else
-                {
-                    string[] words = userId.Split(' ');
-                    userId = words[1];
-
-                    if (date.StartsWith("/userLogs "))
-                    {
-                        string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{userId}" + $"\\logs";
-                        string[] files = Directory.GetFiles(directory);
-                        foreach (var userFile in files)
-                        {
-                            string id = userFile.Split("\\").Last();
-                            await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: id
-                                );
-                        }
-                        return;
-                    }
-                    if (date.Contains("/"))
-                    {
-                        date = date.Replace('.', '-');
-                    }
-                    if (date.Contains("."))
-                    {
-                        date = date.Replace('.', '-');
-                    }
-                    string currentDirectory = Directory.GetCurrentDirectory() + "\\UserLogs";
-
-                    string folderName = userId;
-
-                    string folderPath = Path.Combine(currentDirectory, folderName);
-                    string lastFolderName = "logs";
-                    string lastFolderPath = Path.Combine(folderPath, lastFolderName);
-                    if (!Directory.Exists(lastFolderPath))
-                    {
-                        Language language = new Language("rand", "rand");
-                        string lang = await language.GetCurrentLanguage(chatId.ToString());
-                        if (lang == "eng")
-                        {
-                            await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: "There are no logs in your chat",
-                                replyToMessageId: update.Message.MessageId
-                                );
-                        }
-                        if (lang == "ukr")
-                        {
-                            await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: "У вашому чаті немає логів",
-                                replyToMessageId: update.Message.MessageId);
-                        }
-                        if (lang == "rus")
-                        {
-                            await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: "В вашем чате нет логов",
-                                replyToMessageId: update.Message.MessageId);
-                        }
-                        return;
-                    }
-
-                    string file = $"{date}.txt";
-
-                    string filePath = Path.Combine(lastFolderPath, file);
-
-                    if (!System.IO.File.Exists(filePath))
-                    {
-                        Language language = new Language("rand", "rand");
-                        string lang = await language.GetCurrentLanguage(chatId.ToString());
-                        if (lang == "eng")
-                        {
-                            await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: "There are no logs for that date",
-                                replyToMessageId: update.Message.MessageId
-                                );
-                        }
-                        if (lang == "ukr")
-                        {
-                            await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: "Логів за цю дату немає",
-                                replyToMessageId: update.Message.MessageId);
-                        }
-                        if (lang == "rus")
-                        {
-                            await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: "Логи за эту дату отсутствуют.",
-                                replyToMessageId: update.Message.MessageId);
-                        }
-                        return;
-                    }
-                    else
-                    {
-                        await using Stream stream = System.IO.File.OpenRead($"{filePath}");
-                        await botClient.SendDocumentAsync(
-                            chatId: chatId,
-                            document: InputFile.FromStream(stream: stream, fileName: $"logs {date}.txt"),
-                            replyToMessageId: update.Message.MessageId
-                            );
-                        stream.Close();
-                    }
-                }*/
             }
         }
         public async Task CountAllUsers(string date, string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
@@ -1144,6 +1025,7 @@ namespace CobainSaver
             JObject jsonObject = JObject.Parse(jsonString);
             if (chatId == jsonObject["AdminId"][0].ToString())
             {
+                await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
                 string currentDirectory = Directory.GetCurrentDirectory() + "\\UserLogs";
 
                 string[] directories = Directory.GetDirectories(currentDirectory);
