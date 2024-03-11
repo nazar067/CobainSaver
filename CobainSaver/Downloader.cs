@@ -61,12 +61,12 @@ namespace CobainSaver
         };
         private static readonly HttpClient redditClient = new HttpClient(handler);
         private static readonly HttpClient reserveClient = new HttpClient();
-        private static readonly HttpClient urlClient = new HttpClient();
+        private static readonly HttpClient urlClient = new HttpClient(handler);
         public Downloader()
         {
             redditClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
             reserveClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
-            urlClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36");
+            urlClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
         }
         public async Task YoutubeDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
@@ -837,6 +837,109 @@ namespace CobainSaver
         }
         public async Task InstagramDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
+            /*            string link = await DeleteNotUrl(messageText);
+                        string id = null;
+                        if (link.Contains("/p/"))
+                        {
+                            string pattern = @"\/p\/([^\s\/?]+)";
+                            Regex regex = new Regex(pattern);
+                            Match match = regex.Match(link);
+
+                            if (match.Success)
+                            {
+                                id = match.Groups[1].Value;
+                            }
+                        }
+                        else if (link.Contains("/reels/") || link.Contains("/reel/"))
+                        {
+                            string pattern = @"\/reels\/([^\s\/?]+)";
+                            Regex regex = new Regex(pattern);
+                            Match match = regex.Match(link);
+
+                            if (match.Success)
+                            {
+                                id = match.Groups[1].Value;
+                            }
+                            else
+                            {
+                                pattern = @"\/reel\/([^\s\/?]+)";
+                                regex = new Regex(pattern);
+                                match = regex.Match(link);
+                                if (match.Success)
+                                {
+                                    id = match.Groups[1].Value;
+                                }
+                            }
+                        }
+                        int count = 0;
+                        string url = "https://www.instagram.com/p/" + id + "/?__a=1&__d=dis";
+                        var response = await client.GetAsync(url);
+                        var responseString = await response.Content.ReadAsStringAsync();
+                        JObject jsonObject = JObject.Parse(responseString);
+                        List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
+
+                        string text = null;
+                        if (jsonObject["graphql"]["edge_media_to_caption"]["edges"][0]["node"]["text"] != null)
+                        {
+                            text = jsonObject["graphql"]["edge_media_to_caption"]["edges"][0]["node"]["text"].ToString();
+                        }
+
+                        if (jsonObject["items"][0]["carousel_media"] != null)
+                        {
+                            foreach(var item in jsonObject["items"][0]["carousel_media"])
+                            {
+                                if(count == 0)
+                                {
+                                    if (item["video_versions"] != null)
+                                    {
+                                        mediaAlbum.Add(
+                                            new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
+                                            {
+                                                Caption = text,
+                                            }
+                                        );
+                                    }
+                                    else
+                                    {
+                                        mediaAlbum.Add(
+                                            new InputMediaVideo(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
+                                            {
+                                                Caption = text,
+                                            }
+                                        );
+                                    }
+                                }
+                                else
+                                {
+                                    if (item["video_versions"] != null)
+                                    {
+                                        mediaAlbum.Add(
+                                            new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
+                                            {
+                                            }
+                                        );
+                                    }
+                                    else
+                                    {
+                                        mediaAlbum.Add(
+                                            new InputMediaVideo(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
+                                            {
+                                            }
+                                        );
+                                    }
+                                }
+                                count++;
+                            }
+                            int rowSize = 10;
+                            List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
+                            foreach (var item in result)
+                            {
+                                await botClient.SendMediaGroupAsync(
+                                    chatId: chatId,
+                                    media: item,
+                                    replyToMessageId: update.Message.MessageId);
+                            }
+                        }*/
             try
             {
                 string jsonString = System.IO.File.ReadAllText("source.json");
@@ -978,7 +1081,7 @@ namespace CobainSaver
             {
                 Language language = new Language("rand", "rand");
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
-                if(lang == "eng")
+                if (lang == "eng")
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
