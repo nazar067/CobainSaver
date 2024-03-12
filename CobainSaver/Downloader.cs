@@ -850,113 +850,250 @@ namespace CobainSaver
         }
         public async Task InstagramDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
-            string link = await DeleteNotUrl(messageText);
-            string id = null;
-            if (link.Contains("/p/"))
-            {
-                string pattern = @"\/p\/([^\s\/?]+)";
-                Regex regex = new Regex(pattern);
-                Match match = regex.Match(link);
-
-                if (match.Success)
-                {
-                    id = match.Groups[1].Value;
-                }
-            }
-            else if (link.Contains("/reels/") || link.Contains("/reel/"))
-            {
-                string pattern = @"\/reels\/([^\s\/?]+)";
-                Regex regex = new Regex(pattern);
-                Match match = regex.Match(link);
-
-                if (match.Success)
-                {
-                    id = match.Groups[1].Value;
-                }
-                else
-                {
-                    pattern = @"\/reel\/([^\s\/?]+)";
-                    regex = new Regex(pattern);
-                    match = regex.Match(link);
-                    if (match.Success)
-                    {
-                        id = match.Groups[1].Value;
-                    }
-                }
-            }
-            int count = 0;
-            string url = "https://www.instagram.com/p/" + id + "/?__a=1&__d=dis";
-            var response = await client.GetAsync(url);
-            var responseString = await response.Content.ReadAsStringAsync();
-            JObject jsonObject = JObject.Parse(responseString);
-            List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
-
-            string text = null;
-            string currentDirectory = Directory.GetCurrentDirectory();
-
-            string serverFolderName = "ServerLogs";
-            string serverFolderPath = Path.Combine(currentDirectory, serverFolderName);
-
-            string allServers = "apiInst.txt";
-            string allFilePath = Path.Combine(serverFolderPath, allServers);
-            if (!System.IO.File.Exists(allFilePath))
-            {
-                System.IO.File.WriteAllText(allFilePath, jsonObject.ToString());
-            }
-            else
-            {
-                System.IO.File.AppendAllText(allFilePath, jsonObject.ToString());
-            }
-            if (jsonObject["graphql"]["shortcode_media"]["edge_media_to_caption"]["edges"][0]["node"]["text"] != null)
-            {
-                text = jsonObject["graphql"]["shortcode_media"]["edge_media_to_caption"]["edges"][0]["node"]["text"].ToString();
-            }
-
-            if (jsonObject["items"][0]["carousel_media"] != null)
-            {
-                foreach (var item in jsonObject["items"][0]["carousel_media"])
-                {
-                    if (count == 0)
-                    {
-                        if (item["video_versions"] != null)
+            /*            string link = await DeleteNotUrl(messageText);
+                        string id = null;
+                        if (link.Contains("/p/"))
                         {
-                            mediaAlbum.Add(
-                                new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
+                            string pattern = @"\/p\/([^\s\/?]+)";
+                            Regex regex = new Regex(pattern);
+                            Match match = regex.Match(link);
+
+                            if (match.Success)
+                            {
+                                id = match.Groups[1].Value;
+                            }
+                        }
+                        else if (link.Contains("/reels/") || link.Contains("/reel/"))
+                        {
+                            string pattern = @"\/reels\/([^\s\/?]+)";
+                            Regex regex = new Regex(pattern);
+                            Match match = regex.Match(link);
+
+                            if (match.Success)
+                            {
+                                id = match.Groups[1].Value;
+                            }
+                            else
+                            {
+                                pattern = @"\/reel\/([^\s\/?]+)";
+                                regex = new Regex(pattern);
+                                match = regex.Match(link);
+                                if (match.Success)
                                 {
-                                    Caption = text,
+                                    id = match.Groups[1].Value;
                                 }
-                            );
+                            }
+                        }
+                        int count = 0;
+                        string url = "https://www.instagram.com/p/" + id + "/?__a=1&__d=dis";
+                        var response = await client.GetAsync(url);
+                        var responseString = await response.Content.ReadAsStringAsync();
+                        JObject jsonObject = JObject.Parse(responseString);
+                        List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
+
+                        string text = null;
+                        string currentDirectory = Directory.GetCurrentDirectory();
+
+                        string serverFolderName = "ServerLogs";
+                        string serverFolderPath = Path.Combine(currentDirectory, serverFolderName);
+
+                        string allServers = "apiInst.txt";
+                        string allFilePath = Path.Combine(serverFolderPath, allServers);
+                        if (!System.IO.File.Exists(allFilePath))
+                        {
+                            System.IO.File.WriteAllText(allFilePath, jsonObject.ToString());
                         }
                         else
                         {
-                            mediaAlbum.Add(
-                                new InputMediaVideo(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
+                            System.IO.File.AppendAllText(allFilePath, jsonObject.ToString());
+                        }
+                        if (jsonObject["graphql"]["shortcode_media"]["edge_media_to_caption"]["edges"][0]["node"]["text"] != null)
+                        {
+                            text = jsonObject["graphql"]["shortcode_media"]["edge_media_to_caption"]["edges"][0]["node"]["text"].ToString();
+                        }
+
+                        if (jsonObject["items"][0]["carousel_media"] != null)
+                        {
+                            foreach (var item in jsonObject["items"][0]["carousel_media"])
+                            {
+                                if (count == 0)
                                 {
-                                    Caption = text,
+                                    if (item["video_versions"] != null)
+                                    {
+                                        mediaAlbum.Add(
+                                            new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
+                                            {
+                                                Caption = text,
+                                            }
+                                        );
+                                    }
+                                    else
+                                    {
+                                        mediaAlbum.Add(
+                                            new InputMediaVideo(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
+                                            {
+                                                Caption = text,
+                                            }
+                                        );
+                                    }
+                                }
+                                else
+                                {
+                                    if (item["video_versions"] != null)
+                                    {
+                                        mediaAlbum.Add(
+                                            new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
+                                            {
+                                            }
+                                        );
+                                    }
+                                    else
+                                    {
+                                        mediaAlbum.Add(
+                                            new InputMediaVideo(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
+                                            {
+                                            }
+                                        );
+                                    }
+                                }
+                                count++;
+                            }
+                            int rowSize = 10;
+                            List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
+                            foreach (var item in result)
+                            {
+                                await botClient.SendMediaGroupAsync(
+                                    chatId: chatId,
+                                    media: item,
+                                    replyToMessageId: update.Message.MessageId);
+                            }
+                        }*/
+            try
+            {
+                string jsonString = System.IO.File.ReadAllText("source.json");
+                JObject jsonObjectAPI = JObject.Parse(jsonString);
+                int count = 0;
+                List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
+
+                string link = await DeleteNotUrl(messageText);
+                var request = new HttpRequestMessage
+                {
+                    Method = System.Net.Http.HttpMethod.Get,
+                    RequestUri = new Uri(jsonObjectAPI["InstagramAPI"][0] + link),
+                    Headers =
+                                {
+                                    { "X-RapidAPI-Key", jsonObjectAPI["InstagramAPI"][1].ToString() },
+                                    { "X-RapidAPI-Host", jsonObjectAPI["InstagramAPI"][2].ToString() }
+                                }
+                };
+                using (var response = await client.SendAsync(request))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var responseContent = await response.Content.ReadAsStringAsync();
+                        var rest = JsonConvert.DeserializeObject<JObject>(responseContent);
+                        var data = new Dictionary<string, string>();
+
+                        if (rest["Type"] != null)
+                        {
+                            switch (rest["Type"].ToString())
+                            {
+                                case "Post-Video":
+                                    data["media"] = rest["media"].ToString();
+                                    data["type"] = "video";
+                                    mediaAlbum.Add(
+                                        new InputMediaVideo(InputFile.FromUri(rest["media"].ToString()))
+                                        {
+                                            Caption = rest["title"].ToString(),
+                                        }
+                                    );
+                                    break;
+                                case "Carousel":
+                                    data["media"] = rest["media_with_thumb"].ToString();
+                                    data["type"] = "carousel";
+                                    foreach (var album in rest["media_with_thumb"])
+                                    {
+                                        if (count == 0)
+                                        {
+                                            if (album["Type"].ToString() == "Video")
+                                            {
+                                                mediaAlbum.Add(
+                                                    new InputMediaVideo(InputFile.FromUri(album["media"].ToString()))
+                                                    {
+                                                        Caption = rest["title"].ToString(),
+                                                    }
+                                                );
+                                            }
+                                            if (album["Type"].ToString() == "Image")
+                                            {
+                                                mediaAlbum.Add(
+                                                    new InputMediaPhoto(InputFile.FromUri(album["media"].ToString()))
+                                                    {
+                                                        Caption = rest["title"].ToString(),
+                                                    }
+                                                );
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (album["Type"].ToString() == "Video")
+                                            {
+                                                mediaAlbum.Add(
+                                                    new InputMediaVideo(InputFile.FromUri(album["media"].ToString()))
+                                                    {
+                                                    }
+                                                );
+                                            }
+                                            if (album["Type"].ToString() == "Image")
+                                            {
+                                                mediaAlbum.Add(
+                                                    new InputMediaPhoto(InputFile.FromUri(album["media"].ToString()))
+                                                    {
+                                                    }
+                                                );
+                                            }
+                                        }
+                                        count++;
+                                    }
+                                    break;
+                                case "Post-Image":
+                                    data["media"] = rest["media"].ToString();
+                                    data["type"] = "image";
+                                    mediaAlbum.Add(
+                                        new InputMediaPhoto(InputFile.FromUri(rest["media"].ToString()))
+                                        {
+                                            Caption = rest["title"].ToString(),
+                                        }
+                                    );
+                                    break;
+                                default:
+                                    data["type"] = "error";
+                                    break;
+                            }
+                        }
+                        else if (rest["story_by_id"]["Type"].ToString() == "Story-Video")
+                        {
+                            mediaAlbum.Add(
+                                new InputMediaVideo(InputFile.FromUri(rest["story_by_id"]["media"].ToString()))
+                                {
+                                    Caption = rest["username"].ToString() + "'s story",
+                                }
+                            );
+                        }
+                        else if (rest["story_by_id"]["Type"].ToString() == "Story-Image")
+                        {
+                            mediaAlbum.Add(
+                                new InputMediaPhoto(InputFile.FromUri(rest["story_by_id"]["media"].ToString()))
+                                {
+                                    Caption = rest["username"].ToString() + "'s story",
                                 }
                             );
                         }
                     }
                     else
                     {
-                        if (item["video_versions"] != null)
-                        {
-                            mediaAlbum.Add(
-                                new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
-                                {
-                                }
-                            );
-                        }
-                        else
-                        {
-                            mediaAlbum.Add(
-                                new InputMediaVideo(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
-                                {
-                                }
-                            );
-                        }
+                        throw new Exception($"Failed to retrieve data: {response.ReasonPhrase}");
                     }
-                    count++;
                 }
                 int rowSize = 10;
                 List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
@@ -968,181 +1105,44 @@ namespace CobainSaver
                         replyToMessageId: update.Message.MessageId);
                 }
             }
-            /*            try
-                        {
-                            string jsonString = System.IO.File.ReadAllText("source.json");
-                            JObject jsonObjectAPI = JObject.Parse(jsonString);
-                            int count = 0;
-                            List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
-
-                            string link = await DeleteNotUrl(messageText);
-                            var request = new HttpRequestMessage
-                            {
-                                Method = System.Net.Http.HttpMethod.Get,
-                                RequestUri = new Uri(jsonObjectAPI["InstagramAPI"][0] + link),
-                                Headers =
-                                {
-                                    { "X-RapidAPI-Key", jsonObjectAPI["InstagramAPI"][1].ToString() },
-                                    { "X-RapidAPI-Host", jsonObjectAPI["InstagramAPI"][2].ToString() }
-                                }
-                            };
-                            using (var response = await client.SendAsync(request))
-                            {
-                                if (response.IsSuccessStatusCode)
-                                {
-                                    var responseContent = await response.Content.ReadAsStringAsync();
-                                    var rest = JsonConvert.DeserializeObject<JObject>(responseContent);
-                                    var data = new Dictionary<string, string>();
-
-                                    if (rest["Type"] != null)
-                                    {
-                                        switch (rest["Type"].ToString())
-                                        {
-                                            case "Post-Video":
-                                                data["media"] = rest["media"].ToString();
-                                                data["type"] = "video";
-                                                mediaAlbum.Add(
-                                                    new InputMediaVideo(InputFile.FromUri(rest["media"].ToString()))
-                                                    {
-                                                        Caption = rest["title"].ToString(),
-                                                    }
-                                                );
-                                                break;
-                                            case "Carousel":
-                                                data["media"] = rest["media_with_thumb"].ToString();
-                                                data["type"] = "carousel";
-                                                foreach (var album in rest["media_with_thumb"])
-                                                {
-                                                    if (count == 0)
-                                                    {
-                                                        if (album["Type"].ToString() == "Video")
-                                                        {
-                                                            mediaAlbum.Add(
-                                                                new InputMediaVideo(InputFile.FromUri(album["media"].ToString()))
-                                                                {
-                                                                    Caption = rest["title"].ToString(),
-                                                                }
-                                                            );
-                                                        }
-                                                        if (album["Type"].ToString() == "Image")
-                                                        {
-                                                            mediaAlbum.Add(
-                                                                new InputMediaPhoto(InputFile.FromUri(album["media"].ToString()))
-                                                                {
-                                                                    Caption = rest["title"].ToString(),
-                                                                }
-                                                            );
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        if (album["Type"].ToString() == "Video")
-                                                        {
-                                                            mediaAlbum.Add(
-                                                                new InputMediaVideo(InputFile.FromUri(album["media"].ToString()))
-                                                                {
-                                                                }
-                                                            );
-                                                        }
-                                                        if (album["Type"].ToString() == "Image")
-                                                        {
-                                                            mediaAlbum.Add(
-                                                                new InputMediaPhoto(InputFile.FromUri(album["media"].ToString()))
-                                                                {
-                                                                }
-                                                            );
-                                                        }
-                                                    }
-                                                    count++;
-                                                }
-                                                break;
-                                            case "Post-Image":
-                                                data["media"] = rest["media"].ToString();
-                                                data["type"] = "image";
-                                                mediaAlbum.Add(
-                                                    new InputMediaPhoto(InputFile.FromUri(rest["media"].ToString()))
-                                                    {
-                                                        Caption = rest["title"].ToString(),
-                                                    }
-                                                );
-                                                break;
-                                            default:
-                                                data["type"] = "error";
-                                                break;
-                                        }
-                                    }
-                                    else if (rest["story_by_id"]["Type"].ToString() == "Story-Video")
-                                    {
-                                        mediaAlbum.Add(
-                                            new InputMediaVideo(InputFile.FromUri(rest["story_by_id"]["media"].ToString()))
-                                            {
-                                                Caption = rest["username"].ToString() + "'s story",
-                                            }
-                                        );
-                                    }
-                                    else if (rest["story_by_id"]["Type"].ToString() == "Story-Image")
-                                    {
-                                        mediaAlbum.Add(
-                                            new InputMediaPhoto(InputFile.FromUri(rest["story_by_id"]["media"].ToString()))
-                                            {
-                                                Caption = rest["username"].ToString() + "'s story",
-                                            }
-                                        );
-                                    }
-                                }
-                                else
-                                {
-                                    throw new Exception($"Failed to retrieve data: {response.ReasonPhrase}");
-                                }
-                            }
-                            int rowSize = 10;
-                            List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
-                            foreach (var item in result)
-                            {
-                                await botClient.SendMediaGroupAsync(
-                                    chatId: chatId,
-                                    media: item,
-                                    replyToMessageId: update.Message.MessageId);
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            Language language = new Language("rand", "rand");
-                            string lang = await language.GetCurrentLanguage(chatId.ToString());
-                            if (lang == "eng")
-                            {
-                                await botClient.SendTextMessageAsync(
-                                    chatId: chatId,
-                                    text: "Sorry, post or video not found or content is private",
-                                    replyToMessageId: update.Message.MessageId);
-                            }
-                            if (lang == "ukr")
-                            {
-                                await botClient.SendTextMessageAsync(
-                                    chatId: chatId,
-                                    text: "Вибачте, пост або відео не знайдено або контент є приватним",
-                                    replyToMessageId: update.Message.MessageId);
-                            }
-                            if (lang == "rus")
-                            {
-                                await botClient.SendTextMessageAsync(
-                                    chatId: chatId,
-                                    text: "Извините, пост или видео не найден или контент является приватным",
-                                    replyToMessageId: update.Message.MessageId);
-                            }
-                            try
-                            {
-                                var message = update.Message;
-                                var user = message.From;
-                                var chat = message.Chat;
-                                Logs logs = new Logs(chat.Id, user.Id, user.Username, null, e.ToString());
-                                await logs.WriteServerLogs();
-                            }
-                            catch (Exception ex)
-                            {
-                                return;
-                            }
-                        }*/
+            catch (Exception e)
+            {
+                Language language = new Language("rand", "rand");
+                string lang = await language.GetCurrentLanguage(chatId.ToString());
+                if (lang == "eng")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Sorry, post or video not found or content is private",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "ukr")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Вибачте, пост або відео не знайдено або контент є приватним",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "rus")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Извините, пост или видео не найден или контент является приватным",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                try
+                {
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, null, e.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception ex)
+                {
+                    return;
+                }
+            }
         }
         static List<List<T>> ConvertTo2D<T>(List<T> arr, int rowSize)
         {

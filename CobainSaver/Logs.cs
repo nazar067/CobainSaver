@@ -16,12 +16,37 @@ using VideoLibrary;
 using Newtonsoft.Json.Linq;
 using AngleSharp.Dom;
 using static System.Net.WebRequestMethods;
+using System.Net;
 
 namespace CobainSaver
 {
     internal class Logs
     {
-        private static readonly HttpClient client = new HttpClient();
+        static string jsonString = System.IO.File.ReadAllText("source.json");
+        static JObject jsonObjectAPI = JObject.Parse(jsonString);
+
+        static string proxyURL = jsonObjectAPI["Proxy"][0].ToString();
+        static string proxyUsername = jsonObjectAPI["Proxy"][1].ToString();
+        static string proxyPassword = jsonObjectAPI["Proxy"][2].ToString();
+
+        static WebProxy webProxy = new WebProxy
+        {
+            Address = new Uri(proxyURL),
+            // specify the proxy credentials
+            Credentials = new NetworkCredential(
+                userName: proxyUsername,
+                password: proxyPassword
+          )
+        };
+        private static HttpClientHandler handler = new HttpClientHandler()
+        {
+            AllowAutoRedirect = false,
+            Proxy = webProxy,
+            UseCookies = false
+        };
+        private static readonly HttpClient client = new HttpClient(handler);
+
+
         public long ChatId { get; set; }
         public long UserId { get; set; }
         public string UserName { get; set; }
@@ -34,6 +59,7 @@ namespace CobainSaver
             this.UserName = UserName;
             this.Msg = Msg;
             this.ServerMsg = serverMsg;
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
 
         }
         public async Task WriteUserLogs()
