@@ -311,7 +311,14 @@ namespace CobainSaver
                 Regex regex = new Regex(@"\bwebapp.video-detail\S+\b");
                 Match match = regex.Match(responseString);
                 string id = null;
-                if (!match.Success)
+                if (response.StatusCode.ToString() == "MovedPermanently")
+                {
+                    string[] parts = responseString.Split(new char[] { '/', '?' });
+
+                    // Выбираем последнюю подстроку
+                    id = parts[parts.Length - 3];
+                }
+                else if (!match.Success)
                 {
                     try
                     {
@@ -479,7 +486,14 @@ namespace CobainSaver
                     Regex regex = new Regex(@"\bwebapp.video-detail\S+\b");
                     Match match = regex.Match(responseString);
                     string id = null;
-                    if (!match.Success)
+                    if(response.StatusCode.ToString() == "MovedPermanently")
+                    {
+                        string[] parts = responseString.Split(new char[] { '/', '?' });
+
+                        // Выбираем последнюю подстроку
+                        id = parts[parts.Length - 3];
+                    }
+                    else if (!match.Success)
                     {
                         try
                         {
@@ -507,7 +521,6 @@ namespace CobainSaver
                             id = id.Remove(id.IndexOf('?'));
                         }
                     }
-
                     string url = $"{jsonObjectAPI["TTAPI"][1]}{id}";
                     var responseVideo = await reserveClient.GetAsync(url);
                     var responseStringVideo = await responseVideo.Content.ReadAsStringAsync();
