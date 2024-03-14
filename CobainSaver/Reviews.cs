@@ -62,6 +62,10 @@ namespace CobainSaver
                                         "I didn't like it at all!"
                                         });
                                 await logs.WriteUserReviews(pollMessage.Poll.Question + " " + pollMessage.MessageId, pollMessage.Poll.Id);
+                                await botClient.SendTextMessageAsync(
+                                    chatId: userId,
+                                    text: "If you have any problems or suggestions, you can share them in our channel - t.me/cobainSaver"
+                                );
                                 await botClient.PinChatMessageAsync(userId, pollMessage.MessageId);
                             }
                             if (lang == "ukr" && checkUser == true)
@@ -81,6 +85,10 @@ namespace CobainSaver
                                         "Взгалі не подобається!"
                                         });
                                 await logs.WriteUserReviews(pollMessage.Poll.Question + " " + pollMessage.MessageId, pollMessage.Poll.Id);
+                                await botClient.SendTextMessageAsync(
+                                    chatId: userId,
+                                    text: "Якщо у вас є проблеми або пропозиції, ви можете ними поділитися в нашому каналі - t.me/cobainSaver"
+                                );
                                 await botClient.PinChatMessageAsync(userId, pollMessage.MessageId);
                             }
                             if (lang == "rus" && checkUser == true)
@@ -100,6 +108,10 @@ namespace CobainSaver
                                         "Вообще не нравится!"
                                         });
                                 await logs.WriteUserReviews(pollMessage.Poll.Question + " " + pollMessage.MessageId, pollMessage.Poll.Id);
+                                await botClient.SendTextMessageAsync(
+                                    chatId: userId,
+                                    text: "Если у вас есть проблемы или предложения, вы можете ими поделиться в нашем канале - t.me/cobainSaver"
+                                );
                                 await botClient.PinChatMessageAsync(userId, pollMessage.MessageId);
                             }
                         }
@@ -133,12 +145,16 @@ namespace CobainSaver
 
                 }
             }
-            if(correctDir == null)
+            if (correctDir == null)
             {
                 return;
             }
+
+            string serverFile = Directory.GetCurrentDirectory() + $"\\ServerLogs\\reviews\\{DateTime.Now.ToShortDateString()}\\reviews.txt";
+
             string filePath = Path.Combine(directory, correctDir);
             string[] userIds = System.IO.File.ReadAllLines(filePath);
+            string[] srvUserIds = System.IO.File.ReadAllLines(serverFile);
 
             // Проверяем каждую строку
             foreach (string line in userIds)
@@ -148,7 +164,15 @@ namespace CobainSaver
                     return;
                 }
             }
+            foreach (string line in srvUserIds)
+            {
+                if (line == userId)
+                {
+                    return;
+                }
+            }
             string[] lines = System.IO.File.ReadAllLines(filePath);
+            string[] srvLines = System.IO.File.ReadAllLines(serverFile);
             for (int i = 0; i < lines.Length; i++) 
             {
                 if (lines[i].Contains("Yeah"))
@@ -187,6 +211,49 @@ namespace CobainSaver
                 }
                 System.IO.File.WriteAllLines(filePath, lines);
                 using (StreamWriter writer = System.IO.File.AppendText(filePath))
+                {
+                    writer.WriteLine(userId);
+                }
+
+            }
+            for (int i = 0; i < srvLines.Length; i++)
+            {
+                if (srvLines[i].Contains("Yeah"))
+                {
+                    int oldValue = Convert.ToInt32(srvLines[i].Substring(srvLines[i].Length - 1));
+                    int newValue = oldValue + firstVote; // Вычисляем новое значение
+                    srvLines[i] = $"Yeah Im 100% satisfied! {newValue}"; // Обновляем строку
+                }
+                else if (srvLines[i].Contains("Satisfied"))
+                {
+                    // Аналогично обновляем строки для остальных переменных
+                    int oldValue = Convert.ToInt32(srvLines[i].Substring(srvLines[i].Length - 1));
+                    int newValue = oldValue + secondVote;
+                    srvLines[i] = $"Satisfied {newValue}";
+                }
+                else if (srvLines[i].Contains("Its fine"))
+                {
+                    // Аналогично обновляем строки для остальных переменных
+                    int oldValue = Convert.ToInt32(srvLines[i].Substring(srvLines[i].Length - 1));
+                    int newValue = oldValue + thirdVote;
+                    srvLines[i] = $"Its fine {newValue}";
+                }
+                else if (srvLines[i].Contains("Unhappy"))
+                {
+                    // Аналогично обновляем строки для остальных переменных
+                    int oldValue = Convert.ToInt32(srvLines[i].Substring(srvLines[i].Length - 1));
+                    int newValue = oldValue + fourthVote;
+                    srvLines[i] = $"Unhappy {newValue}";
+                }
+                else if (srvLines[i].Contains("I didnt like it at all!"))
+                {
+                    // Аналогично обновляем строки для остальных переменных
+                    int oldValue = Convert.ToInt32(srvLines[i].Substring(srvLines[i].Length - 1));
+                    int newValue = oldValue + fifthVote;
+                    srvLines[i] = $"I didnt like it at all! {newValue}";
+                }
+                System.IO.File.WriteAllLines(serverFile, srvLines);
+                using (StreamWriter writer = System.IO.File.AppendText(serverFile))
                 {
                     writer.WriteLine(userId);
                 }

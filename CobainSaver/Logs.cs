@@ -165,6 +165,24 @@ namespace CobainSaver
             string date = DateTime.Now.ToShortDateString();
             string file = $"{date}({pollId}).txt";
             string filePath = Path.Combine(lastFolderPath, file);
+
+            string serverFolder = "ServerLogs";
+            string serverFolderPath = Path.Combine(currentDirectory, serverFolder);
+
+            string serverFolderName = "reviews";
+            string srvFolderPath = Path.Combine(serverFolderPath, serverFolderName);
+            if (!Directory.Exists(srvFolderPath))
+            {
+                Directory.CreateDirectory(srvFolderPath);
+            }
+            string srvFolderName = DateTime.Now.ToShortDateString();
+            string srvLastFolderPath = Path.Combine(srvFolderPath, srvFolderName);
+            if (!Directory.Exists(srvLastFolderPath))
+            {
+                Directory.CreateDirectory(srvLastFolderPath);
+            }
+            string serverFile = $"reviews.txt";
+            string srvFilePath = Path.Combine(srvLastFolderPath, serverFile);
             if (!System.IO.File.Exists(filePath))
             {
                 System.IO.File.WriteAllText(filePath,
@@ -182,6 +200,106 @@ namespace CobainSaver
                         $"Its fine" + " " + $"{0}\n" +
                         $"Unhappy" + " " + $"{0}\n" +
                         $"I didnt like it at all!" + " " + $"{0}\n");
+            }
+            if (!System.IO.File.Exists(srvFilePath))
+            {
+                System.IO.File.WriteAllText(srvFilePath,
+                        $"Yeah Im 100% satisfied!" + " " + $"{0}\n" +
+                        $"Satisfied" + " " + $"{0}\n" +
+                        $"Its fine" + " " + $"{0}\n" +
+                        $"Unhappy" + " " + $"{0}\n" +
+                        $"I didnt like it at all!" + " " + $"{0}\n");
+            }
+            else
+            {
+                System.IO.File.WriteAllText(srvFilePath,
+                        $"Yeah Im 100% satisfied!" + " " + $"{0}\n" +
+                        $"Satisfied" + " " + $"{0}\n" +
+                        $"Its fine" + " " + $"{0}\n" +
+                        $"Unhappy" + " " + $"{0}\n" +
+                        $"I didnt like it at all!" + " " + $"{0}\n");
+            }
+        }
+        public async Task SendAllRewies(string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
+        {
+            string jsonString = System.IO.File.ReadAllText("source.json");
+            JObject jsonObject = JObject.Parse(jsonString);
+            if (chatId == jsonObject["AdminId"][0].ToString())
+            {
+                await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
+                string currentDirectory = Directory.GetCurrentDirectory() + "\\ServerLogs";
+
+                if (!Directory.Exists(currentDirectory))
+                {
+                    Language language = new Language("rand", "rand");
+                    string lang = await language.GetCurrentLanguage(chatId.ToString());
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "There are no logs in your chat",
+                            replyToMessageId: update.Message.MessageId
+                            );
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "У вашому чаті немає логів",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "В вашем чате нет логов",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    return;
+                }
+
+                string file = "allServers.txt";
+
+                string filePath = Path.Combine(currentDirectory, file);
+
+                if (!System.IO.File.Exists(filePath))
+                {
+                    Language language = new Language("rand", "rand");
+                    string lang = await language.GetCurrentLanguage(chatId.ToString());
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "There are no logs for that date",
+                            replyToMessageId: update.Message.MessageId
+                            );
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Логів за цю дату немає",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Логи за эту дату отсутствуют.",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    return;
+                }
+                else
+                {
+                    await using Stream stream = System.IO.File.OpenRead($"{filePath}");
+                    await botClient.SendDocumentAsync(
+                    chatId: chatId,
+                        document: InputFile.FromStream(stream: stream, fileName: "allServers.txt"),
+                        replyToMessageId: update.Message.MessageId
+                        );
+                    stream.Close();
+                }
             }
         }
         public async Task SendUserLogs(string year, string month, string date, string chatId, Update update, TelegramBotClient botClient, string chatToSend)
