@@ -26,6 +26,7 @@
   "Proxy": [
     "Proxy for reddit, if you need",
     "Proxy host",
-    "Proxy key"
+    "Proxy key",
+    "http://127.0.0.1:1881"
   ]
 }

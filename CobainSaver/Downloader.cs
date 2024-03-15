@@ -42,6 +42,7 @@ namespace CobainSaver
         static string proxyURL = jsonObjectAPI["Proxy"][0].ToString();
         static string proxyUsername = jsonObjectAPI["Proxy"][1].ToString();
         static string proxyPassword = jsonObjectAPI["Proxy"][2].ToString();
+        static string torProxyUrl = jsonObjectAPI["Proxy"][3].ToString();
 
         static WebProxy webProxy = new WebProxy
         {
@@ -52,6 +53,10 @@ namespace CobainSaver
                 password: proxyPassword
           )
         };
+        static WebProxy torProxy = new WebProxy
+        {
+            Address = new Uri(torProxyUrl),
+        };
         private static readonly HttpClient client = new HttpClient();
         private static HttpClientHandler handler = new HttpClientHandler()
         {
@@ -59,14 +64,21 @@ namespace CobainSaver
             Proxy = webProxy,
             UseCookies = false
         };
+        private static HttpClientHandler instaHandler = new HttpClientHandler()
+        {
+            AllowAutoRedirect = false,
+            Proxy = torProxy,
+        };
         private static readonly HttpClient redditClient = new HttpClient(handler);
         private static readonly HttpClient reserveClient = new HttpClient();
         private static readonly HttpClient urlClient = new HttpClient(handler);
+        private static readonly HttpClient instaClient = new HttpClient(instaHandler);
         public Downloader()
         {
             redditClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
             reserveClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
             urlClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
+            instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
         }
         public async Task YoutubeDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
@@ -1179,7 +1191,7 @@ namespace CobainSaver
                         { "X-RapidAPI-Host", jsonObjectAPI["InstagramAPI"][2].ToString() }
                     }
                 };
-                using (var response = await urlClient.SendAsync(request))
+                using (var response = await instaClient.SendAsync(request))
                 {
                     if (response.IsSuccessStatusCode)
                     {
