@@ -87,34 +87,77 @@ namespace CobainSaver
             string normallMsg = await DeleteNotUrl(messageText);
             Stream stream = null;
             //превью видео
-            string thumbnail = null;
-            if (normallMsg.Contains("youtu.be"))
-            {
-                string video_id = normallMsg.Remove(0, 17);
-                thumbnail = "https://img.youtube.com/vi/" + video_id.Split('?').First() + "/maxresdefault.jpg";
-            }
-            else if (normallMsg.Contains("youtube.com"))
-            {
-                string video_id = normallMsg.Remove(0, 32);
-                thumbnail = "https://img.youtube.com/vi/" + video_id + "/maxresdefault.jpg";
-            }
             try
             {
                 var youtube = new YoutubeClient();
+                var allInfo = await youtube.Videos.GetAsync(normallMsg);
 
                 var videoUrl = normallMsg;
                 var streamManifest = await youtube.Videos.Streams.GetManifestAsync(videoUrl);
 
                 var streamInfo = streamManifest.GetMuxedStreams().GetWithHighestVideoQuality();
-
+                string size = streamInfo.Size.MegaBytes.ToString();
+                if(Convert.ToDouble(size) >= 50)
+                {
+                    Language language = new Language("rand", "rand");
+                    string lang = await language.GetCurrentLanguage(chatId.ToString());
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Sorry, this video has a problem: the video is too big (the size should not exceed 50mb)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Вибачте, це відео має проблему: відео занадто велике (розмір має не перевищувати 50мб)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Извините, с этим видео возникли проблемы: видео слишком большое(размер должен не превышать 50мб)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    return;
+                }
                 stream = await youtube.Videos.Streams.GetAsync(streamInfo);
-                    
+
+                string title = allInfo.Title;
+                string thumbnail = "https://img.youtube.com/vi/" + allInfo.Id + "/maxresdefault.jpg";
+
+                string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                if (!Directory.Exists(audioPath))
+                {
+                    Directory.CreateDirectory(audioPath);
+                }
+                string videoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "video.mp4");
+                string thumbnailVideoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVideo.jpeg");
+                using (var client = new WebClient())
+                {
+                    client.DownloadFile(streamInfo.Url, videoPath);
+                }
+                using (var client = new WebClient())
+                {
+                    client.DownloadFile(thumbnail, thumbnailVideoPath);
+                }
+                await using Stream streamVideo = System.IO.File.OpenRead(videoPath);
+                await using Stream streamThumbVideo = System.IO.File.OpenRead(thumbnailVideoPath);
+
                 // Отправляем видео обратно пользователю
                 await botClient.SendVideoAsync(
                     chatId: chatId,
-                    video: InputFile.FromStream(stream),
-                    thumbnail: InputFile.FromUri(thumbnail),
+                    caption: title,
+                    video: InputFile.FromStream(streamVideo),
+                    thumbnail: InputFile.FromStream(streamThumbVideo),
                     replyToMessageId: update.Message.MessageId);
+                streamVideo.Close();
+                streamThumbVideo.Close();
+                System.IO.File.Delete(videoPath);
+                System.IO.File.Delete(thumbnailVideoPath);
             }
             catch (Exception)
             {
@@ -124,21 +167,21 @@ namespace CobainSaver
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Sorry, this video has a problem: the video has an age restriction or video to long",
+                        text: "Sorry, this video has a problem: the video has an age restriction",
                         replyToMessageId: update.Message.MessageId);
                 }
                 if (lang == "ukr")
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Вибачте, це відео має проблему: відео має вікові обмеження або занадто довге відео",
+                        text: "Вибачте, це відео має проблему: відео має вікові обмеження",
                         replyToMessageId: update.Message.MessageId);
                 }
                 if (lang == "rus")
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Извините, с этим видео возникли проблемы: видео имеет возрастное ограничение или видео слишком длинное",
+                        text: "Извините, с этим видео возникли проблемы: видео имеет возрастное ограничение",
                         replyToMessageId: update.Message.MessageId);
                 }
             //throw;
@@ -476,7 +519,7 @@ namespace CobainSaver
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                //Console.WriteLine(ex.ToString());
                 Language language = new Language("rand", "rand");
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
                 if (lang == "eng")
