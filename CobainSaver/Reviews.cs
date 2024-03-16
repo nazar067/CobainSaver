@@ -17,7 +17,7 @@ namespace CobainSaver
         public async Task UserReviews(string chatId, TelegramBotClient botClient)
         {
             bool check = await CheckIsFile(chatId);
-            if(DateTime.Now.Day == 18 && check == true)
+            if(DateTime.Now.Day == 17 && check == true)
             {
                 string jsonString = System.IO.File.ReadAllText("source.json");
                 JObject jsonObjectAPI = JObject.Parse(jsonString);

@@ -31,6 +31,7 @@ using Newtonsoft.Json;
 using System.Net.Http;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Numerics;
+using AngleSharp.Browser;
 
 namespace CobainSaver
 {
@@ -53,10 +54,10 @@ namespace CobainSaver
                 password: proxyPassword
           )
         };
-        static WebProxy torProxy = new WebProxy
+/*        static WebProxy torProxy = new WebProxy
         {
             Address = new Uri(torProxyUrl),
-        };
+        };*/
         private static readonly HttpClient client = new HttpClient();
         private static HttpClientHandler handler = new HttpClientHandler()
         {
@@ -64,21 +65,22 @@ namespace CobainSaver
             Proxy = webProxy,
             UseCookies = false
         };
-        private static HttpClientHandler instaHandler = new HttpClientHandler()
+/*        private static HttpClientHandler instaHandler = new HttpClientHandler()
         {
             AllowAutoRedirect = false,
             Proxy = torProxy,
-        };
+            UseCookies = false
+        };*/
         private static readonly HttpClient redditClient = new HttpClient(handler);
         private static readonly HttpClient reserveClient = new HttpClient();
         private static readonly HttpClient urlClient = new HttpClient(handler);
-        private static readonly HttpClient instaClient = new HttpClient(instaHandler);
+        //private static readonly HttpClient instaClient = new HttpClient(instaHandler);
         public Downloader()
         {
             redditClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
             reserveClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
             urlClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
-            instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
+            //instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
         }
         public async Task YoutubeDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
@@ -183,6 +185,7 @@ namespace CobainSaver
                         await botClient.SendMediaGroupAsync(
                             chatId: chatId,
                             media: item,
+                            disableNotification: true,
                             replyToMessageId: update.Message.MessageId); ;
                     }
                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
@@ -215,6 +218,7 @@ namespace CobainSaver
                         performer: perfomer,
                         title: title,
                         duration: duration,
+                        disableNotification: true,
                         thumbnail: InputFile.FromStream(streamThumb),
                         replyToMessageId: update.Message.MessageId
                         );
@@ -237,6 +241,7 @@ namespace CobainSaver
                         chatId: chatId,
                         video: InputFile.FromUri(video),
                         caption: title,
+                        disableNotification: true,
                         replyToMessageId: update.Message.MessageId
                         );
                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
@@ -269,6 +274,7 @@ namespace CobainSaver
                         performer: perfomer,
                         title: musicTitle,
                         duration: duration,
+                        disableNotification: true,
                         thumbnail: InputFile.FromStream(streamThumb),
                         replyToMessageId: update.Message.MessageId
                         );
@@ -347,6 +353,7 @@ namespace CobainSaver
                         await botClient.SendMediaGroupAsync(
                             chatId: chatId,
                             media: item,
+                            disableNotification: true,
                             replyToMessageId: update.Message.MessageId); ;
                     }
                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
@@ -379,6 +386,7 @@ namespace CobainSaver
                         performer: perfomer,
                         title: title,
                         duration: duration,
+                        disableNotification: true,
                         thumbnail: InputFile.FromStream(streamThumb),
                         replyToMessageId: update.Message.MessageId
                         );
@@ -418,6 +426,7 @@ namespace CobainSaver
                         chatId: chatId,
                         video: InputFile.FromStream(streamVideo),
                         caption: title,
+                        disableNotification: true,
                         thumbnail: InputFile.FromStream(streamThumbVideo),
                         replyToMessageId: update.Message.MessageId
                         );
@@ -454,6 +463,7 @@ namespace CobainSaver
                         performer: perfomer,
                         title: musicTitle,
                         duration: duration,
+                        disableNotification: true,
                         thumbnail: InputFile.FromStream(streamThumb),
                         replyToMessageId: update.Message.MessageId
                         );
@@ -959,7 +969,8 @@ namespace CobainSaver
                 int unixTime = Convert.ToInt32(((DateTimeOffset)currentTime).ToUnixTimeSeconds());
                 result += $"video-{unixTime}.mp4";
                 ProcessStartInfo startInfo = new ProcessStartInfo(jsonObjectAPI["ffmpegPath"][0].ToString());
-                startInfo.Arguments = $"\"-reconnect\" \"1\" \"-reconnect_streamed\" \"1\" \"-reconnect_delay_max\" \"5\" -c:a aac -strict experimental \"-loglevel\" \"warning\" -i \"{video}\" -i \"{audio}\" \"{result}\"";
+                //startInfo.Arguments = $"\"-reconnect\" \"1\" \"-reconnect_streamed\" \"1\" \"-reconnect_delay_max\" \"5\" -c:a aac -strict experimental \"-loglevel\" \"warning\" -i \"{video}\" -i \"{audio}\" \"{result}\"";
+                startInfo.Arguments = $"-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -i {video} -i {audio} -c:v libx264 -b:v 1500k -c:a aac -b:a 128k -strict experimental -loglevel warning {result}";
                 var proc = System.Diagnostics.Process.Start(startInfo);
                 proc.WaitForExit();
                 await using Stream stream = System.IO.File.OpenRead(result);
@@ -1173,8 +1184,24 @@ namespace CobainSaver
                                     replyToMessageId: update.Message.MessageId);
                             }
                         }*/
+
             try
             {
+                //create new httpclient
+                WebProxy torProxy = new WebProxy
+                {
+                    Address = new Uri(torProxyUrl),
+                };
+                HttpClientHandler instaHandler = new HttpClientHandler()
+                {
+                    AllowAutoRedirect = false,
+                    Proxy = torProxy,
+                    UseCookies = false
+                };
+                HttpClient instaClient = new HttpClient(instaHandler);
+                instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
+                //
+
                 string jsonString = System.IO.File.ReadAllText("source.json");
                 JObject jsonObjectAPI = JObject.Parse(jsonString);
                 int count = 0;
@@ -1191,8 +1218,10 @@ namespace CobainSaver
                         { "X-RapidAPI-Host", jsonObjectAPI["InstagramAPI"][2].ToString() }
                     }
                 };
+                await Console.Out.WriteLineAsync("after request");
                 using (var response = await instaClient.SendAsync(request))
                 {
+                    await Console.Out.WriteLineAsync("after response");
                     if (response.IsSuccessStatusCode)
                     {
                         var responseContent = await response.Content.ReadAsStringAsync();
@@ -1297,6 +1326,7 @@ namespace CobainSaver
                     }
                     else
                     {
+                        await Console.Out.WriteLineAsync(await response.Content.ReadAsStringAsync());
                         throw new Exception($"Failed to retrieve data: {response.ReasonPhrase}");
                     }
                 }
