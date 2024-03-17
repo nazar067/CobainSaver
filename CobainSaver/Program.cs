@@ -108,6 +108,7 @@ namespace CobainSaver
                 var chat = message.Chat;
                 Logs logs = new Logs(message.Chat.Id, message.From.Id, message.From.Username, message.Text, null);
                 await logs.WriteUserLogs();
+                await logs.WriteLastUsers();
 
                 if (message.Text.Contains("https://www.youtube.com") || message.Text.Contains("https://youtu.be") 
                     || message.Text.Contains("https://youtube.com") || message.Text.Contains("https://m.youtube.com") 
@@ -139,7 +140,7 @@ namespace CobainSaver
                 else if (message.Text.Contains("https://www.instagram.com"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
-                    await video.InstagramDownloaderReserve(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await video.InstagramDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
                 else if (message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
                 {
@@ -222,6 +223,10 @@ namespace CobainSaver
                 else if (message.Text == "/serverLogs")
                 {
                     await logs.SendServerLogs(chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
+                }
+                else if (message.Text == "/lastTen")
+                {
+                    await logs.SendLastTenUsers((TelegramBotClient)botClient, chat.Id.ToString());
                 }
                 else if (message.Text == "/changelang" || message.Text.StartsWith($"/changelang@{cobain.Username}"))
                 {

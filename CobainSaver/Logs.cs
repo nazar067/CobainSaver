@@ -436,6 +436,89 @@ namespace CobainSaver
                 stream.Close();
             }
         }
+        public async Task WriteLastUsers()
+        {
+            string currentDirectory = Directory.GetCurrentDirectory() + "\\ServerLogs";
+            string listPath = Path.Combine(currentDirectory, "list.txt");
+            if (!System.IO.File.Exists(listPath)) 
+            {
+                System.IO.File.WriteAllText(listPath, ChatId.ToString());
+            }
+            List<string> existingLines = new List<string>();
+            if (System.IO.File.Exists(listPath))
+            {
+                existingLines = System.IO.File.ReadAllLines(listPath).ToList();
+            }
+
+            // Удаление дубликатов
+            existingLines.RemoveAll(line => line.Equals(ChatId.ToString()));
+
+            // Добавление новой строки в начало
+            existingLines.Insert(0, ChatId.ToString());
+
+            // Запись в файл
+            System.IO.File.WriteAllLines(listPath, existingLines);
+        }
+        public async Task SendLastTenUsers(TelegramBotClient botClient, string chatId)
+        {
+            string jsonString = System.IO.File.ReadAllText("source.json");
+            JObject jsonObjectCheck = JObject.Parse(jsonString);
+            if (chatId == jsonObjectCheck["AdminId"][0].ToString())
+            {
+                await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
+                int count = 0;
+                string currentDirectory = Directory.GetCurrentDirectory() + "\\ServerLogs";
+
+                string[] userIds = System.IO.File.ReadAllLines(Path.Combine(currentDirectory, "list.txt"));
+                var buttonsList = new List<InlineKeyboardButton[]>();
+                InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(buttonsList);
+                foreach (string userId in userIds)
+                {
+                    if(count < 10)
+                    {
+                        var url = "https://api.telegram.org/bot" + jsonObjectAPI["BotAPI"][0].ToString() + "/getChat?chat_id=" + userId;
+                        var response = await client.GetAsync(url);
+                        var responseString = await response.Content.ReadAsStringAsync();
+
+                        JObject jsonObject = JObject.Parse(responseString);
+                        string userName = null;
+
+                        if (jsonObject["result"] != null)
+                        {
+                            if (jsonObject["result"]?["username"] != null)
+                            {
+                                userName = jsonObject["result"]["username"].ToString();
+                            }
+                            else
+                            {
+                                if (jsonObject["result"]["title"] != null)
+                                {
+                                    userName = jsonObject["result"]["title"].ToString();
+                                }
+                            }
+                        }
+
+                        buttonsList.Add(new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData(text: userId + " " + $"({userName})"
+                            , callbackData: "BackToYear" + " " + userId + " " + 0 + " " + chatId),
+                        });
+                        count++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                    
+                }
+                await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    replyMarkup: inlineKeyboard,
+                    text: "Choose user"
+                );
+            }
+            
+        }
         public async Task SendAllUsers(TelegramBotClient botClient, string chatId)
         {
             string jsonString = System.IO.File.ReadAllText("source.json");
