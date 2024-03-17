@@ -159,8 +159,9 @@ namespace CobainSaver
                 System.IO.File.Delete(videoPath);
                 System.IO.File.Delete(thumbnailVideoPath);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                //await Console.Out.WriteLineAsync(ex.ToString());
                 Language language = new Language("rand", "rand");
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
                 if(lang == "eng")
@@ -189,6 +190,132 @@ namespace CobainSaver
             finally
             {
                     
+            }
+        }
+        public async Task YoutubeMusicDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        {
+            string normallMsg = await DeleteNotUrl(messageText);
+            Stream stream = null;
+            //превью видео
+            try
+            {
+                var youtube = new YoutubeClient();
+                var allInfo = await youtube.Videos.GetAsync(normallMsg);
+
+                var videoUrl = normallMsg;
+                var streamManifest = await youtube.Videos.Streams.GetManifestAsync(videoUrl);
+
+                var streamInfo = streamManifest.GetMuxedStreams().GetWithHighestVideoQuality();
+                string size = streamInfo.Size.MegaBytes.ToString();
+                if (Convert.ToDouble(size) >= 50)
+                {
+                    Language language = new Language("rand", "rand");
+                    string lang = await language.GetCurrentLanguage(chatId.ToString());
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Sorry, this video has a problem: the video is too big (the size should not exceed 50mb)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Вибачте, це відео має проблему: відео занадто велике (розмір має не перевищувати 50мб)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Извините, с этим видео возникли проблемы: видео слишком большое(размер должен не превышать 50мб)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    return;
+                }
+                stream = await youtube.Videos.Streams.GetAsync(streamInfo);
+
+                string title = allInfo.Title;
+                string thumbnail = "https://img.youtube.com/vi/" + allInfo.Id + "/maxresdefault.jpg";
+                string duration = allInfo.Duration.Value.TotalSeconds.ToString();
+                string author = allInfo.Author.ToString();
+
+                string path = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                string audioPath = Path.Combine(path, chatId + DateTime.Now.Millisecond.ToString() + "audio.mp3");
+                string thumbnailAudioPath = Path.Combine(path, chatId + DateTime.Now.Millisecond.ToString() + "thumbVideo.jpeg");
+                try
+                {
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile(streamInfo.Url, audioPath);
+                    }
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile(thumbnail, thumbnailAudioPath);
+                    }
+                }
+                catch(Exception e)
+                {
+                    //await Console.Out.WriteLineAsync(e.ToString());
+                }
+                if (!System.IO.File.Exists(thumbnailAudioPath))
+                {
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg", thumbnailAudioPath);
+                    }
+                }
+                await using Stream streamAudio = System.IO.File.OpenRead(audioPath);
+                await using Stream streamThumbAudio = System.IO.File.OpenRead(thumbnailAudioPath);
+                // Отправляем видео обратно пользователю
+                await botClient.SendAudioAsync(
+                    chatId: chatId,
+                    title: title,
+                    audio: InputFile.FromStream(streamAudio),
+                    thumbnail: InputFile.FromStream(streamThumbAudio),
+                    duration: Convert.ToInt32(duration),
+                    replyToMessageId: update.Message.MessageId); ;
+                streamAudio.Close();
+                streamThumbAudio.Close();
+                System.IO.File.Delete(audioPath);
+                System.IO.File.Delete(thumbnailAudioPath);
+            }
+            catch (Exception ex)
+            {
+                //await Console.Out.WriteLineAsync(ex.ToString());
+                Language language = new Language("rand", "rand");
+                string lang = await language.GetCurrentLanguage(chatId.ToString());
+                if (lang == "eng")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Sorry, this type of audio is not supported, only send me public content",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "ukr")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Вибачте, цей тип аудіо не підтримується, надсилайте мені тільки публічний контент",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "rus")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Извините, этот тип аудио не поддерживается, отправляйте мне только публичный контент",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                //throw;
+            }
+            finally
+            {
+
             }
         }
         public async Task TikTokDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient) 
@@ -1109,125 +1236,6 @@ namespace CobainSaver
         }
         public async Task InstagramDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
-            /*            string link = await DeleteNotUrl(messageText);
-                        string id = null;
-                        if (link.Contains("/p/"))
-                        {
-                            string pattern = @"\/p\/([^\s\/?]+)";
-                            Regex regex = new Regex(pattern);
-                            Match match = regex.Match(link);
-
-                            if (match.Success)
-                            {
-                                id = match.Groups[1].Value;
-                            }
-                        }
-                        else if (link.Contains("/reels/") || link.Contains("/reel/"))
-                        {
-                            string pattern = @"\/reels\/([^\s\/?]+)";
-                            Regex regex = new Regex(pattern);
-                            Match match = regex.Match(link);
-
-                            if (match.Success)
-                            {
-                                id = match.Groups[1].Value;
-                            }
-                            else
-                            {
-                                pattern = @"\/reel\/([^\s\/?]+)";
-                                regex = new Regex(pattern);
-                                match = regex.Match(link);
-                                if (match.Success)
-                                {
-                                    id = match.Groups[1].Value;
-                                }
-                            }
-                        }
-                        int count = 0;
-                        string url = "https://www.instagram.com/p/" + id + "/?__a=1&__d=dis";
-                        var response = await client.GetAsync(url);
-                        var responseString = await response.Content.ReadAsStringAsync();
-                        JObject jsonObject = JObject.Parse(responseString);
-                        List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
-
-                        string text = null;
-                        string currentDirectory = Directory.GetCurrentDirectory();
-
-                        string serverFolderName = "ServerLogs";
-                        string serverFolderPath = Path.Combine(currentDirectory, serverFolderName);
-
-                        string allServers = "apiInst.txt";
-                        string allFilePath = Path.Combine(serverFolderPath, allServers);
-                        if (!System.IO.File.Exists(allFilePath))
-                        {
-                            System.IO.File.WriteAllText(allFilePath, jsonObject.ToString());
-                        }
-                        else
-                        {
-                            System.IO.File.AppendAllText(allFilePath, jsonObject.ToString());
-                        }
-                        if (jsonObject["graphql"]["shortcode_media"]["edge_media_to_caption"]["edges"][0]["node"]["text"] != null)
-                        {
-                            text = jsonObject["graphql"]["shortcode_media"]["edge_media_to_caption"]["edges"][0]["node"]["text"].ToString();
-                        }
-
-                        if (jsonObject["items"][0]["carousel_media"] != null)
-                        {
-                            foreach (var item in jsonObject["items"][0]["carousel_media"])
-                            {
-                                if (count == 0)
-                                {
-                                    if (item["video_versions"] != null)
-                                    {
-                                        mediaAlbum.Add(
-                                            new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
-                                            {
-                                                Caption = text,
-                                            }
-                                        );
-                                    }
-                                    else
-                                    {
-                                        mediaAlbum.Add(
-                                            new InputMediaVideo(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
-                                            {
-                                                Caption = text,
-                                            }
-                                        );
-                                    }
-                                }
-                                else
-                                {
-                                    if (item["video_versions"] != null)
-                                    {
-                                        mediaAlbum.Add(
-                                            new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
-                                            {
-                                            }
-                                        );
-                                    }
-                                    else
-                                    {
-                                        mediaAlbum.Add(
-                                            new InputMediaVideo(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
-                                            {
-                                            }
-                                        );
-                                    }
-                                }
-                                count++;
-                            }
-                            int rowSize = 10;
-                            List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
-                            foreach (var item in result)
-                            {
-                                await botClient.SendMediaGroupAsync(
-                                    chatId: chatId,
-                                    media: item,
-                                    replyToMessageId: update.Message.MessageId);
-                            }
-                        }*/
-
             try
             {
                 //create new httpclient
@@ -1422,6 +1430,142 @@ namespace CobainSaver
                 }
             }
         }
+        public async Task InstagramDownloaderReserve(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        {
+            //create new httpclient
+            WebProxy torProxy = new WebProxy
+            {
+                Address = new Uri(torProxyUrl),
+            };
+            HttpClientHandler instaHandler = new HttpClientHandler()
+            {
+                AllowAutoRedirect = false,
+                Proxy = torProxy,
+                UseCookies = false
+            };
+            HttpClient instaClient = new HttpClient(instaHandler);
+            instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
+            //
+
+            string link = await DeleteNotUrl(messageText);
+            string id = null;
+            if (link.Contains("/p/"))
+            {
+                string pattern = @"\/p\/([^\s\/?]+)";
+                Regex regex = new Regex(pattern);
+                Match match = regex.Match(link);
+
+                if (match.Success)
+                {
+                    id = match.Groups[1].Value;
+                }
+            }
+            else if (link.Contains("/reels/") || link.Contains("/reel/"))
+            {
+                string pattern = @"\/reels\/([^\s\/?]+)";
+                Regex regex = new Regex(pattern);
+                Match match = regex.Match(link);
+
+                if (match.Success)
+                {
+                    id = match.Groups[1].Value;
+                }
+                else
+                {
+                    pattern = @"\/reel\/([^\s\/?]+)";
+                    regex = new Regex(pattern);
+                    match = regex.Match(link);
+                    if (match.Success)
+                    {
+                        id = match.Groups[1].Value;
+                    }
+                }
+            }
+            int count = 0;
+            string url = "https://www.instagram.com/p/" + id + "/?__a=1&__d=dis";
+            var response = await instaClient.GetAsync(url);
+            var responseString = await response.Content.ReadAsStringAsync();
+            JObject jsonObject = JObject.Parse(responseString);
+            List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
+
+            string text = null;
+            string currentDirectory = Directory.GetCurrentDirectory();
+
+            string serverFolderName = "ServerLogs";
+            string serverFolderPath = Path.Combine(currentDirectory, serverFolderName);
+
+            string allServers = "apiInst.txt";
+            string allFilePath = Path.Combine(serverFolderPath, allServers);
+            if (!System.IO.File.Exists(allFilePath))
+            {
+                System.IO.File.WriteAllText(allFilePath, jsonObject.ToString());
+            }
+            else
+            {
+                System.IO.File.AppendAllText(allFilePath, jsonObject.ToString());
+            }
+            if (jsonObject["graphql"]["shortcode_media"]["edge_media_to_caption"]["edges"][0]["node"]["text"] != null)
+            {
+                text = jsonObject["graphql"]["shortcode_media"]["edge_media_to_caption"]["edges"][0]["node"]["text"].ToString();
+            }
+
+            if (jsonObject["items"][0]["carousel_media"] != null)
+            {
+                foreach (var item in jsonObject["items"][0]["carousel_media"])
+                {
+                    if (count == 0)
+                    {
+                        if (item["video_versions"] != null)
+                        {
+                            mediaAlbum.Add(
+                                new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
+                                {
+                                    Caption = text,
+                                }
+                            );
+                        }
+                        else
+                        {
+                            mediaAlbum.Add(
+                                new InputMediaVideo(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
+                                {
+                                    Caption = text,
+                                }
+                            );
+                        }
+                    }
+                    else
+                    {
+                        if (item["video_versions"] != null)
+                        {
+                            mediaAlbum.Add(
+                                new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
+                                {
+                                }
+                            );
+                        }
+                        else
+                        {
+                            mediaAlbum.Add(
+                                new InputMediaVideo(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
+                                {
+                                }
+                            );
+                        }
+                    }
+                    count++;
+                }
+                int rowSize = 10;
+                List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
+                foreach (var item in result)
+                {
+                    await botClient.SendMediaGroupAsync(
+                        chatId: chatId,
+                        media: item,
+                        replyToMessageId: update.Message.MessageId);
+                }
+            }
+        }
         static List<List<T>> ConvertTo2D<T>(List<T> arr, int rowSize)
         {
             List<List<T>> result = new List<List<T>>();
@@ -1461,14 +1605,32 @@ namespace CobainSaver
         }
         public async Task<string> DeleteNotUrl(string message)
         {
-            Regex regex = new Regex(@"\bhttps://\S+\b");
+            // Регулярное выражение для URL-адресов
+            Regex regexUrl = new Regex(@"\bhttps://\S+\b");
 
-            // Находим первое совпадение
-            Match match = regex.Match(message);
+            // Регулярное выражение для коротких ссылок YouTube
+            Regex regexShortUrl = new Regex(@"youtu.be/\w+");
 
-            // Если найдено совпадение, возвращаем найденный URL
-            return match.Value;
+            // Поиск URL-адреса
+            Match matchUrl = regexUrl.Match(message);
 
+            // Поиск короткой ссылки YouTube
+            Match matchShortUrl = regexShortUrl.Match(message);
+
+            // Если найден URL-адрес, возвращаем его
+            if (matchUrl.Success)
+            {
+                return matchUrl.Value;
+            }
+
+            // Если найдена короткая ссылка YouTube, добавляем "https://" и возвращаем
+            if (matchShortUrl.Success)
+            {
+                return "https://" + matchShortUrl.Value;
+            }
+
+            // Если не найдено ни одного совпадения, возвращаем пустую строку
+            return string.Empty;
         }
     }
 }

@@ -109,10 +109,17 @@ namespace CobainSaver
                 Logs logs = new Logs(message.Chat.Id, message.From.Id, message.From.Username, message.Text, null);
                 await logs.WriteUserLogs();
 
-                if (message.Text.Contains("https://www.youtube.com") || message.Text.Contains("https://youtu.be") || message.Text.Contains("https://youtube.com") || message.Text.Contains("https://m.youtube.com"))
+                if (message.Text.Contains("https://www.youtube.com") || message.Text.Contains("https://youtu.be") 
+                    || message.Text.Contains("https://youtube.com") || message.Text.Contains("https://m.youtube.com") 
+                    || message.Text.Contains("youtu.be/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVideo);
                     await video.YoutubeDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                }
+                else if (message.Text.Contains("https://music.youtube.com/"))
+                {
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVoice);
+                    await video.YoutubeMusicDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
                 else if (message.Text.Contains("https://vm.tiktok.com") || message.Text.Contains("https://www.tiktok.com") || message.Text.Contains("https://m.tiktok.com"))
                 {
@@ -132,7 +139,7 @@ namespace CobainSaver
                 else if (message.Text.Contains("https://www.instagram.com"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
-                    await video.InstagramDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await video.InstagramDownloaderReserve(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
                 else if (message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
                 {
