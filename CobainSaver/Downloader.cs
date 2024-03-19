@@ -127,6 +127,10 @@ namespace CobainSaver
                 stream = await youtube.Videos.Streams.GetAsync(streamInfo);
 
                 string title = allInfo.Title;
+                if (title.Contains("#"))
+                {
+                    title = Regex.Replace(title, @"#.*", "");
+                }
                 string thumbnail = "https://img.youtube.com/vi/" + allInfo.Id + "/maxresdefault.jpg";
 
                 string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
@@ -215,21 +219,21 @@ namespace CobainSaver
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            text: "Sorry, this video has a problem: the video is too big (the size should not exceed 50mb)",
+                            text: "Sorry, this audio has a problem: the audio is too big (the size should not exceed 50mb)",
                             replyToMessageId: update.Message.MessageId);
                     }
                     if (lang == "ukr")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            text: "Вибачте, це відео має проблему: відео занадто велике (розмір має не перевищувати 50мб)",
+                            text: "Вибачте, це аудіо має проблему: аудіо занадто велике (розмір має не перевищувати 50мб)",
                             replyToMessageId: update.Message.MessageId);
                     }
                     if (lang == "rus")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            text: "Извините, с этим видео возникли проблемы: видео слишком большое(размер должен не превышать 50мб)",
+                            text: "Извините, с этим аудио возникли проблемы: аудио слишком большое(размер должен не превышать 50мб)",
                             replyToMessageId: update.Message.MessageId);
                     }
                     return;
@@ -277,6 +281,7 @@ namespace CobainSaver
                     chatId: chatId,
                     title: title,
                     audio: InputFile.FromStream(streamAudio),
+                    performer: author,
                     thumbnail: InputFile.FromStream(streamThumbAudio),
                     duration: Convert.ToInt32(duration),
                     replyToMessageId: update.Message.MessageId); ;
