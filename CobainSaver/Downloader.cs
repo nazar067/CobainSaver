@@ -1310,9 +1310,9 @@ namespace CobainSaver
                 int count = 0;
                 if (jsonObject["items"] != null)
                 {
-                    foreach(var item in jsonObject["items"])
+                    foreach (var item in jsonObject["items"])
                     {
-                        if(storyId == item["pk"].ToString())
+                        if (storyId == item["pk"].ToString())
                         {
                             if (item["video_versions"] != null)
                             {
@@ -1322,6 +1322,7 @@ namespace CobainSaver
                                     chatId: chatId,
                                     video: InputFile.FromUri(video),
                                     replyToMessageId: update.Message.MessageId);
+                                count++;
                             }
                             else
                             {
@@ -1331,41 +1332,38 @@ namespace CobainSaver
                                     chatId: chatId,
                                     photo: InputFile.FromUri(photo),
                                     replyToMessageId: update.Message.MessageId);
-                            }
-                        }
-                        else
-                        {
-                            if(count == 0)
-                            {
-                                await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
-                                Language language = new Language("rand", "rand");
-                                string lang = await language.GetCurrentLanguage(chatId.ToString());
-                                if (lang == "eng")
-                                {
-                                    await botClient.SendTextMessageAsync(
-                                        chatId: chatId,
-                                        text: "Sorry, story's expired\n" +
-                                        "If you're sure the content is available or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
-                                        replyToMessageId: update.Message.MessageId);
-                                }
-                                if (lang == "ukr")
-                                {
-                                    await botClient.SendTextMessageAsync(
-                                        chatId: chatId,
-                                        text: "Вибачте, термін історії закінчився\n" +
-                                        "Якщо ви впевнені, що контент доступний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
-                                        replyToMessageId: update.Message.MessageId);
-                                }
-                                if (lang == "rus")
-                                {
-                                    await botClient.SendTextMessageAsync(
-                                        chatId: chatId,
-                                        text: "Извините, срок истории истек\n" +
-                                        "Если вы уверенны, что контент доступен или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
-                                        replyToMessageId: update.Message.MessageId);
-                                }
                                 count++;
                             }
+                        }
+                    }
+                    if (count == 0)
+                    {
+                        await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
+                        Language language = new Language("rand", "rand");
+                        string lang = await language.GetCurrentLanguage(chatId.ToString());
+                        if (lang == "eng")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Sorry, story's expired\n" +
+                                "If you're sure the content is available or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                        if (lang == "ukr")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Вибачте, термін історії закінчився\n" +
+                                "Якщо ви впевнені, що контент доступний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                        if (lang == "rus")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Извините, срок истории истек\n" +
+                                "Если вы уверенны, что контент доступен или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
+                                replyToMessageId: update.Message.MessageId);
                         }
                     }
                 }
