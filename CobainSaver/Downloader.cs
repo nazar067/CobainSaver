@@ -1242,7 +1242,179 @@ namespace CobainSaver
                     replyToMessageId: update.Message.MessageId);
             }
         }
-        
+        public async Task InstagramStoryDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        {
+            try
+            {
+                WebProxy torProxy = new WebProxy
+                {
+                    Address = new Uri(torProxyUrl),
+                };
+                HttpClientHandler instaHandler = new HttpClientHandler()
+                {
+                    AllowAutoRedirect = true,
+                    Proxy = torProxy,
+                    UseCookies = false
+                };
+                HttpClient instaClient = new HttpClient(instaHandler);
+                instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)");
+                instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");
+                instaClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
+                instaClient.DefaultRequestHeaders.Add("Accept-Language", "ru-RU,ru;q=0.8,uk;q=0.6,en-US;q=0.4,en;q=0.2");
+                instaClient.DefaultRequestHeaders.Add("Cookie", "csrftoken=4iieZCxBIaLbEKX4HSdGW99e1C28Jss5; mid=Zau1bgALAAEAQ8kuhhpz2ivZF4U8; ig_did=572E90C4-8466-40C9-8A51-A42EF1C350A6; datr=brWrZQvqYG8A_ZQcVaFYOt7s; ig_nrcb=1; ds_user_id=53733646477; sessionid=53733646477%3A2tCC8w9we5kcvQ%3A9%3AAYe50kiNdAjeb7dvXd-zvFFxCLXcFMJZ_drKKC6slw; ps_n=0; ps_l=0; rur=\"ODN\\05453733646477\\0541742467210:01f7429eedb553317ff7b6f9c93668ff8bdd0c006928385ba0f709c77e60adb4f5dae57a");
+                instaClient.DefaultRequestHeaders.Add("Accept-Encoding", "Accept-Encoding");
+                instaClient.DefaultRequestHeaders.Add("Alt-Used", "www.instagram.com");
+                instaClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
+                instaClient.DefaultRequestHeaders.Add("Upgrade-Insecure-Requests", "1");
+                instaClient.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "document");
+                instaClient.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "navigate");
+                instaClient.DefaultRequestHeaders.Add("Sec-Fetch-Site", "cross-site");
+                instaClient.DefaultRequestHeaders.Add("TE", "trailers");
+
+                string link = await DeleteNotUrl(messageText);
+                string userName = null;
+                string userId = null;
+                string storyId = null;
+
+                string pattern = @"stories/(?<username>[^/]+)/";
+                Regex regex = new Regex(pattern);
+
+                Match match = regex.Match(link);
+
+                if (match.Success)
+                {
+                    userName = match.Groups["username"].Value;
+                }
+
+                int questionMarkIndex = link.IndexOf('?');
+                if (questionMarkIndex != -1)
+                {
+                    link = link.Substring(0, questionMarkIndex);
+                }
+                int lastIndex = link.LastIndexOf('/');
+                storyId = link.Substring(lastIndex + 1);
+
+                var responseName = await instaClient.GetAsync($"https://i.instagram.com/api/v1/users/web_profile_info/?username={userName}");
+                var responseStringName = await responseName.Content.ReadAsStringAsync();
+                JObject jsonObjectName = JObject.Parse(responseStringName);
+                //Console.WriteLine(jsonObjectName.ToString());
+                if (jsonObjectName["data"]["user"]["id"] != null)
+                {
+                    userId = jsonObjectName["data"]["user"]["id"].ToString();
+                }
+
+                var response = await instaClient.GetAsync($"https://i.instagram.com/api/v1/feed/user/{userId}/reel_media");
+                var responseString = await response.Content.ReadAsStringAsync();
+                JObject jsonObject = JObject.Parse(responseString);
+                //Console.WriteLine(jsonObject.ToString());
+                int count = 0;
+                if (jsonObject["items"] != null)
+                {
+                    foreach(var item in jsonObject["items"])
+                    {
+                        if(storyId == item["pk"].ToString())
+                        {
+                            if (item["video_versions"] != null)
+                            {
+                                await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
+                                string video = item["video_versions"][0]["url"].ToString();
+                                await botClient.SendVideoAsync(
+                                    chatId: chatId,
+                                    video: InputFile.FromUri(video),
+                                    replyToMessageId: update.Message.MessageId);
+                            }
+                            else
+                            {
+                                await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
+                                string photo = item["image_versions2"]["candidates"][0]["url"].ToString();
+                                await botClient.SendPhotoAsync(
+                                    chatId: chatId,
+                                    photo: InputFile.FromUri(photo),
+                                    replyToMessageId: update.Message.MessageId);
+                            }
+                        }
+                        else
+                        {
+                            if(count == 0)
+                            {
+                                await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
+                                Language language = new Language("rand", "rand");
+                                string lang = await language.GetCurrentLanguage(chatId.ToString());
+                                if (lang == "eng")
+                                {
+                                    await botClient.SendTextMessageAsync(
+                                        chatId: chatId,
+                                        text: "Sorry, story's expired\n" +
+                                        "If you're sure the content is available or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
+                                        replyToMessageId: update.Message.MessageId);
+                                }
+                                if (lang == "ukr")
+                                {
+                                    await botClient.SendTextMessageAsync(
+                                        chatId: chatId,
+                                        text: "Вибачте, термін історії закінчився\n" +
+                                        "Якщо ви впевнені, що контент доступний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
+                                        replyToMessageId: update.Message.MessageId);
+                                }
+                                if (lang == "rus")
+                                {
+                                    await botClient.SendTextMessageAsync(
+                                        chatId: chatId,
+                                        text: "Извините, срок истории истек\n" +
+                                        "Если вы уверенны, что контент доступен или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
+                                        replyToMessageId: update.Message.MessageId);
+                                }
+                                count++;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                //Console.WriteLine(e.ToString());
+                Language language = new Language("rand", "rand");
+                string lang = await language.GetCurrentLanguage(chatId.ToString());
+                if (lang == "eng")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Sorry, story not found or content is private\n" +
+                        "If you're sure the content is public or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "ukr")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Вибачте, сторі не знайдено або контент є приватним\n" +
+                        "Якщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "rus")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Извините, история не найдена или контент является приватным\n" +
+                        "Если вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                try
+                {
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, null, e.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception ex)
+                {
+                    return;
+                }
+            }
+        }
+
+
         public async Task InstagramDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
             try
@@ -1275,138 +1447,146 @@ namespace CobainSaver
                 //
 
                 string link = await DeleteNotUrl(messageText);
-                string id = null;
-                if (link.Contains("/p/"))
+                if (link.Contains("/stories/"))
                 {
-                    string pattern = @"\/p\/([^\s\/?]+)";
-                    Regex regex = new Regex(pattern);
-                    Match match = regex.Match(link);
-
-                    if (match.Success)
-                    {
-                        id = match.Groups[1].Value;
-                    }
+                    await InstagramStoryDownloader(chatId, update, cancellationToken, messageText, (TelegramBotClient)botClient);
                 }
-                else if (link.Contains("/reels/") || link.Contains("/reel/"))
+                else
                 {
-                    string pattern = @"\/reels\/([^\s\/?]+)";
-                    Regex regex = new Regex(pattern);
-                    Match match = regex.Match(link);
+                    string id = null;
+                    if (link.Contains("/p/"))
+                    {
+                        string pattern = @"\/p\/([^\s\/?]+)";
+                        Regex regex = new Regex(pattern);
+                        Match match = regex.Match(link);
 
-                    if (match.Success)
-                    {
-                        id = match.Groups[1].Value;
-                    }
-                    else
-                    {
-                        pattern = @"\/reel\/([^\s\/?]+)";
-                        regex = new Regex(pattern);
-                        match = regex.Match(link);
                         if (match.Success)
                         {
                             id = match.Groups[1].Value;
                         }
                     }
-                }
-                int count = 0;
-                string url = "https://www.instagram.com/p/" + id + "/?__a=1&__d=dis";
-                var response = await instaClient.GetAsync(url);
-                var responseString = await response.Content.ReadAsStringAsync();
-                JObject jsonObject = JObject.Parse(responseString);
-                List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
-
-                string text = null;
-
-                if (jsonObject["items"][0]["caption"]["text"] != null)
-                {
-                    text = jsonObject["items"][0]["caption"]["text"].ToString();
-                }
-                if (text.Contains("#"))
-                {
-                    text = Regex.Replace(text, @"#.*", "");
-                }
-                if (jsonObject["items"][0]["carousel_media_ids"] != null)
-                {
-                    foreach (var item in jsonObject["items"][0]["carousel_media"])
+                    else if (link.Contains("/reels/") || link.Contains("/reel/"))
                     {
-                        await botClient.SendChatActionAsync(chatId, ChatAction.UploadDocument);
-                        if (count == 0)
+                        string pattern = @"\/reels\/([^\s\/?]+)";
+                        Regex regex = new Regex(pattern);
+                        Match match = regex.Match(link);
+
+                        if (match.Success)
                         {
-                            if (item["video_versions"] != null)
-                            {
-                                mediaAlbum.Add(
-                                    new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
-                                    {
-                                        Caption = text,
-                                    }
-                                );
-                            }
-                            else
-                            {
-                                mediaAlbum.Add(
-                                    new InputMediaPhoto(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
-                                    {
-                                        Caption = text,
-                                    }
-                                );
-                            }
+                            id = match.Groups[1].Value;
                         }
                         else
                         {
-                            if (item["video_versions"] != null)
+                            pattern = @"\/reel\/([^\s\/?]+)";
+                            regex = new Regex(pattern);
+                            match = regex.Match(link);
+                            if (match.Success)
                             {
-                                mediaAlbum.Add(
-                                    new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
-                                    {
-                                    }
-                                );
+                                id = match.Groups[1].Value;
+                            }
+                        }
+                    }
+                    int count = 0;
+                    string url = "https://www.instagram.com/p/" + id + "/?__a=1&__d=dis";
+                    var response = await instaClient.GetAsync(url);
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    JObject jsonObject = JObject.Parse(responseString);
+                    List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
+
+                    string text = null;
+
+                    if (jsonObject["items"][0]["caption"]["text"] != null)
+                    {
+                        text = jsonObject["items"][0]["caption"]["text"].ToString();
+                    }
+                    if (text.Contains("#"))
+                    {
+                        text = Regex.Replace(text, @"#.*", "");
+                    }
+                    if (jsonObject["items"][0]["carousel_media_ids"] != null)
+                    {
+                        foreach (var item in jsonObject["items"][0]["carousel_media"])
+                        {
+                            await botClient.SendChatActionAsync(chatId, ChatAction.UploadDocument);
+                            if (count == 0)
+                            {
+                                if (item["video_versions"] != null)
+                                {
+                                    mediaAlbum.Add(
+                                        new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
+                                        {
+                                            Caption = text,
+                                        }
+                                    );
+                                }
+                                else
+                                {
+                                    mediaAlbum.Add(
+                                        new InputMediaPhoto(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
+                                        {
+                                            Caption = text,
+                                        }
+                                    );
+                                }
                             }
                             else
                             {
-                                mediaAlbum.Add(
-                                    new InputMediaPhoto(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
-                                    {
-                                    }
-                                );
+                                if (item["video_versions"] != null)
+                                {
+                                    mediaAlbum.Add(
+                                        new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
+                                        {
+                                        }
+                                    );
+                                }
+                                else
+                                {
+                                    mediaAlbum.Add(
+                                        new InputMediaPhoto(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
+                                        {
+                                        }
+                                    );
+                                }
                             }
+                            count++;
                         }
-                        count++;
-                    }
 
-                    int rowSize = 10;
-                    List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
-                    foreach (var item in result)
+                        int rowSize = 10;
+                        List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
+                        foreach (var item in result)
+                        {
+                            await botClient.SendMediaGroupAsync(
+                                chatId: chatId,
+                                media: item,
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                    }
+                    else if (jsonObject["items"][0]["video_versions"] != null)
                     {
-                        await botClient.SendMediaGroupAsync(
+                        await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
+                        string video = jsonObject["items"][0]["video_versions"][0]["url"].ToString();
+                        await botClient.SendVideoAsync(
                             chatId: chatId,
-                            media: item,
+                            video: InputFile.FromUri(video),
+                            caption: text,
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    else if (jsonObject["items"][0]["image_versions2"] != null)
+                    {
+                        await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
+                        string img = jsonObject["items"][0]["image_versions2"]["candidates"][0]["url"].ToString();
+                        await botClient.SendPhotoAsync(
+                            chatId: chatId,
+                            photo: InputFile.FromUri(img),
+                            caption: text,
                             replyToMessageId: update.Message.MessageId);
                     }
                 }
-                else if (jsonObject["items"][0]["video_versions"] != null)
-                {
-                    await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
-                    string video = jsonObject["items"][0]["video_versions"][0]["url"].ToString();
-                    await botClient.SendVideoAsync(
-                        chatId: chatId,
-                        video: InputFile.FromUri(video),
-                        caption: text,
-                        replyToMessageId: update.Message.MessageId);
-                }
-                else if(jsonObject["items"][0]["image_versions2"] != null)
-                {
-                    await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
-                    string img = jsonObject["items"][0]["image_versions2"]["candidates"][0]["url"].ToString();
-                    await botClient.SendPhotoAsync(
-                        chatId: chatId,
-                        photo: InputFile.FromUri(img),
-                        caption: text,
-                        replyToMessageId: update.Message.MessageId);
-                }
+                
             }
             catch (Exception ex)
             {
-                await Console.Out.WriteLineAsync(ex.ToString());
+                //await Console.Out.WriteLineAsync(ex.ToString());
                 Language language = new Language("rand", "rand");
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
                 if (lang == "eng")
@@ -1490,6 +1670,7 @@ namespace CobainSaver
                         var responseContent = await response.Content.ReadAsStringAsync();
                         var rest = JsonConvert.DeserializeObject<JObject>(responseContent);
                         var data = new Dictionary<string, string>();
+                        Console.WriteLine(rest.ToString());
 
                         if (rest["Type"] != null)
                         {
