@@ -658,21 +658,24 @@ namespace CobainSaver
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Sorry, this content is not available or hidden to me",
+                        text: "Sorry, this content is not available or hidden to me\n" +
+                        "If you're sure the content is public or the bot has previously submitted this, please email us about this bug - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 if (lang == "ukr")
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Вибачте, цей контент недоступний або прихований для мене",
+                        text: "Вибачте, цей контент недоступний або прихований для мене\n" +
+                        "Якщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 if (lang == "rus")
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Извините, данный контент недоступен или скрыт для меня",
+                        text: "Извините, данный контент недоступен или скрыт для меня\n" +
+                        "Если вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 try
@@ -1239,7 +1242,211 @@ namespace CobainSaver
                     replyToMessageId: update.Message.MessageId);
             }
         }
+        
         public async Task InstagramDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        {
+            try
+            {
+                //create new httpclient
+                WebProxy torProxy = new WebProxy
+                {
+                    Address = new Uri(torProxyUrl),
+                };
+                HttpClientHandler instaHandler = new HttpClientHandler()
+                {
+                    AllowAutoRedirect = false,
+                    Proxy = torProxy,
+                    UseCookies = false
+                };
+                HttpClient instaClient = new HttpClient(instaHandler);
+                instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
+                instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");
+                instaClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
+                instaClient.DefaultRequestHeaders.Add("Accept-Language", "ru-RU,ru;q=0.8,uk;q=0.6,en-US;q=0.4,en;q=0.2");
+                instaClient.DefaultRequestHeaders.Add("Cookie", "csrftoken=4iieZCxBIaLbEKX4HSdGW99e1C28Jss5; mid=Zau1bgALAAEAQ8kuhhpz2ivZF4U8; ig_did=572E90C4-8466-40C9-8A51-A42EF1C350A6; datr=brWrZQvqYG8A_ZQcVaFYOt7s; ig_nrcb=1; ds_user_id=53733646477; sessionid=53733646477%3A2tCC8w9we5kcvQ%3A9%3AAYe50kiNdAjeb7dvXd-zvFFxCLXcFMJZ_drKKC6slw; ps_n=0; ps_l=0; rur=\"ODN\\05453733646477\\0541742467210:01f7429eedb553317ff7b6f9c93668ff8bdd0c006928385ba0f709c77e60adb4f5dae57a");
+                instaClient.DefaultRequestHeaders.Add("Accept-Encoding", "Accept-Encoding");
+                instaClient.DefaultRequestHeaders.Add("Alt-Used", "www.instagram.com");
+                instaClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
+                instaClient.DefaultRequestHeaders.Add("Upgrade-Insecure-Requests", "1");
+                instaClient.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "document");
+                instaClient.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "navigate");
+                instaClient.DefaultRequestHeaders.Add("Sec-Fetch-Site", "cross-site");
+                instaClient.DefaultRequestHeaders.Add("TE", "trailers");
+                //
+
+                string link = await DeleteNotUrl(messageText);
+                string id = null;
+                if (link.Contains("/p/"))
+                {
+                    string pattern = @"\/p\/([^\s\/?]+)";
+                    Regex regex = new Regex(pattern);
+                    Match match = regex.Match(link);
+
+                    if (match.Success)
+                    {
+                        id = match.Groups[1].Value;
+                    }
+                }
+                else if (link.Contains("/reels/") || link.Contains("/reel/"))
+                {
+                    string pattern = @"\/reels\/([^\s\/?]+)";
+                    Regex regex = new Regex(pattern);
+                    Match match = regex.Match(link);
+
+                    if (match.Success)
+                    {
+                        id = match.Groups[1].Value;
+                    }
+                    else
+                    {
+                        pattern = @"\/reel\/([^\s\/?]+)";
+                        regex = new Regex(pattern);
+                        match = regex.Match(link);
+                        if (match.Success)
+                        {
+                            id = match.Groups[1].Value;
+                        }
+                    }
+                }
+                int count = 0;
+                string url = "https://www.instagram.com/p/" + id + "/?__a=1&__d=dis";
+                var response = await instaClient.GetAsync(url);
+                var responseString = await response.Content.ReadAsStringAsync();
+                JObject jsonObject = JObject.Parse(responseString);
+                List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
+
+                string text = null;
+
+                if (jsonObject["items"][0]["caption"]["text"] != null)
+                {
+                    text = jsonObject["items"][0]["caption"]["text"].ToString();
+                }
+                if (text.Contains("#"))
+                {
+                    text = Regex.Replace(text, @"#.*", "");
+                }
+                if (jsonObject["items"][0]["carousel_media_ids"] != null)
+                {
+                    foreach (var item in jsonObject["items"][0]["carousel_media"])
+                    {
+                        await botClient.SendChatActionAsync(chatId, ChatAction.UploadDocument);
+                        if (count == 0)
+                        {
+                            if (item["video_versions"] != null)
+                            {
+                                mediaAlbum.Add(
+                                    new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
+                                    {
+                                        Caption = text,
+                                    }
+                                );
+                            }
+                            else
+                            {
+                                mediaAlbum.Add(
+                                    new InputMediaPhoto(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
+                                    {
+                                        Caption = text,
+                                    }
+                                );
+                            }
+                        }
+                        else
+                        {
+                            if (item["video_versions"] != null)
+                            {
+                                mediaAlbum.Add(
+                                    new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
+                                    {
+                                    }
+                                );
+                            }
+                            else
+                            {
+                                mediaAlbum.Add(
+                                    new InputMediaPhoto(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
+                                    {
+                                    }
+                                );
+                            }
+                        }
+                        count++;
+                    }
+
+                    int rowSize = 10;
+                    List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
+                    foreach (var item in result)
+                    {
+                        await botClient.SendMediaGroupAsync(
+                            chatId: chatId,
+                            media: item,
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                }
+                else if (jsonObject["items"][0]["video_versions"] != null)
+                {
+                    await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
+                    string video = jsonObject["items"][0]["video_versions"][0]["url"].ToString();
+                    await botClient.SendVideoAsync(
+                        chatId: chatId,
+                        video: InputFile.FromUri(video),
+                        caption: text,
+                        replyToMessageId: update.Message.MessageId);
+                }
+                else if(jsonObject["items"][0]["image_versions2"] != null)
+                {
+                    await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
+                    string img = jsonObject["items"][0]["image_versions2"]["candidates"][0]["url"].ToString();
+                    await botClient.SendPhotoAsync(
+                        chatId: chatId,
+                        photo: InputFile.FromUri(img),
+                        caption: text,
+                        replyToMessageId: update.Message.MessageId);
+                }
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.ToString());
+                Language language = new Language("rand", "rand");
+                string lang = await language.GetCurrentLanguage(chatId.ToString());
+                if (lang == "eng")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Sorry, I need more time to process this content, your video or photo will load in a moment",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "ukr")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Вибачте, для опрацювання цього контенту мені потрібно більше часу, за мить ваше відео або фото завантажаться",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "rus")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Извините, для обработки данного контента мне нужно больше времени, через мгновение ваше видео или фото загрузятся ",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                try
+                {
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, null, ex.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception e)
+                {
+                    return;
+                }
+                await InstagramDownloaderReserve(chatId, update, cancellationToken, messageText, (TelegramBotClient)botClient);
+
+            }
+        }
+        public async Task InstagramDownloaderReserve(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
             try
             {
@@ -1299,6 +1506,7 @@ namespace CobainSaver
                                     );
                                     break;
                                 case "Carousel":
+                                    await botClient.SendChatActionAsync(chatId, ChatAction.UploadDocument);
                                     data["media"] = rest["media_with_thumb"].ToString();
                                     data["type"] = "carousel";
                                     foreach (var album in rest["media_with_thumb"])
@@ -1328,6 +1536,7 @@ namespace CobainSaver
                                         {
                                             if (album["Type"].ToString() == "Video")
                                             {
+                                                await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
                                                 mediaAlbum.Add(
                                                     new InputMediaVideo(InputFile.FromUri(album["media"].ToString()))
                                                     {
@@ -1336,6 +1545,7 @@ namespace CobainSaver
                                             }
                                             if (album["Type"].ToString() == "Image")
                                             {
+                                                await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
                                                 mediaAlbum.Add(
                                                     new InputMediaPhoto(InputFile.FromUri(album["media"].ToString()))
                                                     {
@@ -1404,21 +1614,24 @@ namespace CobainSaver
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Sorry, post or video not found or content is private",
+                        text: "Sorry, post or video not found or content is private\n" +
+                        "If you're sure the content is public or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 if (lang == "ukr")
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Вибачте, пост або відео не знайдено або контент є приватним",
+                        text: "Вибачте, пост або відео не знайдено або контент є приватним\n" +
+                        "Якщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 if (lang == "rus")
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Извините, пост или видео не найден или контент является приватным",
+                        text: "Извините, пост или видео не найден или контент является приватным\n" +
+                        "Если вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 try
@@ -1432,142 +1645,6 @@ namespace CobainSaver
                 catch (Exception ex)
                 {
                     return;
-                }
-            }
-        }
-        public async Task InstagramDownloaderReserve(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
-        {
-            //create new httpclient
-            WebProxy torProxy = new WebProxy
-            {
-                Address = new Uri(torProxyUrl),
-            };
-            HttpClientHandler instaHandler = new HttpClientHandler()
-            {
-                AllowAutoRedirect = false,
-                Proxy = torProxy,
-                UseCookies = false
-            };
-            HttpClient instaClient = new HttpClient(instaHandler);
-            instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
-            //
-
-            string link = await DeleteNotUrl(messageText);
-            string id = null;
-            if (link.Contains("/p/"))
-            {
-                string pattern = @"\/p\/([^\s\/?]+)";
-                Regex regex = new Regex(pattern);
-                Match match = regex.Match(link);
-
-                if (match.Success)
-                {
-                    id = match.Groups[1].Value;
-                }
-            }
-            else if (link.Contains("/reels/") || link.Contains("/reel/"))
-            {
-                string pattern = @"\/reels\/([^\s\/?]+)";
-                Regex regex = new Regex(pattern);
-                Match match = regex.Match(link);
-
-                if (match.Success)
-                {
-                    id = match.Groups[1].Value;
-                }
-                else
-                {
-                    pattern = @"\/reel\/([^\s\/?]+)";
-                    regex = new Regex(pattern);
-                    match = regex.Match(link);
-                    if (match.Success)
-                    {
-                        id = match.Groups[1].Value;
-                    }
-                }
-            }
-            int count = 0;
-            string url = "https://www.instagram.com/p/" + id + "/?__a=1&__d=dis";
-            var response = await instaClient.GetAsync(url);
-            var responseString = await response.Content.ReadAsStringAsync();
-            JObject jsonObject = JObject.Parse(responseString);
-            List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
-
-            string text = null;
-            string currentDirectory = Directory.GetCurrentDirectory();
-
-            string serverFolderName = "ServerLogs";
-            string serverFolderPath = Path.Combine(currentDirectory, serverFolderName);
-
-            string allServers = "apiInst.txt";
-            string allFilePath = Path.Combine(serverFolderPath, allServers);
-            if (!System.IO.File.Exists(allFilePath))
-            {
-                System.IO.File.WriteAllText(allFilePath, jsonObject.ToString());
-            }
-            else
-            {
-                System.IO.File.AppendAllText(allFilePath, jsonObject.ToString());
-            }
-            if (jsonObject["graphql"]["shortcode_media"]["edge_media_to_caption"]["edges"][0]["node"]["text"] != null)
-            {
-                text = jsonObject["graphql"]["shortcode_media"]["edge_media_to_caption"]["edges"][0]["node"]["text"].ToString();
-            }
-
-            if (jsonObject["items"][0]["carousel_media"] != null)
-            {
-                foreach (var item in jsonObject["items"][0]["carousel_media"])
-                {
-                    if (count == 0)
-                    {
-                        if (item["video_versions"] != null)
-                        {
-                            mediaAlbum.Add(
-                                new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
-                                {
-                                    Caption = text,
-                                }
-                            );
-                        }
-                        else
-                        {
-                            mediaAlbum.Add(
-                                new InputMediaVideo(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
-                                {
-                                    Caption = text,
-                                }
-                            );
-                        }
-                    }
-                    else
-                    {
-                        if (item["video_versions"] != null)
-                        {
-                            mediaAlbum.Add(
-                                new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
-                                {
-                                }
-                            );
-                        }
-                        else
-                        {
-                            mediaAlbum.Add(
-                                new InputMediaVideo(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
-                                {
-                                }
-                            );
-                        }
-                    }
-                    count++;
-                }
-                int rowSize = 10;
-                List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
-                foreach (var item in result)
-                {
-                    await botClient.SendMediaGroupAsync(
-                        chatId: chatId,
-                        media: item,
-                        replyToMessageId: update.Message.MessageId);
                 }
             }
         }
