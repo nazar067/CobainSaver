@@ -32,6 +32,7 @@ using System.Net.Http;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Numerics;
 using AngleSharp.Browser;
+using YoutubeDLSharp.Metadata;
 
 namespace CobainSaver
 {
@@ -125,7 +126,7 @@ namespace CobainSaver
                     return;
                 }
                 stream = await youtube.Videos.Streams.GetAsync(streamInfo);
-
+                string duration = allInfo.Duration.Value.TotalSeconds.ToString();
                 string title = allInfo.Title;
                 if (title.Contains("#"))
                 {
@@ -157,6 +158,7 @@ namespace CobainSaver
                     caption: title,
                     video: InputFile.FromStream(streamVideo),
                     thumbnail: InputFile.FromStream(streamThumbVideo),
+                    duration: Convert.ToInt32(duration),
                     replyToMessageId: update.Message.MessageId);
                 streamVideo.Close();
                 streamThumbVideo.Close();
@@ -343,6 +345,34 @@ namespace CobainSaver
                 var responseString = await response.Content.ReadAsStringAsync();
                 //await Console.Out.WriteLineAsync(responseString);
                 JObject jsonObject = JObject.Parse(responseString);
+                long size = Convert.ToInt64(jsonObject["data"]["size"].ToString());
+                if (size > 52428800)
+                {
+                    Language language = new Language("rand", "rand");
+                    string lang = await language.GetCurrentLanguage(chatId.ToString());
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Sorry, this video has a problem: the video is too big (the size should not exceed 50mb)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Вибачте, це відео має проблему: відео занадто велике (розмір має не перевищувати 50мб)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Извините, с этим видео возникли проблемы: видео слишком большое(размер должен не превышать 50мб)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    return;
+                }
                 List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
                 if (jsonObject["data"]["images"] != null)
                 {
@@ -576,6 +606,7 @@ namespace CobainSaver
                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
                     string video = jsonObject["data"]["play"].ToString();
                     string title = jsonObject["data"]["title"].ToString();
+                    int videoDuration = Convert.ToInt32(jsonObject["data"]["duration"]);
                     string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
 
                     string videoPath = Path.Combine(audioPath, chatId + "video.mp4");
@@ -602,6 +633,7 @@ namespace CobainSaver
                         video: InputFile.FromStream(streamVideo),
                         caption: title,
                         disableNotification: true,
+                        duration: videoDuration,
                         thumbnail: InputFile.FromStream(streamThumbVideo),
                         replyToMessageId: update.Message.MessageId
                         );
@@ -1492,14 +1524,19 @@ namespace CobainSaver
                     List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
 
                     string text = null;
-
-                    if (jsonObject["items"][0]["caption"]["text"] != null)
+                    try
                     {
-                        text = jsonObject["items"][0]["caption"]["text"].ToString();
+                        if (jsonObject["items"][0]["caption"]["text"] != null)
+                        {
+                            text = jsonObject["items"][0]["caption"]["text"].ToString();
+                        }
+                        if (text.Contains("#"))
+                        {
+                            text = Regex.Replace(text, @"#.*", "");
+                        }
                     }
-                    if (text.Contains("#"))
+                    catch
                     {
-                        text = Regex.Replace(text, @"#.*", "");
                     }
                     if (jsonObject["items"][0]["carousel_media_ids"] != null)
                     {
@@ -1585,6 +1622,238 @@ namespace CobainSaver
             catch (Exception ex)
             {
                 //await Console.Out.WriteLineAsync(ex.ToString());
+                try
+                {
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, null, ex.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception e)
+                {
+                    return;
+                }
+                await InstagramDownloaderReserve(chatId, update, cancellationToken, messageText, (TelegramBotClient)botClient);
+
+            }
+        }
+        public async Task InstagramDownloaderReserve(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        {
+            try
+            {
+                await botClient.SendChatActionAsync(chatId, ChatAction.UploadDocument);
+                //create new httpclient
+                WebProxy torProxy = new WebProxy
+                {
+                    Address = new Uri(torProxyUrl),
+                };
+                HttpClientHandler instaHandler = new HttpClientHandler()
+                {
+                    AllowAutoRedirect = false,
+                    Proxy = torProxy,
+                    UseCookies = false
+                };
+                HttpClient instaClient = new HttpClient(instaHandler);
+                instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
+                instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");
+                instaClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
+                instaClient.DefaultRequestHeaders.Add("Accept-Language", "ru-RU,ru;q=0.8,uk;q=0.6,en-US;q=0.4,en;q=0.2");
+                instaClient.DefaultRequestHeaders.Add("Cookie", "csrftoken=4iieZCxBIaLbEKX4HSdGW99e1C28Jss5; mid=Zau1bgALAAEAQ8kuhhpz2ivZF4U8; ig_did=572E90C4-8466-40C9-8A51-A42EF1C350A6; datr=brWrZQvqYG8A_ZQcVaFYOt7s; ig_nrcb=1; ds_user_id=53733646477; sessionid=53733646477%3A2tCC8w9we5kcvQ%3A9%3AAYe50kiNdAjeb7dvXd-zvFFxCLXcFMJZ_drKKC6slw; ps_n=0; ps_l=0; rur=\"ODN\\05453733646477\\0541742467210:01f7429eedb553317ff7b6f9c93668ff8bdd0c006928385ba0f709c77e60adb4f5dae57a");
+                instaClient.DefaultRequestHeaders.Add("Accept-Encoding", "Accept-Encoding");
+                instaClient.DefaultRequestHeaders.Add("Alt-Used", "www.instagram.com");
+                instaClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
+                instaClient.DefaultRequestHeaders.Add("Upgrade-Insecure-Requests", "1");
+                instaClient.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "document");
+                instaClient.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "navigate");
+                instaClient.DefaultRequestHeaders.Add("Sec-Fetch-Site", "cross-site");
+                instaClient.DefaultRequestHeaders.Add("TE", "trailers");
+                //
+
+                string link = await DeleteNotUrl(messageText);
+                if (link.Contains("/stories/"))
+                {
+                    await InstagramStoryDownloader(chatId, update, cancellationToken, messageText, (TelegramBotClient)botClient);
+                }
+                else
+                {
+                    string id = null;
+                    if (link.Contains("/p/"))
+                    {
+                        string pattern = @"\/p\/([^\s\/?]+)";
+                        Regex regex = new Regex(pattern);
+                        Match match = regex.Match(link);
+
+                        if (match.Success)
+                        {
+                            id = match.Groups[1].Value;
+                        }
+                    }
+                    else if (link.Contains("/reels/") || link.Contains("/reel/"))
+                    {
+                        string pattern = @"\/reels\/([^\s\/?]+)";
+                        Regex regex = new Regex(pattern);
+                        Match match = regex.Match(link);
+
+                        if (match.Success)
+                        {
+                            id = match.Groups[1].Value;
+                        }
+                        else
+                        {
+                            pattern = @"\/reel\/([^\s\/?]+)";
+                            regex = new Regex(pattern);
+                            match = regex.Match(link);
+                            if (match.Success)
+                            {
+                                id = match.Groups[1].Value;
+                            }
+                        }
+                    }
+                    int count = 0;
+                    string url = "https://www.instagram.com/p/" + id + "/?__a=1&__d=dis";
+                    var response = await instaClient.GetAsync(url);
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    JObject jsonObject = JObject.Parse(responseString);
+                    List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
+
+                    string text = null;
+                    try
+                    {
+                        if (jsonObject["items"][0]["caption"]["text"] != null)
+                        {
+                            text = jsonObject["items"][0]["caption"]["text"].ToString();
+                        }
+                        if (text.Contains("#"))
+                        {
+                            text = Regex.Replace(text, @"#.*", "");
+                        }
+                    }
+                    catch
+                    {
+                    }
+                    if (jsonObject["items"][0]["carousel_media_ids"] != null)
+                    {
+                        foreach (var item in jsonObject["items"][0]["carousel_media"])
+                        {
+                            await botClient.SendChatActionAsync(chatId, ChatAction.UploadDocument);
+                            if (count == 0)
+                            {
+                                if (item["video_versions"] != null)
+                                {
+                                    mediaAlbum.Add(
+                                        new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
+                                        {
+                                            Caption = text,
+                                        }
+                                    );
+                                }
+                                else
+                                {
+                                    mediaAlbum.Add(
+                                        new InputMediaPhoto(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
+                                        {
+                                            Caption = text,
+                                        }
+                                    );
+                                }
+                            }
+                            else
+                            {
+                                if (item["video_versions"] != null)
+                                {
+                                    mediaAlbum.Add(
+                                        new InputMediaVideo(InputFile.FromUri(item["video_versions"][0]["url"].ToString()))
+                                        {
+                                        }
+                                    );
+                                }
+                                else
+                                {
+                                    mediaAlbum.Add(
+                                        new InputMediaPhoto(InputFile.FromUri(item["image_versions2"]["candidates"][0]["url"].ToString()))
+                                        {
+                                        }
+                                    );
+                                }
+                            }
+                            count++;
+                        }
+
+                        int rowSize = 10;
+                        List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
+                        foreach (var item in result)
+                        {
+                            await botClient.SendMediaGroupAsync(
+                                chatId: chatId,
+                                media: item,
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                    }
+                    else if (jsonObject["items"][0]["video_versions"] != null)
+                    {
+                        await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
+                        string video = jsonObject["items"][0]["video_versions"][0]["url"].ToString();
+                        string thumbnailVideo = jsonObject["items"][0]["image_versions2"]["candidates"][0]["url"].ToString();
+
+                        string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+
+                        string videoPath = Path.Combine(audioPath, chatId + "video.mp4");
+                        string thumbnailVideoPath = Path.Combine(audioPath, chatId + "thumbVideo.jpeg");
+
+                        using (var client = new WebClient())
+                        {
+                            client.DownloadFile(video, videoPath);
+                        }
+                        using (var client = new WebClient())
+                        {
+                            client.DownloadFile(thumbnailVideo, thumbnailVideoPath);
+                        }
+                        await using Stream streamVideo = System.IO.File.OpenRead(videoPath);
+                        await using Stream streamThumbVideo = System.IO.File.OpenRead(thumbnailVideoPath);
+
+                        await botClient.SendVideoAsync(
+                            chatId: chatId,
+                            video: InputFile.FromStream(streamVideo),
+                            thumbnail: InputFile.FromStream(streamThumbVideo),
+                            caption: text,
+                            replyToMessageId: update.Message.MessageId);
+
+                        streamVideo.Close();
+                        streamThumbVideo.Close();
+                        System.IO.File.Delete(videoPath);
+                        System.IO.File.Delete(thumbnailVideoPath);
+                    }
+                    else if (jsonObject["items"][0]["image_versions2"] != null)
+                    {
+                        await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
+                        string img = jsonObject["items"][0]["image_versions2"]["candidates"][0]["url"].ToString();
+
+                        string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+
+                        string imgPath = Path.Combine(audioPath, chatId + "thumbVideo.jpeg");
+
+                        using (var client = new WebClient())
+                        {
+                            client.DownloadFile(img, imgPath);
+                        }
+                        await using Stream streamImg = System.IO.File.OpenRead(imgPath);
+
+                        await botClient.SendPhotoAsync(
+                            chatId: chatId,
+                            photo: InputFile.FromStream(streamImg),
+                            caption: text,
+                            replyToMessageId: update.Message.MessageId);
+
+                        streamImg.Close();
+                        System.IO.File.Delete(imgPath);
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                //await Console.Out.WriteLineAsync(ex.ToString());
                 Language language = new Language("rand", "rand");
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
                 if (lang == "eng")
@@ -1620,11 +1889,11 @@ namespace CobainSaver
                 {
                     return;
                 }
-                await InstagramDownloaderReserve(chatId, update, cancellationToken, messageText, (TelegramBotClient)botClient);
+                await InstagramDownloaderReserveAPI(chatId, update, cancellationToken, messageText, (TelegramBotClient)botClient);
 
             }
         }
-        public async Task InstagramDownloaderReserve(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        public async Task InstagramDownloaderReserveAPI(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
             try
             {
@@ -1668,7 +1937,7 @@ namespace CobainSaver
                         var responseContent = await response.Content.ReadAsStringAsync();
                         var rest = JsonConvert.DeserializeObject<JObject>(responseContent);
                         var data = new Dictionary<string, string>();
-                        Console.WriteLine(rest.ToString());
+                        //Console.WriteLine(rest.ToString());
 
                         if (rest["Type"] != null)
                         {
