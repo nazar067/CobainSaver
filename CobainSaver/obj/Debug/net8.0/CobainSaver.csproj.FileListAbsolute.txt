@@ -20,3 +20,4 @@ C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Debug\net8.0\YoutubeDLSh
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Debug\net8.0\libvideo.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Debug\net8.0\AngleSharp.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Debug\net8.0\YoutubeExplode.dll
+C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Debug\net8.0\RestSharp.dll

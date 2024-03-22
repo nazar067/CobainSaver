@@ -33,6 +33,10 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Numerics;
 using AngleSharp.Browser;
 using YoutubeDLSharp.Metadata;
+using RestSharp;
+using Telegram.Bot.Requests.Abstractions;
+using System.Runtime.Intrinsics.Arm;
+using System.Security.Cryptography;
 
 namespace CobainSaver
 {
@@ -66,10 +70,10 @@ namespace CobainSaver
             Proxy = webProxy,
             UseCookies = false
         };
-/*        private static HttpClientHandler instaHandler = new HttpClientHandler()
+/*        private static HttpClientHandler reserveHandler = new HttpClientHandler()
         {
-            AllowAutoRedirect = false,
-            Proxy = torProxy,
+            AllowAutoRedirect = true,
+            //Proxy = torProxy,
             UseCookies = false
         };*/
         private static readonly HttpClient redditClient = new HttpClient(handler);
@@ -79,7 +83,6 @@ namespace CobainSaver
         public Downloader()
         {
             redditClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
-            reserveClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
             urlClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
             //instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
         }
@@ -113,7 +116,7 @@ namespace CobainSaver
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            text: "Вибачте, це відео має проблему: відео занадто велике (розмір має не перевищувати 50мб)",
+                            text: "Вибачте, з цим відео виникла помилка: відео занадто велике (розмір має не перевищувати 50мб)",
                             replyToMessageId: update.Message.MessageId);
                     }
                     if (lang == "rus")
@@ -181,7 +184,7 @@ namespace CobainSaver
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Вибачте, це відео має проблему: відео має вікові обмеження",
+                        text: "Вибачте, з цим відео виникла помилка: відео має вікові обмеження",
                         replyToMessageId: update.Message.MessageId);
                 }
                 if (lang == "rus")
@@ -228,7 +231,7 @@ namespace CobainSaver
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            text: "Вибачте, це аудіо має проблему: аудіо занадто велике (розмір має не перевищувати 50мб)",
+                            text: "Вибачте, з цим аудіо виникла помилка: аудіо занадто велике (розмір має не перевищувати 50мб)",
                             replyToMessageId: update.Message.MessageId);
                     }
                     if (lang == "rus")
@@ -361,7 +364,7 @@ namespace CobainSaver
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            text: "Вибачте, це відео має проблему: відео занадто велике (розмір має не перевищувати 50мб)",
+                            text: "Вибачте, з цим відео виникла помилка: відео занадто велике (розмір має не перевищувати 50мб)",
                             replyToMessageId: update.Message.MessageId);
                     }
                     if (lang == "rus")
@@ -691,7 +694,7 @@ namespace CobainSaver
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "Sorry, this content is not available or hidden to me\n" +
-                        "If you're sure the content is public or the bot has previously submitted this, please email us about this bug - t.me/cobainSaver",
+                        "\nIf you're sure the content is public or the bot has previously submitted this, please email us about this bug - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 if (lang == "ukr")
@@ -699,7 +702,7 @@ namespace CobainSaver
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "Вибачте, цей контент недоступний або прихований для мене\n" +
-                        "Якщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
+                        "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 if (lang == "rus")
@@ -707,7 +710,7 @@ namespace CobainSaver
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "Извините, данный контент недоступен или скрыт для меня\n" +
-                        "Если вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
+                        "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 try
@@ -1288,12 +1291,13 @@ namespace CobainSaver
                     Proxy = torProxy,
                     UseCookies = false
                 };
+                string cookie = "\"ODN\\05453733646477\\0541742467210:01f7429eedb553317ff7b6f9c93668ff8bdd0c006928385ba0f709c77e60adb4f5dae57a\"";
                 HttpClient instaClient = new HttpClient(instaHandler);
                 instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)");
                 instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
                 instaClient.DefaultRequestHeaders.Add("Accept-Language", "ru-RU,ru;q=0.8,uk;q=0.6,en-US;q=0.4,en;q=0.2");
-                instaClient.DefaultRequestHeaders.Add("Cookie", "csrftoken=4iieZCxBIaLbEKX4HSdGW99e1C28Jss5; mid=Zau1bgALAAEAQ8kuhhpz2ivZF4U8; ig_did=572E90C4-8466-40C9-8A51-A42EF1C350A6; datr=brWrZQvqYG8A_ZQcVaFYOt7s; ig_nrcb=1; ds_user_id=53733646477; sessionid=53733646477%3A2tCC8w9we5kcvQ%3A9%3AAYe50kiNdAjeb7dvXd-zvFFxCLXcFMJZ_drKKC6slw; ps_n=0; ps_l=0; rur=\"ODN\\05453733646477\\0541742467210:01f7429eedb553317ff7b6f9c93668ff8bdd0c006928385ba0f709c77e60adb4f5dae57a");
+                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=85hfusJZOqUK2cA5Hu2yPTfqm9GFqSjS; mid=ZXrDgwALAAHFp-e6632wdmoJ7yKy; ig_did=91261F33-5951-4CF3-AE3B-B1F2DBC71861; datr=g8N6ZReqIPRoIU-H3WU6EqHI; ig_nrcb=1; ds_user_id=64262763197; sessionid=64262763197%3A95fhIg0X6Hj10m%3A11%3AAYdkBDhMlAHA0UDwGJAGPPXXbbceT9A4VuONAXo5bA; ps_n=0; ps_l=0; rur={cookie}");
                 instaClient.DefaultRequestHeaders.Add("Accept-Encoding", "Accept-Encoding");
                 instaClient.DefaultRequestHeaders.Add("Alt-Used", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
@@ -1329,7 +1333,6 @@ namespace CobainSaver
                 var responseName = await instaClient.GetAsync($"https://i.instagram.com/api/v1/users/web_profile_info/?username={userName}");
                 var responseStringName = await responseName.Content.ReadAsStringAsync();
                 JObject jsonObjectName = JObject.Parse(responseStringName);
-                //Console.WriteLine(jsonObjectName.ToString());
                 if (jsonObjectName["data"]["user"]["id"] != null)
                 {
                     userId = jsonObjectName["data"]["user"]["id"].ToString();
@@ -1338,7 +1341,6 @@ namespace CobainSaver
                 var response = await instaClient.GetAsync($"https://i.instagram.com/api/v1/feed/user/{userId}/reel_media");
                 var responseString = await response.Content.ReadAsStringAsync();
                 JObject jsonObject = JObject.Parse(responseString);
-                //Console.WriteLine(jsonObject.ToString());
                 int count = 0;
                 if (jsonObject["items"] != null)
                 {
@@ -1378,7 +1380,7 @@ namespace CobainSaver
                             await botClient.SendTextMessageAsync(
                                 chatId: chatId,
                                 text: "Sorry, story's expired\n" +
-                                "If you're sure the content is available or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
+                                "\nIf you're sure the content is available or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
                                 replyToMessageId: update.Message.MessageId);
                         }
                         if (lang == "ukr")
@@ -1386,7 +1388,7 @@ namespace CobainSaver
                             await botClient.SendTextMessageAsync(
                                 chatId: chatId,
                                 text: "Вибачте, термін історії закінчився\n" +
-                                "Якщо ви впевнені, що контент доступний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
+                                "\nЯкщо ви впевнені, що контент доступний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
                                 replyToMessageId: update.Message.MessageId);
                         }
                         if (lang == "rus")
@@ -1394,7 +1396,7 @@ namespace CobainSaver
                             await botClient.SendTextMessageAsync(
                                 chatId: chatId,
                                 text: "Извините, срок истории истек\n" +
-                                "Если вы уверенны, что контент доступен или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
+                                "\nЕсли вы уверенны, что контент доступен или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
                                 replyToMessageId: update.Message.MessageId);
                         }
                     }
@@ -1410,7 +1412,7 @@ namespace CobainSaver
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "Sorry, story not found or content is private\n" +
-                        "If you're sure the content is public or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
+                        "\nIf you're sure the content is public or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 if (lang == "ukr")
@@ -1418,7 +1420,7 @@ namespace CobainSaver
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "Вибачте, сторі не знайдено або контент є приватним\n" +
-                        "Якщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
+                        "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 if (lang == "rus")
@@ -1426,7 +1428,7 @@ namespace CobainSaver
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "Извините, история не найдена или контент является приватным\n" +
-                        "Если вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
+                        "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 try
@@ -1460,12 +1462,13 @@ namespace CobainSaver
                     Proxy = torProxy,
                     UseCookies = false
                 };
+                string cookie = "\"ODN\\05453733646477\\0541742467210:01f7429eedb553317ff7b6f9c93668ff8bdd0c006928385ba0f709c77e60adb4f5dae57a\"";
                 HttpClient instaClient = new HttpClient(instaHandler);
-                instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
+                instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)");
                 instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
                 instaClient.DefaultRequestHeaders.Add("Accept-Language", "ru-RU,ru;q=0.8,uk;q=0.6,en-US;q=0.4,en;q=0.2");
-                instaClient.DefaultRequestHeaders.Add("Cookie", "csrftoken=4iieZCxBIaLbEKX4HSdGW99e1C28Jss5; mid=Zau1bgALAAEAQ8kuhhpz2ivZF4U8; ig_did=572E90C4-8466-40C9-8A51-A42EF1C350A6; datr=brWrZQvqYG8A_ZQcVaFYOt7s; ig_nrcb=1; ds_user_id=53733646477; sessionid=53733646477%3A2tCC8w9we5kcvQ%3A9%3AAYe50kiNdAjeb7dvXd-zvFFxCLXcFMJZ_drKKC6slw; ps_n=0; ps_l=0; rur=\"ODN\\05453733646477\\0541742467210:01f7429eedb553317ff7b6f9c93668ff8bdd0c006928385ba0f709c77e60adb4f5dae57a");
+                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=85hfusJZOqUK2cA5Hu2yPTfqm9GFqSjS; mid=ZXrDgwALAAHFp-e6632wdmoJ7yKy; ig_did=91261F33-5951-4CF3-AE3B-B1F2DBC71861; datr=g8N6ZReqIPRoIU-H3WU6EqHI; ig_nrcb=1; ds_user_id=64262763197; sessionid=64262763197%3A95fhIg0X6Hj10m%3A11%3AAYdkBDhMlAHA0UDwGJAGPPXXbbceT9A4VuONAXo5bA; ps_n=0; ps_l=0; rur={cookie}");
                 instaClient.DefaultRequestHeaders.Add("Accept-Encoding", "Accept-Encoding");
                 instaClient.DefaultRequestHeaders.Add("Alt-Used", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
@@ -1654,12 +1657,13 @@ namespace CobainSaver
                     Proxy = torProxy,
                     UseCookies = false
                 };
+                string cookie = "\"ODN\\05453733646477\\0541742467210:01f7429eedb553317ff7b6f9c93668ff8bdd0c006928385ba0f709c77e60adb4f5dae57a\"";
                 HttpClient instaClient = new HttpClient(instaHandler);
-                instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
+                instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)");
                 instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
                 instaClient.DefaultRequestHeaders.Add("Accept-Language", "ru-RU,ru;q=0.8,uk;q=0.6,en-US;q=0.4,en;q=0.2");
-                instaClient.DefaultRequestHeaders.Add("Cookie", "csrftoken=4iieZCxBIaLbEKX4HSdGW99e1C28Jss5; mid=Zau1bgALAAEAQ8kuhhpz2ivZF4U8; ig_did=572E90C4-8466-40C9-8A51-A42EF1C350A6; datr=brWrZQvqYG8A_ZQcVaFYOt7s; ig_nrcb=1; ds_user_id=53733646477; sessionid=53733646477%3A2tCC8w9we5kcvQ%3A9%3AAYe50kiNdAjeb7dvXd-zvFFxCLXcFMJZ_drKKC6slw; ps_n=0; ps_l=0; rur=\"ODN\\05453733646477\\0541742467210:01f7429eedb553317ff7b6f9c93668ff8bdd0c006928385ba0f709c77e60adb4f5dae57a");
+                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=85hfusJZOqUK2cA5Hu2yPTfqm9GFqSjS; mid=ZXrDgwALAAHFp-e6632wdmoJ7yKy; ig_did=91261F33-5951-4CF3-AE3B-B1F2DBC71861; datr=g8N6ZReqIPRoIU-H3WU6EqHI; ig_nrcb=1; ds_user_id=64262763197; sessionid=64262763197%3A95fhIg0X6Hj10m%3A11%3AAYdkBDhMlAHA0UDwGJAGPPXXbbceT9A4VuONAXo5bA; ps_n=0; ps_l=0; rur={cookie}");
                 instaClient.DefaultRequestHeaders.Add("Accept-Encoding", "Accept-Encoding");
                 instaClient.DefaultRequestHeaders.Add("Alt-Used", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
@@ -2063,7 +2067,7 @@ namespace CobainSaver
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "Sorry, post or video not found or content is private\n" +
-                        "If you're sure the content is public or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
+                        "\nIf you're sure the content is public or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 if (lang == "ukr")
@@ -2071,7 +2075,7 @@ namespace CobainSaver
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "Вибачте, пост або відео не знайдено або контент є приватним\n" +
-                        "Якщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
+                        "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 if (lang == "rus")
@@ -2079,7 +2083,7 @@ namespace CobainSaver
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "Извините, пост или видео не найден или контент является приватным\n" +
-                        "Если вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
+                        "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 try
