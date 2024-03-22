@@ -348,7 +348,14 @@ namespace CobainSaver
                 var responseString = await response.Content.ReadAsStringAsync();
                 //await Console.Out.WriteLineAsync(responseString);
                 JObject jsonObject = JObject.Parse(responseString);
-                long size = Convert.ToInt64(jsonObject["data"]["size"].ToString());
+                long size = 0;
+                try
+                {
+                    size = Convert.ToInt64(jsonObject["data"]["size"].ToString());
+                }
+                catch
+                {
+                }
                 if (size > 52428800)
                 {
                     Language language = new Language("rand", "rand");
@@ -539,7 +546,7 @@ namespace CobainSaver
 
                 var content = new FormUrlEncodedContent(values);
 
-                var response = await client.PostAsync(jsonObjectAPI["TTAPI"][0].ToString(), content);
+                var response = await urlClient.PostAsync(jsonObjectAPI["TTAPI"][0].ToString(), content);
 
                 var responseString = await response.Content.ReadAsStringAsync();
                 //await Console.Out.WriteLineAsync(responseString);
@@ -727,415 +734,415 @@ namespace CobainSaver
                 }
             }
         }
-/*        public async Task TikTokDownloaderReserve(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
-        {
-            try
-            {
-                string jsonString = System.IO.File.ReadAllText("source.json");
-                JObject jsonObjectAPI = JObject.Parse(jsonString);
-                string normallMsg = await DeleteNotUrl(messageText);
-                var response = await urlClient.GetAsync(normallMsg);
-                var responseString = await response.Content.ReadAsStringAsync();
-                Regex regex = new Regex(@"\bwebapp.video-detail\S+\b");
-                Match match = regex.Match(responseString);
-                string id = null;
-                if (response.StatusCode.ToString() == "MovedPermanently")
-                {
-                    string[] parts = responseString.Split(new char[] { '/', '?' });
+        /* public async Task TikTokDownloaderReserve(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+         {
+             try
+             {
+                 string jsonString = System.IO.File.ReadAllText("source.json");
+                 JObject jsonObjectAPI = JObject.Parse(jsonString);
+                 string normallMsg = await DeleteNotUrl(messageText);
+                 var response = await urlClient.GetAsync(normallMsg);
+                 var responseString = await response.Content.ReadAsStringAsync();
+                 Regex regex = new Regex(@"\bwebapp.video-detail\S+\b");
+                 Match match = regex.Match(responseString);
+                 string id = null;
+                 if (response.StatusCode.ToString() == "MovedPermanently")
+                 {
+                     string[] parts = responseString.Split(new char[] { '/', '?' });
 
-                    // Выбираем последнюю подстроку
-                    id = parts[parts.Length - 3];
-                }
-                else if (!match.Success)
-                {
-                    try
-                    {
-                        regex = new Regex(@"\bseo.abtest\S+\b");
-                        match = regex.Match(responseString);
-                        id = match.Value.Split('F').Last();
-                        id = id.Remove(id.IndexOf(','));
-                        id = id.Substring(0, (id.Length - 1));
-                    }
-                    catch (Exception ex)
-                    {
+                     // Выбираем последнюю подстроку
+                     id = parts[parts.Length - 3];
+                 }
+                 else if (!match.Success)
+                 {
+                     try
+                     {
+                         regex = new Regex(@"\bseo.abtest\S+\b");
+                         match = regex.Match(responseString);
+                         id = match.Value.Split('F').Last();
+                         id = id.Remove(id.IndexOf(','));
+                         id = id.Substring(0, (id.Length - 1));
+                     }
+                     catch (Exception ex)
+                     {
 
-                    }
-                }
-                else if (match.Success)
-                {
-                    try
-                    {
-                        id = match.Value.Substring(54);
-                        id = id.Split('"')[0];
-                    }
-                    catch (Exception ex)
-                    {
-                        id = normallMsg.Split('/').Last();
-                        id = id.Remove(id.IndexOf('?'));
-                    }
-                }
+                     }
+                 }
+                 else if (match.Success)
+                 {
+                     try
+                     {
+                         id = match.Value.Substring(54);
+                         id = id.Split('"')[0];
+                     }
+                     catch (Exception ex)
+                     {
+                         id = normallMsg.Split('/').Last();
+                         id = id.Remove(id.IndexOf('?'));
+                     }
+                 }
 
-                string url = $"{jsonObjectAPI["TTAPI"][1]}{id}";
-                var responseVideo = await reserveClient.GetAsync(url);
-                var responseStringVideo = await responseVideo.Content.ReadAsStringAsync();
-                JObject jsonObject = JObject.Parse(responseStringVideo);
-
-
-                List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
-                if (jsonObject["aweme_list"][0]["image_post_info"] != null)
-                {
-                    await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
-                    int count = 0;
-                    foreach (var album in jsonObject["aweme_list"][0]["image_post_info"]["images"])
-                    {
-                        foreach (var media in album["display_image"]["url_list"])
-                        {
-                            if (count % 2 == 0)
-                            {
-                                mediaAlbum.Add(
-                                     new InputMediaPhoto(InputFile.FromUri(media.ToString()))
-                                );
-                            }
-                            count++;
-                        }
-                    }
-                    int rowSize = 10;
-                    List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
-                    foreach (var item in result)
-                    {
-                        await botClient.SendMediaGroupAsync(
-                            chatId: chatId,
-                            media: item,
-                            replyToMessageId: update.Message.MessageId); ;
-                    }
-                    await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
-                    string music = jsonObject["aweme_list"][0]["music"]["play_url"]["url_list"][0].ToString();
-                    string perfomer = jsonObject["aweme_list"][0]["music"]["author"].ToString();
-                    string title = jsonObject["aweme_list"][0]["music"]["title"].ToString();
-                    int duration = Convert.ToInt32(jsonObject["aweme_list"][0]["music"]["duration"]);
-                    string thumbnail = jsonObject["aweme_list"][0]["music"]["cover_thumb"]["url_list"][0].ToString();
-
-                    string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
-                    if (!Directory.Exists(audioPath))
-                    {
-                        Directory.CreateDirectory(audioPath);
-                    }
-                    string filePath = Path.Combine(audioPath, chatId + "audio.mp3");
-                    string thumbnailPath = Path.Combine(audioPath, chatId + "thumb.jpeg");
-                    using (var client = new WebClient())
-                    {
-                        client.DownloadFile(music, filePath);
-                    }
-                    using (var client = new WebClient())
-                    {
-                        client.DownloadFile(thumbnail, thumbnailPath);
-                    }
-                    await using Stream stream = System.IO.File.OpenRead(filePath);
-                    await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
-                    await botClient.SendAudioAsync(
-                        chatId: chatId,
-                        audio: InputFile.FromStream(stream),
-                        performer: perfomer,
-                        title: title,
-                        duration: duration,
-                        thumbnail: InputFile.FromStream(streamThumb),
-                        replyToMessageId: update.Message.MessageId
-                        );
-                    stream.Close();
-                    streamThumb.Close();
-
-                    System.IO.File.Delete(filePath);
-                    System.IO.File.Delete(thumbnailPath);
-                }
-                else
-                {
-                    await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
-                    string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
-                    if (!Directory.Exists(audioPath))
-                    {
-                        Directory.CreateDirectory(audioPath);
-                    }
-                    string video = jsonObject["aweme_list"][0]["video"]["download_addr"]["url_list"][0].ToString();
-                    string title = jsonObject["aweme_list"][0]["desc"].ToString();
-                    if (title.Contains("#"))
-                    {
-                        title = Regex.Replace(title, @"#.*", "");
-                    }
-                    await botClient.SendVideoAsync(
-                        chatId: chatId,
-                        video: InputFile.FromUri(video),
-                        caption: title,
-                        replyToMessageId: update.Message.MessageId
-                        );
-                    await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
-                    string music = jsonObject["aweme_list"][0]["music"]["play_url"]["url_list"][0].ToString();
-                    string perfomer = jsonObject["aweme_list"][0]["music"]["author"].ToString();
-                    string musicTitle = jsonObject["aweme_list"][0]["music"]["title"].ToString();
-                    int duration = Convert.ToInt32(jsonObject["aweme_list"][0]["music"]["duration"]);
-                    string thumbnail = jsonObject["aweme_list"][0]["music"]["cover_thumb"]["url_list"][0].ToString();
-
-                    string filePath = Path.Combine(audioPath, chatId + "audio.mp3");
-                    string thumbnailPath = Path.Combine(audioPath, chatId + "thumb.jpeg");
-                    using (var client = new WebClient())
-                    {
-                        client.DownloadFile(music, filePath);
-                    }
-                    using (var client = new WebClient())
-                    {
-                        client.DownloadFile(thumbnail, thumbnailPath);
-                    }
-                    await using Stream stream = System.IO.File.OpenRead(filePath);
-                    await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
-                    await botClient.SendAudioAsync(
-                        chatId: chatId,
-                        audio: InputFile.FromStream(stream),
-                        performer: perfomer,
-                        title: musicTitle,
-                        duration: duration,
-                        thumbnail: InputFile.FromStream(streamThumb),
-                        replyToMessageId: update.Message.MessageId
-                        );
-                    stream.Close();
-                    streamThumb.Close();
-
-                    System.IO.File.Delete(filePath);
-                    System.IO.File.Delete(thumbnailPath);
-                }
-            }
-            catch (Exception ex)
-            {
-                try
-                {
-                    string jsonString = System.IO.File.ReadAllText("source.json");
-                    JObject jsonObjectAPI = JObject.Parse(jsonString);
-                    string normallMsg = await DeleteNotUrl(messageText);
-                    var response = await urlClient.GetAsync(normallMsg);
-                    var responseString = await response.Content.ReadAsStringAsync();
-                    Regex regex = new Regex(@"\bwebapp.video-detail\S+\b");
-                    Match match = regex.Match(responseString);
-                    string id = null;
-                    if(response.StatusCode.ToString() == "MovedPermanently")
-                    {
-                        string[] parts = responseString.Split(new char[] { '/', '?' });
-
-                        // Выбираем последнюю подстроку
-                        id = parts[parts.Length - 3];
-                    }
-                    else if (!match.Success)
-                    {
-                        try
-                        {
-                            regex = new Regex(@"\bseo.abtest\S+\b");
-                            match = regex.Match(responseString);
-                            id = match.Value.Split('F').Last();
-                            id = id.Remove(id.IndexOf(','));
-                            id = id.Substring(0, (id.Length - 1));
-                        }
-                        catch (Exception e)
-                        {
-
-                        }
-                    }
-                    else if (match.Success)
-                    {
-                        try
-                        {
-                            id = match.Value.Substring(54);
-                            id = id.Split('"')[0];
-                        }
-                        catch (Exception e)
-                        {
-                            id = normallMsg.Split('/').Last();
-                            id = id.Remove(id.IndexOf('?'));
-                        }
-                    }
-                    string url = $"{jsonObjectAPI["TTAPI"][1]}{id}";
-                    var responseVideo = await reserveClient.GetAsync(url);
-                    var responseStringVideo = await responseVideo.Content.ReadAsStringAsync();
-                    JObject jsonObject = JObject.Parse(responseStringVideo);
+                 string url = $"{jsonObjectAPI["TTAPI"][1]}{id}";
+                 var responseVideo = await reserveClient.GetAsync(url);
+                 var responseStringVideo = await responseVideo.Content.ReadAsStringAsync();
+                 JObject jsonObject = JObject.Parse(responseStringVideo);
 
 
-                    List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
-                    if (jsonObject["aweme_list"][0]["image_post_info"] != null)
-                    {
-                        await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
-                        int count = 0;
-                        foreach (var album in jsonObject["aweme_list"][0]["image_post_info"]["images"])
-                        {
-                            foreach (var media in album["display_image"]["url_list"])
-                            {
-                                if (count % 2 == 0)
-                                {
-                                    mediaAlbum.Add(
-                                         new InputMediaPhoto(InputFile.FromUri(media.ToString()))
-                                    );
-                                }
-                                count++;
-                            }
-                        }
-                        int rowSize = 10;
-                        List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
-                        foreach (var item in result)
-                        {
-                            await botClient.SendMediaGroupAsync(
-                                chatId: chatId,
-                                media: item,
-                                replyToMessageId: update.Message.MessageId); ;
-                        }
-                        await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
-                        string music = jsonObject["aweme_list"][0]["music"]["play_url"]["url_list"][0].ToString();
-                        string perfomer = jsonObject["aweme_list"][0]["music"]["author"].ToString();
-                        string title = jsonObject["aweme_list"][0]["music"]["title"].ToString();
-                        int duration = Convert.ToInt32(jsonObject["aweme_list"][0]["music"]["duration"]);
-                        string thumbnail = jsonObject["aweme_list"][0]["music"]["cover_thumb"]["url_list"][0].ToString();
+                 List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
+                 if (jsonObject["aweme_list"][0]["image_post_info"] != null)
+                 {
+                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
+                     int count = 0;
+                     foreach (var album in jsonObject["aweme_list"][0]["image_post_info"]["images"])
+                     {
+                         foreach (var media in album["display_image"]["url_list"])
+                         {
+                             if (count % 2 == 0)
+                             {
+                                 mediaAlbum.Add(
+                                      new InputMediaPhoto(InputFile.FromUri(media.ToString()))
+                                 );
+                             }
+                             count++;
+                         }
+                     }
+                     int rowSize = 10;
+                     List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
+                     foreach (var item in result)
+                     {
+                         await botClient.SendMediaGroupAsync(
+                             chatId: chatId,
+                             media: item,
+                             replyToMessageId: update.Message.MessageId); ;
+                     }
+                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
+                     string music = jsonObject["aweme_list"][0]["music"]["play_url"]["url_list"][0].ToString();
+                     string perfomer = jsonObject["aweme_list"][0]["music"]["author"].ToString();
+                     string title = jsonObject["aweme_list"][0]["music"]["title"].ToString();
+                     int duration = Convert.ToInt32(jsonObject["aweme_list"][0]["music"]["duration"]);
+                     string thumbnail = jsonObject["aweme_list"][0]["music"]["cover_thumb"]["url_list"][0].ToString();
 
-                        string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
-                        if (!Directory.Exists(audioPath))
-                        {
-                            Directory.CreateDirectory(audioPath);
-                        }
-                        string filePath = Path.Combine(audioPath, chatId + "audio.mp3");
-                        string thumbnailPath = Path.Combine(audioPath, chatId + "thumb.jpeg");
-                        using (var client = new WebClient())
-                        {
-                            client.DownloadFile(music, filePath);
-                        }
-                        using (var client = new WebClient())
-                        {
-                            client.DownloadFile(thumbnail, thumbnailPath);
-                        }
-                        await using Stream stream = System.IO.File.OpenRead(filePath);
-                        await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
-                        await botClient.SendAudioAsync(
-                            chatId: chatId,
-                            audio: InputFile.FromStream(stream),
-                            performer: perfomer,
-                            title: title,
-                            duration: duration,
-                            thumbnail: InputFile.FromStream(streamThumb),
-                            replyToMessageId: update.Message.MessageId
-                            );
-                        stream.Close();
-                        streamThumb.Close();
+                     string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                     if (!Directory.Exists(audioPath))
+                     {
+                         Directory.CreateDirectory(audioPath);
+                     }
+                     string filePath = Path.Combine(audioPath, chatId + "audio.mp3");
+                     string thumbnailPath = Path.Combine(audioPath, chatId + "thumb.jpeg");
+                     using (var client = new WebClient())
+                     {
+                         client.DownloadFile(music, filePath);
+                     }
+                     using (var client = new WebClient())
+                     {
+                         client.DownloadFile(thumbnail, thumbnailPath);
+                     }
+                     await using Stream stream = System.IO.File.OpenRead(filePath);
+                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
+                     await botClient.SendAudioAsync(
+                         chatId: chatId,
+                         audio: InputFile.FromStream(stream),
+                         performer: perfomer,
+                         title: title,
+                         duration: duration,
+                         thumbnail: InputFile.FromStream(streamThumb),
+                         replyToMessageId: update.Message.MessageId
+                         );
+                     stream.Close();
+                     streamThumb.Close();
 
-                        System.IO.File.Delete(filePath);
-                        System.IO.File.Delete(thumbnailPath);
-                    }
-                    else
-                    {
-                        await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
-                        string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
-                        if (!Directory.Exists(audioPath))
-                        {
-                            Directory.CreateDirectory(audioPath);
-                        }
-                        string video = jsonObject["aweme_list"][0]["video"]["download_addr"]["url_list"][0].ToString();
-                        string videoPath = Path.Combine(audioPath, chatId + "video.mp4");
-                        string thumbnailVideo = jsonObject["aweme_list"][0]["video"]["origin_cover"]["url_list"][0].ToString();
-                        string thumbnailVideoPath = Path.Combine(audioPath, chatId + "thumbVideo.jpeg");
-                        using (var client = new WebClient())
-                        {
-                            client.DownloadFile(video, videoPath);
-                        }
-                        using (var client = new WebClient())
-                        {
-                            client.DownloadFile(thumbnailVideo, thumbnailVideoPath);
-                        }
-                        await using Stream streamVideo = System.IO.File.OpenRead(videoPath);
-                        await using Stream streamThumbVideo = System.IO.File.OpenRead(thumbnailVideoPath);
+                     System.IO.File.Delete(filePath);
+                     System.IO.File.Delete(thumbnailPath);
+                 }
+                 else
+                 {
+                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
+                     string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                     if (!Directory.Exists(audioPath))
+                     {
+                         Directory.CreateDirectory(audioPath);
+                     }
+                     string video = jsonObject["aweme_list"][0]["video"]["download_addr"]["url_list"][0].ToString();
+                     string title = jsonObject["aweme_list"][0]["desc"].ToString();
+                     if (title.Contains("#"))
+                     {
+                         title = Regex.Replace(title, @"#.*", "");
+                     }
+                     await botClient.SendVideoAsync(
+                         chatId: chatId,
+                         video: InputFile.FromUri(video),
+                         caption: title,
+                         replyToMessageId: update.Message.MessageId
+                         );
+                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
+                     string music = jsonObject["aweme_list"][0]["music"]["play_url"]["url_list"][0].ToString();
+                     string perfomer = jsonObject["aweme_list"][0]["music"]["author"].ToString();
+                     string musicTitle = jsonObject["aweme_list"][0]["music"]["title"].ToString();
+                     int duration = Convert.ToInt32(jsonObject["aweme_list"][0]["music"]["duration"]);
+                     string thumbnail = jsonObject["aweme_list"][0]["music"]["cover_thumb"]["url_list"][0].ToString();
 
-                        string title = jsonObject["aweme_list"][0]["desc"].ToString();
-                        if (title.Contains("#"))
-                        {
-                            title = Regex.Replace(title, @"#.*", "");
-                        }
-                        await botClient.SendVideoAsync(
-                            chatId: chatId,
-                            video: InputFile.FromStream(streamVideo),
-                            caption: title,
-                            thumbnail: InputFile.FromStream(streamThumbVideo),
-                            replyToMessageId: update.Message.MessageId
-                            );
-                        streamVideo.Close();
-                        streamThumbVideo.Close();
-                        System.IO.File.Delete(videoPath);
-                        System.IO.File.Delete(thumbnailVideoPath);
-                        await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
-                        string music = jsonObject["aweme_list"][0]["music"]["play_url"]["url_list"][0].ToString();
-                        string perfomer = jsonObject["aweme_list"][0]["music"]["author"].ToString();
-                        string musicTitle = jsonObject["aweme_list"][0]["music"]["title"].ToString();
-                        int duration = Convert.ToInt32(jsonObject["aweme_list"][0]["music"]["duration"]);
-                        string thumbnail = jsonObject["aweme_list"][0]["music"]["cover_thumb"]["url_list"][0].ToString();
+                     string filePath = Path.Combine(audioPath, chatId + "audio.mp3");
+                     string thumbnailPath = Path.Combine(audioPath, chatId + "thumb.jpeg");
+                     using (var client = new WebClient())
+                     {
+                         client.DownloadFile(music, filePath);
+                     }
+                     using (var client = new WebClient())
+                     {
+                         client.DownloadFile(thumbnail, thumbnailPath);
+                     }
+                     await using Stream stream = System.IO.File.OpenRead(filePath);
+                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
+                     await botClient.SendAudioAsync(
+                         chatId: chatId,
+                         audio: InputFile.FromStream(stream),
+                         performer: perfomer,
+                         title: musicTitle,
+                         duration: duration,
+                         thumbnail: InputFile.FromStream(streamThumb),
+                         replyToMessageId: update.Message.MessageId
+                         );
+                     stream.Close();
+                     streamThumb.Close();
 
-                        string filePath = Path.Combine(audioPath, chatId + "audio.mp3");
-                        string thumbnailPath = Path.Combine(audioPath, chatId + "thumb.jpeg");
-                        using (var client = new WebClient())
-                        {
-                            client.DownloadFile(music, filePath);
-                        }
-                        using (var client = new WebClient())
-                        {
-                            client.DownloadFile(thumbnail, thumbnailPath);
-                        }
-                        await using Stream stream = System.IO.File.OpenRead(filePath);
-                        await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
-                        await botClient.SendAudioAsync(
-                            chatId: chatId,
-                            audio: InputFile.FromStream(stream),
-                            performer: perfomer,
-                            title: musicTitle,
-                            duration: duration,
-                            thumbnail: InputFile.FromStream(streamThumb),
-                            replyToMessageId: update.Message.MessageId
-                            );
-                        stream.Close();
-                        streamThumb.Close();
+                     System.IO.File.Delete(filePath);
+                     System.IO.File.Delete(thumbnailPath);
+                 }
+             }
+             catch (Exception ex)
+             {
+                 try
+                 {
+                     string jsonString = System.IO.File.ReadAllText("source.json");
+                     JObject jsonObjectAPI = JObject.Parse(jsonString);
+                     string normallMsg = await DeleteNotUrl(messageText);
+                     var response = await urlClient.GetAsync(normallMsg);
+                     var responseString = await response.Content.ReadAsStringAsync();
+                     Regex regex = new Regex(@"\bwebapp.video-detail\S+\b");
+                     Match match = regex.Match(responseString);
+                     string id = null;
+                     if (response.StatusCode.ToString() == "MovedPermanently")
+                     {
+                         string[] parts = responseString.Split(new char[] { '/', '?' });
 
-                        System.IO.File.Delete(filePath);
-                        System.IO.File.Delete(thumbnailPath);
-                    }
-                }
-                catch
-                {
-                    Language language = new Language("rand", "rand");
-                    string lang = await language.GetCurrentLanguage(chatId.ToString());
-                    if (lang == "eng")
-                    {
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "Sorry, this content is not available or hidden to me",
-                            replyToMessageId: update.Message.MessageId);
-                    }
-                    if (lang == "ukr")
-                    {
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "Вибачте, цей контент недоступний або прихований для мене",
-                            replyToMessageId: update.Message.MessageId);
-                    }
-                    if (lang == "rus")
-                    {
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "Извините, данный контент недоступен или скрыт для меня",
-                            replyToMessageId: update.Message.MessageId);
-                    }
-                    try
-                    {
-                        var message = update.Message;
-                        var user = message.From;
-                        var chat = message.Chat;
-                        Logs logs = new Logs(chat.Id, user.Id, user.Username, null, ex.ToString());
-                        await logs.WriteServerLogs();
-                    }
-                    catch (Exception e)
-                    {
-                        return;
-                    }
-                }
-                
-            }
-        }*/
+                         // Выбираем последнюю подстроку
+                         id = parts[parts.Length - 3];
+                     }
+                     else if (!match.Success)
+                     {
+                         try
+                         {
+                             regex = new Regex(@"\bseo.abtest\S+\b");
+                             match = regex.Match(responseString);
+                             id = match.Value.Split('F').Last();
+                             id = id.Remove(id.IndexOf(','));
+                             id = id.Substring(0, (id.Length - 1));
+                         }
+                         catch (Exception e)
+                         {
+
+                         }
+                     }
+                     else if (match.Success)
+                     {
+                         try
+                         {
+                             id = match.Value.Substring(54);
+                             id = id.Split('"')[0];
+                         }
+                         catch (Exception e)
+                         {
+                             id = normallMsg.Split('/').Last();
+                             id = id.Remove(id.IndexOf('?'));
+                         }
+                     }
+                     string url = $"{jsonObjectAPI["TTAPI"][1]}{id}";
+                     var responseVideo = await reserveClient.GetAsync(url);
+                     var responseStringVideo = await responseVideo.Content.ReadAsStringAsync();
+                     JObject jsonObject = JObject.Parse(responseStringVideo);
+
+
+                     List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
+                     if (jsonObject["aweme_list"][0]["image_post_info"] != null)
+                     {
+                         await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
+                         int count = 0;
+                         foreach (var album in jsonObject["aweme_list"][0]["image_post_info"]["images"])
+                         {
+                             foreach (var media in album["display_image"]["url_list"])
+                             {
+                                 if (count % 2 == 0)
+                                 {
+                                     mediaAlbum.Add(
+                                          new InputMediaPhoto(InputFile.FromUri(media.ToString()))
+                                     );
+                                 }
+                                 count++;
+                             }
+                         }
+                         int rowSize = 10;
+                         List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
+                         foreach (var item in result)
+                         {
+                             await botClient.SendMediaGroupAsync(
+                                 chatId: chatId,
+                                 media: item,
+                                 replyToMessageId: update.Message.MessageId); ;
+                         }
+                         await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
+                         string music = jsonObject["aweme_list"][0]["music"]["play_url"]["url_list"][0].ToString();
+                         string perfomer = jsonObject["aweme_list"][0]["music"]["author"].ToString();
+                         string title = jsonObject["aweme_list"][0]["music"]["title"].ToString();
+                         int duration = Convert.ToInt32(jsonObject["aweme_list"][0]["music"]["duration"]);
+                         string thumbnail = jsonObject["aweme_list"][0]["music"]["cover_thumb"]["url_list"][0].ToString();
+
+                         string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                         if (!Directory.Exists(audioPath))
+                         {
+                             Directory.CreateDirectory(audioPath);
+                         }
+                         string filePath = Path.Combine(audioPath, chatId + "audio.mp3");
+                         string thumbnailPath = Path.Combine(audioPath, chatId + "thumb.jpeg");
+                         using (var client = new WebClient())
+                         {
+                             client.DownloadFile(music, filePath);
+                         }
+                         using (var client = new WebClient())
+                         {
+                             client.DownloadFile(thumbnail, thumbnailPath);
+                         }
+                         await using Stream stream = System.IO.File.OpenRead(filePath);
+                         await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
+                         await botClient.SendAudioAsync(
+                             chatId: chatId,
+                             audio: InputFile.FromStream(stream),
+                             performer: perfomer,
+                             title: title,
+                             duration: duration,
+                             thumbnail: InputFile.FromStream(streamThumb),
+                             replyToMessageId: update.Message.MessageId
+                             );
+                         stream.Close();
+                         streamThumb.Close();
+
+                         System.IO.File.Delete(filePath);
+                         System.IO.File.Delete(thumbnailPath);
+                     }
+                     else
+                     {
+                         await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
+                         string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                         if (!Directory.Exists(audioPath))
+                         {
+                             Directory.CreateDirectory(audioPath);
+                         }
+                         string video = jsonObject["aweme_list"][0]["video"]["download_addr"]["url_list"][0].ToString();
+                         string videoPath = Path.Combine(audioPath, chatId + "video.mp4");
+                         string thumbnailVideo = jsonObject["aweme_list"][0]["video"]["origin_cover"]["url_list"][0].ToString();
+                         string thumbnailVideoPath = Path.Combine(audioPath, chatId + "thumbVideo.jpeg");
+                         using (var client = new WebClient())
+                         {
+                             client.DownloadFile(video, videoPath);
+                         }
+                         using (var client = new WebClient())
+                         {
+                             client.DownloadFile(thumbnailVideo, thumbnailVideoPath);
+                         }
+                         await using Stream streamVideo = System.IO.File.OpenRead(videoPath);
+                         await using Stream streamThumbVideo = System.IO.File.OpenRead(thumbnailVideoPath);
+
+                         string title = jsonObject["aweme_list"][0]["desc"].ToString();
+                         if (title.Contains("#"))
+                         {
+                             title = Regex.Replace(title, @"#.*", "");
+                         }
+                         await botClient.SendVideoAsync(
+                             chatId: chatId,
+                             video: InputFile.FromStream(streamVideo),
+                             caption: title,
+                             thumbnail: InputFile.FromStream(streamThumbVideo),
+                             replyToMessageId: update.Message.MessageId
+                             );
+                         streamVideo.Close();
+                         streamThumbVideo.Close();
+                         System.IO.File.Delete(videoPath);
+                         System.IO.File.Delete(thumbnailVideoPath);
+                         await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
+                         string music = jsonObject["aweme_list"][0]["music"]["play_url"]["url_list"][0].ToString();
+                         string perfomer = jsonObject["aweme_list"][0]["music"]["author"].ToString();
+                         string musicTitle = jsonObject["aweme_list"][0]["music"]["title"].ToString();
+                         int duration = Convert.ToInt32(jsonObject["aweme_list"][0]["music"]["duration"]);
+                         string thumbnail = jsonObject["aweme_list"][0]["music"]["cover_thumb"]["url_list"][0].ToString();
+
+                         string filePath = Path.Combine(audioPath, chatId + "audio.mp3");
+                         string thumbnailPath = Path.Combine(audioPath, chatId + "thumb.jpeg");
+                         using (var client = new WebClient())
+                         {
+                             client.DownloadFile(music, filePath);
+                         }
+                         using (var client = new WebClient())
+                         {
+                             client.DownloadFile(thumbnail, thumbnailPath);
+                         }
+                         await using Stream stream = System.IO.File.OpenRead(filePath);
+                         await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
+                         await botClient.SendAudioAsync(
+                             chatId: chatId,
+                             audio: InputFile.FromStream(stream),
+                             performer: perfomer,
+                             title: musicTitle,
+                             duration: duration,
+                             thumbnail: InputFile.FromStream(streamThumb),
+                             replyToMessageId: update.Message.MessageId
+                             );
+                         stream.Close();
+                         streamThumb.Close();
+
+                         System.IO.File.Delete(filePath);
+                         System.IO.File.Delete(thumbnailPath);
+                     }
+                 }
+                 catch
+                 {
+                     Language language = new Language("rand", "rand");
+                     string lang = await language.GetCurrentLanguage(chatId.ToString());
+                     if (lang == "eng")
+                     {
+                         await botClient.SendTextMessageAsync(
+                             chatId: chatId,
+                             text: "Sorry, this content is not available or hidden to me",
+                             replyToMessageId: update.Message.MessageId);
+                     }
+                     if (lang == "ukr")
+                     {
+                         await botClient.SendTextMessageAsync(
+                             chatId: chatId,
+                             text: "Вибачте, цей контент недоступний або прихований для мене",
+                             replyToMessageId: update.Message.MessageId);
+                     }
+                     if (lang == "rus")
+                     {
+                         await botClient.SendTextMessageAsync(
+                             chatId: chatId,
+                             text: "Извините, данный контент недоступен или скрыт для меня",
+                             replyToMessageId: update.Message.MessageId);
+                     }
+                     try
+                     {
+                         var message = update.Message;
+                         var user = message.From;
+                         var chat = message.Chat;
+                         Logs logs = new Logs(chat.Id, user.Id, user.Username, null, ex.ToString());
+                         await logs.WriteServerLogs();
+                     }
+                     catch (Exception e)
+                     {
+                         return;
+                     }
+                 }
+
+             }
+         }*/
         public async Task ReditDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
             string jsonString = System.IO.File.ReadAllText("source.json");
