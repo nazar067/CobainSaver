@@ -160,6 +160,8 @@ namespace CobainSaver
                 await using Stream streamVideo = System.IO.File.OpenRead(videoPath);
                 await using Stream streamThumbVideo = System.IO.File.OpenRead(thumbnailVideoPath);
 
+                try
+                {
                 // Отправляем видео обратно пользователю
                 await botClient.SendVideoAsync(
                     chatId: chatId,
@@ -168,6 +170,34 @@ namespace CobainSaver
                     thumbnail: InputFile.FromStream(streamThumbVideo),
                     duration: Convert.ToInt32(duration),
                     replyToMessageId: update.Message.MessageId);
+                }
+                catch
+                {                
+                    //await Console.Out.WriteLineAsync(ex.ToString());
+                    Language language = new Language("rand", "rand");
+                    string lang = await language.GetCurrentLanguage(chatId.ToString());
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Sorry, this video has a problem: the video has an age restriction",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Вибачте, з цим відео виникла помилка: відео має вікові обмеження",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Извините, с этим видео возникли проблемы: видео имеет возрастное ограничение",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                }
                 streamVideo.Close();
                 streamThumbVideo.Close();
                 System.IO.File.Delete(videoPath);
@@ -175,7 +205,7 @@ namespace CobainSaver
             }
             catch (Exception ex)
             {
-                await Console.Out.WriteLineAsync(ex.ToString());
+                //await Console.Out.WriteLineAsync(ex.ToString());
                 Language language = new Language("rand", "rand");
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
                 if(lang == "eng")
@@ -287,14 +317,44 @@ namespace CobainSaver
                 await using Stream streamAudio = System.IO.File.OpenRead(audioPath);
                 await using Stream streamThumbAudio = System.IO.File.OpenRead(thumbnailAudioPath);
                 // Отправляем видео обратно пользователю
-                await botClient.SendAudioAsync(
-                    chatId: chatId,
-                    title: title,
-                    audio: InputFile.FromStream(streamAudio),
-                    performer: author,
-                    thumbnail: InputFile.FromStream(streamThumbAudio),
-                    duration: Convert.ToInt32(duration),
-                    replyToMessageId: update.Message.MessageId); ;
+                try
+                {
+                    await botClient.SendAudioAsync(
+                        chatId: chatId,
+                        title: title,
+                        audio: InputFile.FromStream(streamAudio),
+                        performer: author,
+                        thumbnail: InputFile.FromStream(streamThumbAudio),
+                        duration: Convert.ToInt32(duration),
+                        replyToMessageId: update.Message.MessageId); ;
+                }
+                catch
+                { //await Console.Out.WriteLineAsync(ex.ToString());
+                    Language language = new Language("rand", "rand");
+                    string lang = await language.GetCurrentLanguage(chatId.ToString());
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Sorry, this type of audio is not supported, only send me public content",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Вибачте, цей тип аудіо не підтримується, надсилайте мені тільки публічний контент",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Извините, этот тип аудио не поддерживается, отправляйте мне только публичный контент",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                }
+
                 streamAudio.Close();
                 streamThumbAudio.Close();
                 System.IO.File.Delete(audioPath);
@@ -338,8 +398,8 @@ namespace CobainSaver
         {
             HttpClient spotifyClient = new HttpClient();
 
-            string client_id = "cdae9ddf2d664afcbda097fe95c4ee4f";
-            string client_secret = "63a589c3bb794462bdf587df6d9125a9";
+            string client_id = "";
+            string client_secret = "";
 
             string base64Auth = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{client_id}:{client_secret}"));
 
@@ -483,16 +543,51 @@ namespace CobainSaver
                     }
                     await using Stream stream = System.IO.File.OpenRead(filePath);
                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
-                    await botClient.SendAudioAsync(
-                        chatId: chatId,
-                        audio: InputFile.FromStream(stream),
-                        performer: perfomer,
-                        title: title,
-                        duration: duration,
-                        disableNotification: true,
-                        thumbnail: InputFile.FromStream(streamThumb),
-                        replyToMessageId: update.Message.MessageId
-                        );
+
+                    try
+                    {
+                        await botClient.SendAudioAsync(
+                            chatId: chatId,
+                            audio: InputFile.FromStream(stream),
+                            performer: perfomer,
+                            title: title,
+                            duration: duration,
+                            disableNotification: true,
+                            thumbnail: InputFile.FromStream(streamThumb),
+                            replyToMessageId: update.Message.MessageId
+                            );
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex.Message.Contains("Bad Request: failed to get HTTP URL content"))
+                        {
+                            Language language = new Language("rand", "rand");
+                            string lang = await language.GetCurrentLanguage(chatId.ToString());
+                            if (lang == "eng")
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Sorry, I need more time to process this content, your video or photo will load in a moment",
+                                    replyToMessageId: update.Message.MessageId);
+                            }
+                            if (lang == "ukr")
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Вибачте, для опрацювання цього контенту мені потрібно більше часу, за мить ваше відео або фото завантажаться",
+                                    replyToMessageId: update.Message.MessageId);
+                            }
+                            if (lang == "rus")
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Извините, для обработки данного контента мне нужно больше времени, через мгновение ваше видео или фото загрузятся ",
+                                    replyToMessageId: update.Message.MessageId);
+                            }
+                        }
+                        await TikTokDownloaderReserve(chatId, update, cancellationToken, messageText, botClient);
+                    }
+
                     stream.Close();
                     streamThumb.Close();
 
@@ -539,16 +634,50 @@ namespace CobainSaver
                     }
                     await using Stream stream = System.IO.File.OpenRead(filePath);
                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
-                    await botClient.SendAudioAsync(
-                        chatId: chatId,
-                        audio: InputFile.FromStream(stream),
-                        performer: perfomer,
-                        title: musicTitle,
-                        duration: duration,
-                        disableNotification: true,
-                        thumbnail: InputFile.FromStream(streamThumb),
-                        replyToMessageId: update.Message.MessageId
-                        );
+
+                    try
+                    {
+                        await botClient.SendAudioAsync(
+                            chatId: chatId,
+                            audio: InputFile.FromStream(stream),
+                            performer: perfomer,
+                            title: musicTitle,
+                            duration: duration,
+                            disableNotification: true,
+                            thumbnail: InputFile.FromStream(streamThumb),
+                            replyToMessageId: update.Message.MessageId
+                            );
+                    }
+                    catch(Exception ex)  {
+                        if (ex.Message.Contains("Bad Request: failed to get HTTP URL content"))
+                        {
+                            Language language = new Language("rand", "rand");
+                            string lang = await language.GetCurrentLanguage(chatId.ToString());
+                            if (lang == "eng")
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Sorry, I need more time to process this content, your video or photo will load in a moment",
+                                    replyToMessageId: update.Message.MessageId);
+                            }
+                            if (lang == "ukr")
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Вибачте, для опрацювання цього контенту мені потрібно більше часу, за мить ваше відео або фото завантажаться",
+                                    replyToMessageId: update.Message.MessageId);
+                            }
+                            if (lang == "rus")
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Извините, для обработки данного контента мне нужно больше времени, через мгновение ваше видео или фото загрузятся ",
+                                    replyToMessageId: update.Message.MessageId);
+                            }
+                        }
+                        await TikTokDownloaderReserve(chatId, update, cancellationToken, messageText, botClient);
+                    }
+
                     stream.Close();
                     streamThumb.Close();
 
@@ -651,16 +780,61 @@ namespace CobainSaver
                     }
                     await using Stream stream = System.IO.File.OpenRead(filePath);
                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
-                    await botClient.SendAudioAsync(
-                        chatId: chatId,
-                        audio: InputFile.FromStream(stream),
-                        performer: perfomer,
-                        title: title,
-                        duration: duration,
-                        disableNotification: true,
-                        thumbnail: InputFile.FromStream(streamThumb),
-                        replyToMessageId: update.Message.MessageId
-                        );
+                    try
+                    {
+                        await botClient.SendAudioAsync(
+                            chatId: chatId,
+                            audio: InputFile.FromStream(stream),
+                            performer: perfomer,
+                            title: title,
+                            duration: duration,
+                            disableNotification: true,
+                            thumbnail: InputFile.FromStream(streamThumb),
+                            replyToMessageId: update.Message.MessageId
+                            );
+                    }
+                    catch (Exception ex)
+                    {
+                        //Console.WriteLine(ex.ToString());
+                        Language language = new Language("rand", "rand");
+                        string lang = await language.GetCurrentLanguage(chatId.ToString());
+                        if (lang == "eng")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Sorry, this content is not available or hidden to me\n" +
+                                "\nIf you're sure the content is public or the bot has previously submitted this, please email us about this bug - t.me/cobainSaver",
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                        if (lang == "ukr")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Вибачте, цей контент недоступний або прихований для мене\n" +
+                                "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                        if (lang == "rus")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Извините, данный контент недоступен или скрыт для меня\n" +
+                                "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                        try
+                        {
+                            var message = update.Message;
+                            var user = message.From;
+                            var chat = message.Chat;
+                            Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
+                            await logs.WriteServerLogs();
+                        }
+                        catch (Exception e)
+                        {
+                        }
+                    }
+
                     stream.Close();
                     streamThumb.Close();
 
@@ -694,15 +868,61 @@ namespace CobainSaver
                     {
                         title = Regex.Replace(title, @"#.*", "");
                     }
-                    await botClient.SendVideoAsync(
-                        chatId: chatId,
-                        video: InputFile.FromStream(streamVideo),
-                        caption: title,
-                        disableNotification: true,
-                        duration: videoDuration,
-                        thumbnail: InputFile.FromStream(streamThumbVideo),
-                        replyToMessageId: update.Message.MessageId
-                        );
+
+                    try
+                    {
+                        await botClient.SendVideoAsync(
+                            chatId: chatId,
+                            video: InputFile.FromStream(streamVideo),
+                            caption: title,
+                            disableNotification: true,
+                            duration: videoDuration,
+                            thumbnail: InputFile.FromStream(streamThumbVideo),
+                            replyToMessageId: update.Message.MessageId
+                            );
+                    }
+                    catch (Exception ex)
+                    {
+                        //Console.WriteLine(ex.ToString());
+                        Language language = new Language("rand", "rand");
+                        string lang = await language.GetCurrentLanguage(chatId.ToString());
+                        if (lang == "eng")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Sorry, this content is not available or hidden to me\n" +
+                                "\nIf you're sure the content is public or the bot has previously submitted this, please email us about this bug - t.me/cobainSaver",
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                        if (lang == "ukr")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Вибачте, цей контент недоступний або прихований для мене\n" +
+                                "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                        if (lang == "rus")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Извините, данный контент недоступен или скрыт для меня\n" +
+                                "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                        try
+                        {
+                            var message = update.Message;
+                            var user = message.From;
+                            var chat = message.Chat;
+                            Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
+                            await logs.WriteServerLogs();
+                        }
+                        catch (Exception e)
+                        {
+                        }
+                    }
+
                     streamVideo.Close();
                     streamThumbVideo.Close();
                     System.IO.File.Delete(videoPath);
@@ -730,16 +950,62 @@ namespace CobainSaver
                     }
                     await using Stream stream = System.IO.File.OpenRead(filePath);
                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
-                    await botClient.SendAudioAsync(
-                        chatId: chatId,
-                        audio: InputFile.FromStream(stream),
-                        performer: perfomer,
-                        title: musicTitle,
-                        duration: duration,
-                        disableNotification: true,
-                        thumbnail: InputFile.FromStream(streamThumb),
-                        replyToMessageId: update.Message.MessageId
-                        );
+
+                    try
+                    {
+                        await botClient.SendAudioAsync(
+                            chatId: chatId,
+                            audio: InputFile.FromStream(stream),
+                            performer: perfomer,
+                            title: musicTitle,
+                            duration: duration,
+                            disableNotification: true,
+                            thumbnail: InputFile.FromStream(streamThumb),
+                            replyToMessageId: update.Message.MessageId
+                            );
+                    }
+                    catch(Exception ex) {
+                        //Console.WriteLine(ex.ToString());
+                        Language language = new Language("rand", "rand");
+                        string lang = await language.GetCurrentLanguage(chatId.ToString());
+                        if (lang == "eng")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Sorry, this content is not available or hidden to me\n" +
+                                "\nIf you're sure the content is public or the bot has previously submitted this, please email us about this bug - t.me/cobainSaver",
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                        if (lang == "ukr")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Вибачте, цей контент недоступний або прихований для мене\n" +
+                                "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                        if (lang == "rus")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Извините, данный контент недоступен или скрыт для меня\n" +
+                                "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                        try
+                        {
+                            var message = update.Message;
+                            var user = message.From;
+                            var chat = message.Chat;
+                            Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
+                            await logs.WriteServerLogs();
+                        }
+                        catch (Exception e)
+                        {
+                            return;
+                        }
+                    }
+
                     stream.Close();
                     streamThumb.Close();
 
@@ -1354,13 +1620,13 @@ namespace CobainSaver
                     Proxy = torProxy,
                     UseCookies = false
                 };
-                string cookie = "\"LDC\\05464262763197\\0541742891366:01f7b05715a40e65ce532f005895ee4a38f7ceed3531b1d9428cefcc38eca0696dc6a72c\"";
+                string cookie = "\"LDC\\05464262763197\\0541742925941:01f7f8f6cff815f651360cd8ba63f4c71306281057faa766be96cdb896df777a04525e21\"";
                 HttpClient instaClient = new HttpClient(instaHandler);
                 instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)");
                 instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
                 instaClient.DefaultRequestHeaders.Add("Accept-Language", "ru-RU,ru;q=0.8,uk;q=0.6,en-US;q=0.4,en;q=0.2");
-                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=UcUd9CVNQ6pixIIYfCK9kymepvEsGscB; mid=Zf_2bAALAAH_Pp3BIfcPJNiJ2Qqp; ig_did=89D16B14-549A-483B-8CEC-8ABBED73D29F; datr=qRkAZhG5zemtpjDVj3HH2Fuw; ig_nrcb=1; ds_user_id=64262763197; sessionid=64262763197:tis2YDpGCCRjYZ:23:AYcJ_2vcFtCpWw34GBLqKOAq-EsLG5mRZdpDeE0r8A; ps_n=0; ps_l=0; rur={cookie}");
+                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=7bcfvryqC893HXNylD4QEuPJQTu7tIPk; mid=Zf_2bAALAAH_Pp3BIfcPJNiJ2Qqp; ig_did=89D16B14-549A-483B-8CEC-8ABBED73D29F; datr=qRkAZhG5zemtpjDVj3HH2Fuw; ig_nrcb=1; ds_user_id=64262763197; sessionid=64262763197:7QEHIgTuJ6K58Y:2:AYfVi8eQ9JMSsGWuZn2Ba0Ec11yZbogbYLpi959Ysg; ps_n=0; ps_l=0; rur={cookie}");
                 instaClient.DefaultRequestHeaders.Add("Accept-Encoding", "Accept-Encoding");
                 instaClient.DefaultRequestHeaders.Add("Alt-Used", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
@@ -1525,13 +1791,13 @@ namespace CobainSaver
                     Proxy = torProxy,
                     UseCookies = false
                 };
-                string cookie = "\"LDC\\05464262763197\\0541742891366:01f7b05715a40e65ce532f005895ee4a38f7ceed3531b1d9428cefcc38eca0696dc6a72c\"";
+                string cookie = "\"LDC\\05464262763197\\0541742925941:01f7f8f6cff815f651360cd8ba63f4c71306281057faa766be96cdb896df777a04525e21\"";
                 HttpClient instaClient = new HttpClient(instaHandler);
                 instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)");
                 instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
                 instaClient.DefaultRequestHeaders.Add("Accept-Language", "ru-RU,ru;q=0.8,uk;q=0.6,en-US;q=0.4,en;q=0.2");
-                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=UcUd9CVNQ6pixIIYfCK9kymepvEsGscB; mid=Zf_2bAALAAH_Pp3BIfcPJNiJ2Qqp; ig_did=89D16B14-549A-483B-8CEC-8ABBED73D29F; datr=qRkAZhG5zemtpjDVj3HH2Fuw; ig_nrcb=1; ds_user_id=64262763197; sessionid=64262763197:tis2YDpGCCRjYZ:23:AYcJ_2vcFtCpWw34GBLqKOAq-EsLG5mRZdpDeE0r8A; ps_n=0; ps_l=0; rur={cookie}");
+                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=7bcfvryqC893HXNylD4QEuPJQTu7tIPk; mid=Zf_2bAALAAH_Pp3BIfcPJNiJ2Qqp; ig_did=89D16B14-549A-483B-8CEC-8ABBED73D29F; datr=qRkAZhG5zemtpjDVj3HH2Fuw; ig_nrcb=1; ds_user_id=64262763197; sessionid=64262763197:7QEHIgTuJ6K58Y:2:AYfVi8eQ9JMSsGWuZn2Ba0Ec11yZbogbYLpi959Ysg; ps_n=0; ps_l=0; rur={cookie}");
                 instaClient.DefaultRequestHeaders.Add("Accept-Encoding", "Accept-Encoding");
                 instaClient.DefaultRequestHeaders.Add("Alt-Used", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
@@ -1720,13 +1986,13 @@ namespace CobainSaver
                     Proxy = torProxy,
                     UseCookies = false
                 };
-                string cookie = "\"LDC\\05464262763197\\0541742891366:01f7b05715a40e65ce532f005895ee4a38f7ceed3531b1d9428cefcc38eca0696dc6a72c\"";
+                string cookie = "\"LDC\\05464262763197\\0541742925941:01f7f8f6cff815f651360cd8ba63f4c71306281057faa766be96cdb896df777a04525e21\"";
                 HttpClient instaClient = new HttpClient(instaHandler);
                 instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)");
                 instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
                 instaClient.DefaultRequestHeaders.Add("Accept-Language", "ru-RU,ru;q=0.8,uk;q=0.6,en-US;q=0.4,en;q=0.2");
-                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=UcUd9CVNQ6pixIIYfCK9kymepvEsGscB; mid=Zf_2bAALAAH_Pp3BIfcPJNiJ2Qqp; ig_did=89D16B14-549A-483B-8CEC-8ABBED73D29F; datr=qRkAZhG5zemtpjDVj3HH2Fuw; ig_nrcb=1; ds_user_id=64262763197; sessionid=64262763197:tis2YDpGCCRjYZ:23:AYcJ_2vcFtCpWw34GBLqKOAq-EsLG5mRZdpDeE0r8A; ps_n=0; ps_l=0; rur={cookie}");
+                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=7bcfvryqC893HXNylD4QEuPJQTu7tIPk; mid=Zf_2bAALAAH_Pp3BIfcPJNiJ2Qqp; ig_did=89D16B14-549A-483B-8CEC-8ABBED73D29F; datr=qRkAZhG5zemtpjDVj3HH2Fuw; ig_nrcb=1; ds_user_id=64262763197; sessionid=64262763197:7QEHIgTuJ6K58Y:2:AYfVi8eQ9JMSsGWuZn2Ba0Ec11yZbogbYLpi959Ysg; ps_n=0; ps_l=0; rur={cookie}");
                 instaClient.DefaultRequestHeaders.Add("Accept-Encoding", "Accept-Encoding");
                 instaClient.DefaultRequestHeaders.Add("Alt-Used", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
@@ -1879,12 +2145,54 @@ namespace CobainSaver
                         await using Stream streamVideo = System.IO.File.OpenRead(videoPath);
                         await using Stream streamThumbVideo = System.IO.File.OpenRead(thumbnailVideoPath);
 
-                        await botClient.SendVideoAsync(
-                            chatId: chatId,
-                            video: InputFile.FromStream(streamVideo),
-                            thumbnail: InputFile.FromStream(streamThumbVideo),
-                            caption: text,
-                            replyToMessageId: update.Message.MessageId);
+                        try
+                        {
+                            await botClient.SendVideoAsync(
+                                chatId: chatId,
+                                video: InputFile.FromStream(streamVideo),
+                                thumbnail: InputFile.FromStream(streamThumbVideo),
+                                caption: text,
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                        catch(Exception ex)
+                        {
+                            Language language = new Language("rand", "rand");
+                            string lang = await language.GetCurrentLanguage(chatId.ToString());
+                            if (lang == "eng")
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Sorry, I need more time to process this content, your video or photo will load in a moment",
+                                    replyToMessageId: update.Message.MessageId);
+                            }
+                            if (lang == "ukr")
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Вибачте, для опрацювання цього контенту мені потрібно більше часу, за мить ваше відео або фото завантажаться",
+                                    replyToMessageId: update.Message.MessageId);
+                            }
+                            if (lang == "rus")
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Извините, для обработки данного контента мне нужно больше времени, через мгновение ваше видео или фото загрузятся ",
+                                    replyToMessageId: update.Message.MessageId);
+                            }
+                            try
+                            {
+                                var message = update.Message;
+                                var user = message.From;
+                                var chat = message.Chat;
+                                Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
+                                await logs.WriteServerLogs();
+                            }
+                            catch (Exception e)
+                            {
+                                return;
+                            }
+                            await InstagramDownloaderReserveAPI(chatId, update, cancellationToken, messageText, (TelegramBotClient)botClient);
+                        }
 
                         streamVideo.Close();
                         streamThumbVideo.Close();
@@ -1906,11 +2214,53 @@ namespace CobainSaver
                         }
                         await using Stream streamImg = System.IO.File.OpenRead(imgPath);
 
-                        await botClient.SendPhotoAsync(
-                            chatId: chatId,
-                            photo: InputFile.FromStream(streamImg),
-                            caption: text,
-                            replyToMessageId: update.Message.MessageId);
+                        try
+                        {
+                            await botClient.SendPhotoAsync(
+                                chatId: chatId,
+                                photo: InputFile.FromStream(streamImg),
+                                caption: text,
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                        catch(Exception ex)
+                        {
+                            Language language = new Language("rand", "rand");
+                            string lang = await language.GetCurrentLanguage(chatId.ToString());
+                            if (lang == "eng")
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Sorry, I need more time to process this content, your video or photo will load in a moment",
+                                    replyToMessageId: update.Message.MessageId);
+                            }
+                            if (lang == "ukr")
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Вибачте, для опрацювання цього контенту мені потрібно більше часу, за мить ваше відео або фото завантажаться",
+                                    replyToMessageId: update.Message.MessageId);
+                            }
+                            if (lang == "rus")
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Извините, для обработки данного контента мне нужно больше времени, через мгновение ваше видео или фото загрузятся ",
+                                    replyToMessageId: update.Message.MessageId);
+                            }
+                            try
+                            {
+                                var message = update.Message;
+                                var user = message.From;
+                                var chat = message.Chat;
+                                Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
+                                await logs.WriteServerLogs();
+                            }
+                            catch (Exception e)
+                            {
+                                return;
+                            }
+                            await InstagramDownloaderReserveAPI(chatId, update, cancellationToken, messageText, (TelegramBotClient)botClient);
+                        }
 
                         streamImg.Close();
                         System.IO.File.Delete(imgPath);
@@ -2265,15 +2615,54 @@ namespace CobainSaver
                 await using Stream streamVideo = System.IO.File.OpenRead(pornPath);
                 await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
 
-
-                await botClient.SendVideoAsync(
-                    chatId: chatId,
-                    video: InputFile.FromStream(streamVideo),
-                    thumbnail: InputFile.FromStream(streamThumb),
-                    caption: title,
-                    disableNotification: false,
-                    replyToMessageId: update.Message.MessageId
-                );
+                try
+                {
+                    await botClient.SendVideoAsync(
+                        chatId: chatId,
+                        video: InputFile.FromStream(streamVideo),
+                        thumbnail: InputFile.FromStream(streamThumb),
+                        caption: title,
+                        disableNotification: false,
+                        replyToMessageId: update.Message.MessageId
+                    );
+                }
+                catch(Exception ex)
+                {
+                    //Console.WriteLine(ex.ToString());;
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Sorry, this video has a problem: the video is too big (the size should not exceed 50mb)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Вибачте, з цим відео виникла помилка: відео занадто велике (розмір має не перевищувати 50мб)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Извините, с этим видео возникли проблемы: видео слишком большое(размер должен не превышать 50мб)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    try
+                    {
+                        var message = update.Message;
+                        var user = message.From;
+                        var chat = message.Chat;
+                        Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
+                        await logs.WriteServerLogs();
+                    }
+                    catch (Exception e)
+                    {
+                        return;
+                    }
+                }
                 streamVideo.Close();
                 streamThumb.Close();
 
