@@ -37,6 +37,11 @@ using RestSharp;
 using Telegram.Bot.Requests.Abstractions;
 using System.Runtime.Intrinsics.Arm;
 using System.Security.Cryptography;
+using SpotifyAPI.Web;
+using YoutubeDLSharp;
+using System.Runtime.Intrinsics.X86;
+using YoutubeDLSharp.Options;
+using System.Text.Json.Nodes;
 
 namespace CobainSaver
 {
@@ -170,7 +175,7 @@ namespace CobainSaver
             }
             catch (Exception ex)
             {
-                //await Console.Out.WriteLineAsync(ex.ToString());
+                await Console.Out.WriteLineAsync(ex.ToString());
                 Language language = new Language("rand", "rand");
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
                 if(lang == "eng")
@@ -328,6 +333,57 @@ namespace CobainSaver
 
             }
         }
+
+        public async Task SpotifyDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        {
+            HttpClient spotifyClient = new HttpClient();
+
+            string client_id = "cdae9ddf2d664afcbda097fe95c4ee4f";
+            string client_secret = "63a589c3bb794462bdf587df6d9125a9";
+
+            string base64Auth = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{client_id}:{client_secret}"));
+
+            var authOptions = new
+            {
+                url = "https://accounts.spotify.com/api/token",
+                headers = new
+                {
+                    Authorization = "Basic " + base64Auth
+                },
+                form = new
+                {
+                    grant_type = "client_credentials"
+                }
+            };
+
+            string accessToken = await GetAccessToken(authOptions, base64Auth);
+            spotifyClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+            Console.WriteLine("Access token: " + accessToken);
+            var spotify = new SpotifyClient(accessToken);
+
+            var track = await spotify.Tracks.Get("3pZcPE0ugJCI6zu5scIjp5");
+            var response = await spotifyClient.GetAsync("https://api.spotify.com/v1/audio-analysis/2takcwOaAZWiXQijPHIx7B");
+            await Console.Out.WriteLineAsync(response.StatusCode.ToString());
+            var responseString = await response.Content.ReadAsStringAsync();
+            JObject jsonObject = JObject.Parse(responseString);
+            Console.WriteLine(jsonObject);
+            string currentDirectory = Directory.GetCurrentDirectory();
+
+            string serverFolderName = "ServerLogs";
+            string serverFolderPath = Path.Combine(currentDirectory, serverFolderName);
+
+            string allServers = "jsonSpotify.json";
+            string allFilePath = Path.Combine(serverFolderPath, allServers);
+            if (!System.IO.File.Exists(allFilePath))
+            {
+                System.IO.File.WriteAllText(allFilePath, jsonObject.ToString());
+            }
+            else
+            {
+                System.IO.File.AppendAllText(allFilePath, jsonObject.ToString());
+            }
+        }
+
         public async Task TikTokDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient) 
         {
             try
@@ -415,8 +471,8 @@ namespace CobainSaver
                     {
                         Directory.CreateDirectory(audioPath);
                     }
-                    string filePath = Path.Combine(audioPath, chatId + "audio.mp3");
-                    string thumbnailPath = Path.Combine(audioPath, chatId + "thumb.jpeg");
+                    string filePath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "audio.mp3");
+                    string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumb.jpeg");
                     using (var client = new WebClient())
                     {
                         client.DownloadFile(music, filePath);
@@ -583,8 +639,8 @@ namespace CobainSaver
                     {
                         Directory.CreateDirectory(audioPath);
                     }
-                    string filePath = Path.Combine(audioPath, chatId + "audio.mp3");
-                    string thumbnailPath = Path.Combine(audioPath, chatId + "thumb.jpeg");
+                    string filePath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "audio.mp3");
+                    string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumb.jpeg");
                     using (var client = new WebClient())
                     {
                         client.DownloadFile(music, filePath);
@@ -619,9 +675,9 @@ namespace CobainSaver
                     int videoDuration = Convert.ToInt32(jsonObject["data"]["duration"]);
                     string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
 
-                    string videoPath = Path.Combine(audioPath, chatId + "video.mp4");
+                    string videoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "video.mp4");
                     string thumbnailVideo = jsonObject["data"]["origin_cover"].ToString();
-                    string thumbnailVideoPath = Path.Combine(audioPath, chatId + "thumbVideo.jpeg");
+                    string thumbnailVideoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVideo.jpeg");
 
                     using (var client = new WebClient())
                     {
@@ -662,8 +718,8 @@ namespace CobainSaver
                     {
                         Directory.CreateDirectory(audioPath);
                     }
-                    string filePath = Path.Combine(audioPath, chatId + "audio.mp3");
-                    string thumbnailPath = Path.Combine(audioPath, chatId + "thumb.jpeg");
+                    string filePath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "audio.mp3");
+                    string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumb.jpeg");
                     using (var client = new WebClient())
                     {
                         client.DownloadFile(music, filePath);
@@ -725,7 +781,7 @@ namespace CobainSaver
                     var message = update.Message;
                     var user = message.From;
                     var chat = message.Chat;
-                    Logs logs = new Logs(chat.Id, user.Id, user.Username, null, ex.ToString());
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
                     await logs.WriteServerLogs();
                 }
                 catch (Exception e)
@@ -1298,13 +1354,13 @@ namespace CobainSaver
                     Proxy = torProxy,
                     UseCookies = false
                 };
-                string cookie = "\"ODN\\05453733646477\\0541742467210:01f7429eedb553317ff7b6f9c93668ff8bdd0c006928385ba0f709c77e60adb4f5dae57a\"";
+                string cookie = "\"LDC\\05464262763197\\0541742891366:01f7b05715a40e65ce532f005895ee4a38f7ceed3531b1d9428cefcc38eca0696dc6a72c\"";
                 HttpClient instaClient = new HttpClient(instaHandler);
                 instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)");
                 instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
                 instaClient.DefaultRequestHeaders.Add("Accept-Language", "ru-RU,ru;q=0.8,uk;q=0.6,en-US;q=0.4,en;q=0.2");
-                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=85hfusJZOqUK2cA5Hu2yPTfqm9GFqSjS; mid=ZXrDgwALAAHFp-e6632wdmoJ7yKy; ig_did=91261F33-5951-4CF3-AE3B-B1F2DBC71861; datr=g8N6ZReqIPRoIU-H3WU6EqHI; ig_nrcb=1; ds_user_id=64262763197; sessionid=64262763197%3A95fhIg0X6Hj10m%3A11%3AAYdkBDhMlAHA0UDwGJAGPPXXbbceT9A4VuONAXo5bA; ps_n=0; ps_l=0; rur={cookie}");
+                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=UcUd9CVNQ6pixIIYfCK9kymepvEsGscB; mid=Zf_2bAALAAH_Pp3BIfcPJNiJ2Qqp; ig_did=89D16B14-549A-483B-8CEC-8ABBED73D29F; datr=qRkAZhG5zemtpjDVj3HH2Fuw; ig_nrcb=1; ds_user_id=64262763197; sessionid=64262763197:tis2YDpGCCRjYZ:23:AYcJ_2vcFtCpWw34GBLqKOAq-EsLG5mRZdpDeE0r8A; ps_n=0; ps_l=0; rur={cookie}");
                 instaClient.DefaultRequestHeaders.Add("Accept-Encoding", "Accept-Encoding");
                 instaClient.DefaultRequestHeaders.Add("Alt-Used", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
@@ -1443,7 +1499,7 @@ namespace CobainSaver
                     var message = update.Message;
                     var user = message.From;
                     var chat = message.Chat;
-                    Logs logs = new Logs(chat.Id, user.Id, user.Username, null, e.ToString());
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, e.ToString());
                     await logs.WriteServerLogs();
                 }
                 catch (Exception ex)
@@ -1469,13 +1525,13 @@ namespace CobainSaver
                     Proxy = torProxy,
                     UseCookies = false
                 };
-                string cookie = "\"ODN\\05453733646477\\0541742467210:01f7429eedb553317ff7b6f9c93668ff8bdd0c006928385ba0f709c77e60adb4f5dae57a\"";
+                string cookie = "\"LDC\\05464262763197\\0541742891366:01f7b05715a40e65ce532f005895ee4a38f7ceed3531b1d9428cefcc38eca0696dc6a72c\"";
                 HttpClient instaClient = new HttpClient(instaHandler);
                 instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)");
                 instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
                 instaClient.DefaultRequestHeaders.Add("Accept-Language", "ru-RU,ru;q=0.8,uk;q=0.6,en-US;q=0.4,en;q=0.2");
-                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=85hfusJZOqUK2cA5Hu2yPTfqm9GFqSjS; mid=ZXrDgwALAAHFp-e6632wdmoJ7yKy; ig_did=91261F33-5951-4CF3-AE3B-B1F2DBC71861; datr=g8N6ZReqIPRoIU-H3WU6EqHI; ig_nrcb=1; ds_user_id=64262763197; sessionid=64262763197%3A95fhIg0X6Hj10m%3A11%3AAYdkBDhMlAHA0UDwGJAGPPXXbbceT9A4VuONAXo5bA; ps_n=0; ps_l=0; rur={cookie}");
+                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=UcUd9CVNQ6pixIIYfCK9kymepvEsGscB; mid=Zf_2bAALAAH_Pp3BIfcPJNiJ2Qqp; ig_did=89D16B14-549A-483B-8CEC-8ABBED73D29F; datr=qRkAZhG5zemtpjDVj3HH2Fuw; ig_nrcb=1; ds_user_id=64262763197; sessionid=64262763197:tis2YDpGCCRjYZ:23:AYcJ_2vcFtCpWw34GBLqKOAq-EsLG5mRZdpDeE0r8A; ps_n=0; ps_l=0; rur={cookie}");
                 instaClient.DefaultRequestHeaders.Add("Accept-Encoding", "Accept-Encoding");
                 instaClient.DefaultRequestHeaders.Add("Alt-Used", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
@@ -1637,7 +1693,7 @@ namespace CobainSaver
                     var message = update.Message;
                     var user = message.From;
                     var chat = message.Chat;
-                    Logs logs = new Logs(chat.Id, user.Id, user.Username, null, ex.ToString());
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
                     await logs.WriteServerLogs();
                 }
                 catch (Exception e)
@@ -1664,13 +1720,13 @@ namespace CobainSaver
                     Proxy = torProxy,
                     UseCookies = false
                 };
-                string cookie = "\"ODN\\05453733646477\\0541742467210:01f7429eedb553317ff7b6f9c93668ff8bdd0c006928385ba0f709c77e60adb4f5dae57a\"";
+                string cookie = "\"LDC\\05464262763197\\0541742891366:01f7b05715a40e65ce532f005895ee4a38f7ceed3531b1d9428cefcc38eca0696dc6a72c\"";
                 HttpClient instaClient = new HttpClient(instaHandler);
                 instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)");
                 instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
                 instaClient.DefaultRequestHeaders.Add("Accept-Language", "ru-RU,ru;q=0.8,uk;q=0.6,en-US;q=0.4,en;q=0.2");
-                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=85hfusJZOqUK2cA5Hu2yPTfqm9GFqSjS; mid=ZXrDgwALAAHFp-e6632wdmoJ7yKy; ig_did=91261F33-5951-4CF3-AE3B-B1F2DBC71861; datr=g8N6ZReqIPRoIU-H3WU6EqHI; ig_nrcb=1; ds_user_id=64262763197; sessionid=64262763197%3A95fhIg0X6Hj10m%3A11%3AAYdkBDhMlAHA0UDwGJAGPPXXbbceT9A4VuONAXo5bA; ps_n=0; ps_l=0; rur={cookie}");
+                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=UcUd9CVNQ6pixIIYfCK9kymepvEsGscB; mid=Zf_2bAALAAH_Pp3BIfcPJNiJ2Qqp; ig_did=89D16B14-549A-483B-8CEC-8ABBED73D29F; datr=qRkAZhG5zemtpjDVj3HH2Fuw; ig_nrcb=1; ds_user_id=64262763197; sessionid=64262763197:tis2YDpGCCRjYZ:23:AYcJ_2vcFtCpWw34GBLqKOAq-EsLG5mRZdpDeE0r8A; ps_n=0; ps_l=0; rur={cookie}");
                 instaClient.DefaultRequestHeaders.Add("Accept-Encoding", "Accept-Encoding");
                 instaClient.DefaultRequestHeaders.Add("Alt-Used", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
@@ -1809,8 +1865,8 @@ namespace CobainSaver
 
                         string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
 
-                        string videoPath = Path.Combine(audioPath, chatId + "video.mp4");
-                        string thumbnailVideoPath = Path.Combine(audioPath, chatId + "thumbVideo.jpeg");
+                        string videoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "video.mp4");
+                        string thumbnailVideoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVideo.jpeg");
 
                         using (var client = new WebClient())
                         {
@@ -1842,7 +1898,7 @@ namespace CobainSaver
 
                         string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
 
-                        string imgPath = Path.Combine(audioPath, chatId + "thumbVideo.jpeg");
+                        string imgPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVideo.jpeg");
 
                         using (var client = new WebClient())
                         {
@@ -1893,7 +1949,7 @@ namespace CobainSaver
                     var message = update.Message;
                     var user = message.From;
                     var chat = message.Chat;
-                    Logs logs = new Logs(chat.Id, user.Id, user.Username, null, ex.ToString());
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
                     await logs.WriteServerLogs();
                 }
                 catch (Exception e)
@@ -2098,10 +2154,170 @@ namespace CobainSaver
                     var message = update.Message;
                     var user = message.From;
                     var chat = message.Chat;
-                    Logs logs = new Logs(chat.Id, user.Id, user.Username, null, e.ToString());
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, e.ToString());
                     await logs.WriteServerLogs();
                 }
                 catch (Exception ex)
+                {
+                    return;
+                }
+            }
+        }
+        public async Task PornHubDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        {
+            try
+            {
+                Language language = new Language("rand", "rand");
+                string lang = await language.GetCurrentLanguage(chatId.ToString());
+
+                string url = await DeleteNotUrl(messageText);
+                var ytdl = new YoutubeDL();
+                ytdl.YoutubeDLPath = jsonObjectAPI["ffmpegPath"][1].ToString();
+                ytdl.FFmpegPath = jsonObjectAPI["ffmpegPath"][0].ToString();
+
+                var res = await ytdl.RunVideoDataFetch(url);
+                string title = res.Data.Title;
+                JObject jsonObject = JObject.Parse(res.Data.ToString());
+                string sendUrl = jsonObject["formats"][0]["url"].ToString();
+                string thumbnail = jsonObject["thumbnail"].ToString();
+                string duration = jsonObject["duration"].ToString();
+                if(Convert.ToInt64(duration) > 1101)
+                {
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Sorry, this video has a problem: the video is too big (the size should not exceed 50mb)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Вибачте, з цим відео виникла помилка: відео занадто велике (розмір має не перевищувати 50мб)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Извините, с этим видео возникли проблемы: видео слишком большое(размер должен не превышать 50мб)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    return;
+                }
+
+                if (lang == "eng")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "The video is downloading...\n" +
+                        "\nThe video will be uploaded in a couple minutes.",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "ukr")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Відео завантажується...\n" +
+                        "\nПротягом кількох хвилин відео буде відрпавлено.",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "rus")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Видео скачивается...\n" +
+                        "\nВ течении пары минут видео будет отрпавлено.",
+                        replyToMessageId: update.Message.MessageId);
+                }
+
+                string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                if (!Directory.Exists(audioPath))
+                {
+                    Directory.CreateDirectory(audioPath);
+                }
+                string pornPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "VIDEO.mp4");
+                string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVIDEO.jpeg");
+                try
+                {
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile(sendUrl, pornPath);
+                    }
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile(thumbnail, thumbnailPath);
+                    }
+                }
+                catch (Exception e)
+                {
+                    //await Console.Out.WriteLineAsync(e.ToString());
+                }
+                if (!System.IO.File.Exists(thumbnailPath))
+                {
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg", thumbnailPath);
+                    }
+                }
+                await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
+                await using Stream streamVideo = System.IO.File.OpenRead(pornPath);
+                await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
+
+
+                await botClient.SendVideoAsync(
+                    chatId: chatId,
+                    video: InputFile.FromStream(streamVideo),
+                    thumbnail: InputFile.FromStream(streamThumb),
+                    caption: title,
+                    disableNotification: false,
+                    replyToMessageId: update.Message.MessageId
+                );
+                streamVideo.Close();
+                streamThumb.Close();
+
+                System.IO.File.Delete(pornPath);
+                System.IO.File.Delete(thumbnailPath);
+            }
+            catch(Exception ex)
+            {
+                //Console.WriteLine(ex.ToString());
+                Language language = new Language("rand", "rand");
+                string lang = await language.GetCurrentLanguage(chatId.ToString());
+                if (lang == "eng")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Sorry, this content is not available or hidden to me\n" +
+                        "\nIf you're sure the content is public or the bot has previously submitted this, please email us about this bug - t.me/cobainSaver",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "ukr")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Вибачте, цей контент недоступний або прихований для мене\n" +
+                        "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "rus")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Извините, данный контент недоступен или скрыт для меня\n" +
+                        "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                try
+                {
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception e)
                 {
                     return;
                 }
@@ -2172,6 +2388,31 @@ namespace CobainSaver
 
             // Если не найдено ни одного совпадения, возвращаем пустую строку
             return string.Empty;
+        }
+        static async Task<string> GetAccessToken(dynamic authOptions, string base64Auth)
+        {
+            using (var client = new HttpClient())
+            {
+                var content = new FormUrlEncodedContent(new[]
+                {
+                new KeyValuePair<string, string>("grant_type", "client_credentials")
+            });
+
+                client.DefaultRequestHeaders.Add("Authorization", "Basic " + base64Auth);
+
+                var response = await client.PostAsync(authOptions.url, content);
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonString = await response.Content.ReadAsStringAsync();
+                    dynamic json = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
+                    return json.access_token;
+                }
+                else
+                {
+                    Console.WriteLine("Ошибка при запросе токена: " + response.StatusCode);
+                    return null;
+                }
+            }
         }
     }
 }

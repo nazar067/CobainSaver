@@ -21,3 +21,4 @@ C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Debug\net8.0\libvideo.dl
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Debug\net8.0\AngleSharp.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Debug\net8.0\YoutubeExplode.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Debug\net8.0\RestSharp.dll
+C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Debug\net8.0\SpotifyAPI.Web.dll

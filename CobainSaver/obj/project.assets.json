@@ -298,6 +298,22 @@
           }
         }
       },
+      "SpotifyAPI.Web/7.1.1": {
+        "type": "package",
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.3"
+        },
+        "compile": {
+          "lib/net8.0/SpotifyAPI.Web.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/SpotifyAPI.Web.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "System.AppContext/4.3.0": {
         "type": "package",
         "dependencies": {
@@ -1834,6 +1850,29 @@
         "runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
         "runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl.nuspec",
         "runtimes/ubuntu.16.10-x64/native/System.Security.Cryptography.Native.OpenSsl.so"
+      ]
+    },
+    "SpotifyAPI.Web/7.1.1": {
+      "sha512": "xMgjZkBqVlZNZ/hROhx5XsKEWQtxRmFTZs5mv6Z9w+fwzBnCR1EFSwTcdpKNiVx/Pa+9p7PJO0q1Cb+fOkQq6Q==",
+      "type": "package",
+      "path": "spotifyapi.web/7.1.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net5.0/SpotifyAPI.Web.dll",
+        "lib/net5.0/SpotifyAPI.Web.xml",
+        "lib/net6.0/SpotifyAPI.Web.dll",
+        "lib/net6.0/SpotifyAPI.Web.xml",
+        "lib/net7.0/SpotifyAPI.Web.dll",
+        "lib/net7.0/SpotifyAPI.Web.xml",
+        "lib/net8.0/SpotifyAPI.Web.dll",
+        "lib/net8.0/SpotifyAPI.Web.xml",
+        "lib/netstandard2.0/SpotifyAPI.Web.dll",
+        "lib/netstandard2.0/SpotifyAPI.Web.xml",
+        "lib/netstandard2.1/SpotifyAPI.Web.dll",
+        "lib/netstandard2.1/SpotifyAPI.Web.xml",
+        "spotifyapi.web.7.1.1.nupkg.sha512",
+        "spotifyapi.web.nuspec"
       ]
     },
     "System.AppContext/4.3.0": {
@@ -5021,6 +5060,7 @@
   "projectFileDependencyGroups": {
     "net8.0": [
       "RestSharp >= 110.2.0",
+      "SpotifyAPI.Web >= 7.1.1",
       "Telegram.Bot >= 19.0.0",
       "VideoLibrary >= 3.2.3",
       "YoutubeDLSharp >= 1.0.0",
@@ -5069,6 +5109,10 @@
           "RestSharp": {
             "target": "Package",
             "version": "[110.2.0, )"
+          },
+          "SpotifyAPI.Web": {
+            "target": "Package",
+            "version": "[7.1.1, )"
           },
           "Telegram.Bot": {
             "target": "Package",

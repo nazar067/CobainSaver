@@ -21,3 +21,4 @@ C:\Users\gamer\source\repos\CobainSaver\CobainSaver\obj\Release\net8.0\CobainSav
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\obj\Release\net8.0\CobainSaver.genruntimeconfig.cache
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\obj\Release\net8.0\ref\CobainSaver.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\RestSharp.dll
+C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\SpotifyAPI.Web.dll

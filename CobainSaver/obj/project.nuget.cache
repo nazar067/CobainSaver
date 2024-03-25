@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "qIgAXM2D/Sm3XiY/8p1giCe+/gVQmMhcxrBRAKk0npEESwqnfq0nc14wx/eSUyDhaTAMENXR0BUeZpcHRSofdg==",
+  "dgSpecHash": "gyYTXPDB3GTldadF3JZGjCk6Wv97iE8hmEdFF+54I8pOU4sbj9u6mS/KETzYs9qrr5Cg3Rdyo6QWydK4W8nNTQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\gamer\\source\\repos\\CobainSaver\\CobainSaver\\CobainSaver.csproj",
   "expectedPackageFiles": [
@@ -27,6 +27,7 @@
     "C:\\Users\\gamer\\.nuget\\packages\\runtime.ubuntu.14.04-x64.runtime.native.system.security.cryptography.openssl\\4.3.0\\runtime.ubuntu.14.04-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\runtime.ubuntu.16.04-x64.runtime.native.system.security.cryptography.openssl\\4.3.0\\runtime.ubuntu.16.04-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl\\4.3.0\\runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
+    "C:\\Users\\gamer\\.nuget\\packages\\spotifyapi.web\\7.1.1\\spotifyapi.web.7.1.1.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\system.appcontext\\4.3.0\\system.appcontext.4.3.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\system.buffers\\4.3.0\\system.buffers.4.3.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\system.collections\\4.3.0\\system.collections.4.3.0.nupkg.sha512",

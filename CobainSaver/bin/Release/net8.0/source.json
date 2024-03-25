@@ -21,7 +21,8 @@
     "Admin id"
   ],
   "ffmpegPath": [
-    "Path to ffmpeg"
+    "Path to ffmpeg",
+    "Path to yt_dlp"
   ],
   "Proxy": [
     "Proxy for reddit, if you need",
@@ -29,4 +30,3 @@
     "Proxy key",
     "http://127.0.0.1:1881"
   ]
-}

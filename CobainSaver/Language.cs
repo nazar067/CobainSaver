@@ -76,6 +76,66 @@ namespace CobainSaver
                 System.IO.File.AppendAllText(filePath, Lang);
             }
         }
+        public async Task StartLanguage(string chatId, TelegramBotClient botClient)
+        {
+            string currentDirectory = Directory.GetCurrentDirectory();
+
+            string userFolderName = "UserLogs";
+            string userFolderPath = Path.Combine(currentDirectory, userFolderName);
+
+            string folderName = chatId;
+            string folderPath = Path.Combine(userFolderPath, folderName);
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+            string lastFolderName = "serv";
+            string lastFolderPath = Path.Combine(folderPath, lastFolderName);
+            if (!Directory.Exists(lastFolderPath))
+            {
+                Directory.CreateDirectory(lastFolderPath);
+            }
+
+            if (Lang == "en")
+            {
+                Lang = "eng";
+            }
+            if (Lang == "uk")
+            {
+                Lang = "ukr";
+            }
+            if (Lang == "ru")
+            {
+                Lang = "rus";
+            }
+
+            string file = $"{Lang}.txt";
+            string filePath = Path.Combine(lastFolderPath, file);
+
+            string filePathCheckUkr = Path.Combine(lastFolderPath, "ukr.txt");
+            string filePathCheckEng = Path.Combine(lastFolderPath, "eng.txt");
+            string filePathCheckRus = Path.Combine(lastFolderPath, "rus.txt");
+            if (System.IO.File.Exists(filePathCheckUkr))
+            {
+                System.IO.File.Move(filePathCheckUkr, filePath);
+            }
+            else if (System.IO.File.Exists(filePathCheckEng))
+            {
+                System.IO.File.Move(filePathCheckEng, filePath);
+            }
+            else if (System.IO.File.Exists(filePathCheckRus))
+            {
+                System.IO.File.Move(filePathCheckRus, filePath);
+            }
+            else if (!System.IO.File.Exists(filePath))
+            {
+                System.IO.File.WriteAllText(filePath, Lang);
+            }
+            else
+            {
+                System.IO.File.AppendAllText(filePath, Lang);
+            }
+        }
         public async Task<string> GetCurrentLanguage(string chatId)
         {
             string currentDirectory = Directory.GetCurrentDirectory();

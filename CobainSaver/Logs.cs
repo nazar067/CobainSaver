@@ -28,6 +28,7 @@ namespace CobainSaver
         static string proxyURL = jsonObjectAPI["Proxy"][0].ToString();
         static string proxyUsername = jsonObjectAPI["Proxy"][1].ToString();
         static string proxyPassword = jsonObjectAPI["Proxy"][2].ToString();
+        static string torProxyUrl = jsonObjectAPI["Proxy"][3].ToString();
 
         static WebProxy webProxy = new WebProxy
         {
@@ -38,10 +39,14 @@ namespace CobainSaver
                 password: proxyPassword
           )
         };
+        static WebProxy torProxy = new WebProxy
+        {
+            Address = new Uri(torProxyUrl),
+        };
         private static HttpClientHandler handler = new HttpClientHandler()
         {
             AllowAutoRedirect = false,
-            Proxy = webProxy,
+            Proxy = torProxy,
             UseCookies = false
         };
         private static readonly HttpClient client = new HttpClient(handler);
@@ -117,11 +122,11 @@ namespace CobainSaver
             string allFilePath = Path.Combine(serverFolderPath, allServers);
             if (!System.IO.File.Exists(allFilePath))
             {
-                System.IO.File.WriteAllText(allFilePath, DateTime.Now.ToLongTimeString() + ": " + ServerMsg);
+                System.IO.File.WriteAllText(allFilePath, DateTime.Now.ToLongTimeString() + "\nChatID: " + ChatId + "\nMessage: " + Msg + "\nError: " + ServerMsg);
             }
             else
             {
-                System.IO.File.AppendAllText(allFilePath, $"{Environment.NewLine}{DateTime.Now.ToLongTimeString() + ": " + ServerMsg}");
+                System.IO.File.AppendAllText(allFilePath, $"{Environment.NewLine}{DateTime.Now.ToLongTimeString() + "\nChatID: " + ChatId + "\nMessage: " + Msg + "\nError: " + ServerMsg}");
             }
 
             string folderName = ChatId.ToString();
@@ -439,28 +444,59 @@ namespace CobainSaver
         public async Task WriteLastUsers()
         {
             string currentDirectory = Directory.GetCurrentDirectory() + "\\ServerLogs";
+            string uniqFolder = "UniqUsers";
+            string uniqFolderPath = Path.Combine(currentDirectory, uniqFolder);
+
+            if (!Directory.Exists(uniqFolderPath))
+            {
+                Directory.CreateDirectory(uniqFolderPath);
+            }
             string listPath = Path.Combine(currentDirectory, "list.txt");
+            string uniqPath = Path.Combine(uniqFolderPath, DateTime.Now.ToShortDateString() + ".txt");
             if (!System.IO.File.Exists(listPath)) 
             {
                 System.IO.File.WriteAllText(listPath, ChatId.ToString());
             }
+            if (!System.IO.File.Exists(uniqPath))
+            {
+                System.IO.File.WriteAllText(uniqPath, ChatId.ToString());
+            }
             List<string> existingLines = new List<string>();
+            List<string> uniqExistingLines = new List<string>();
             if (System.IO.File.Exists(listPath))
             {
                 existingLines = System.IO.File.ReadAllLines(listPath).ToList();
             }
+            if (System.IO.File.Exists(uniqPath))
+            {
+                uniqExistingLines = System.IO.File.ReadAllLines(uniqPath).ToList();
+            }
 
             // Удаление дубликатов
             existingLines.RemoveAll(line => line.Equals(ChatId.ToString()));
+            uniqExistingLines.RemoveAll(line => line.Equals(ChatId.ToString()));
 
             // Добавление новой строки в начало
             existingLines.Insert(0, ChatId.ToString());
+            uniqExistingLines.Insert(0, ChatId.ToString());
 
             // Запись в файл
             System.IO.File.WriteAllLines(listPath, existingLines);
+            System.IO.File.WriteAllLines(uniqPath, uniqExistingLines);
         }
         public async Task SendLastTenUsers(TelegramBotClient botClient, string chatId)
         {
+            WebProxy torProxy = new WebProxy
+            {
+                Address = new Uri(torProxyUrl),
+            };
+            HttpClientHandler httpHandler = new HttpClientHandler()
+            {
+                AllowAutoRedirect = false,
+                Proxy = torProxy,
+                UseCookies = false
+            };
+            HttpClient httpClient = new HttpClient(httpHandler);
             string jsonString = System.IO.File.ReadAllText("source.json");
             JObject jsonObjectCheck = JObject.Parse(jsonString);
             if (chatId == jsonObjectCheck["AdminId"][0].ToString())
@@ -477,7 +513,7 @@ namespace CobainSaver
                     if(count < 10)
                     {
                         var url = "https://api.telegram.org/bot" + jsonObjectAPI["BotAPI"][0].ToString() + "/getChat?chat_id=" + userId;
-                        var response = await client.GetAsync(url);
+                        var response = await httpClient.GetAsync(url);
                         var responseString = await response.Content.ReadAsStringAsync();
 
                         JObject jsonObject = JObject.Parse(responseString);
@@ -1263,6 +1299,45 @@ namespace CobainSaver
                     replyToMessageId: update.Message.MessageId
                     );
 
+            }
+        }
+        public async Task CountUniqUsers(string date, string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
+        {
+            string jsonString = System.IO.File.ReadAllText("source.json");
+            JObject jsonObject = JObject.Parse(jsonString);
+            if (chatId == jsonObject["AdminId"][0].ToString())
+            {
+                await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
+                string currentDirectory = Directory.GetCurrentDirectory() + "\\ServerLogs" + "\\UniqUsers";
+                string file = null;
+                if (date == "/uniqUsers")
+                {
+                    file = DateTime.Now.ToShortDateString() + ".txt";
+                }
+                else
+                {
+                    file = date + ".txt"; ;
+                }
+                string filePath = Path.Combine(currentDirectory, file);
+                if (!System.IO.File.Exists(filePath)) 
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "No users for this date",
+                        replyToMessageId: update.Message.MessageId
+                    );
+                    return;
+                }
+                string[] lines = System.IO.File.ReadAllLines(filePath);
+
+                // Считаем количество строк в массиве
+                int lineCount = lines.Length;
+
+                await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: lineCount.ToString(),
+                    replyToMessageId: update.Message.MessageId
+                );
             }
         }
     }

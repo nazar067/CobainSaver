@@ -122,6 +122,11 @@ namespace CobainSaver
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVoice);
                     await video.YoutubeMusicDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
+                else if (message.Text.Contains("https://open.spotify.com/"))
+                {
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVoice);
+                    await video.SpotifyDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                }
                 else if (message.Text.Contains("https://vm.tiktok.com") || message.Text.Contains("https://www.tiktok.com") || message.Text.Contains("https://m.tiktok.com"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
@@ -142,6 +147,11 @@ namespace CobainSaver
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
                     await video.InstagramDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
+                else if (message.Text.Contains("https://rt.pornhub.com/"))
+                {
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVideo);
+                    await video.PornHubDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                }
                 else if (message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
@@ -151,8 +161,9 @@ namespace CobainSaver
                 }
                 else if (message.Text == "/start" || message.Text.StartsWith($"/start@{cobain.Username}"))
                 {
+                    Language language = new Language(user.LanguageCode, null);
+                    await language.StartLanguage(chat.Id.ToString(), (TelegramBotClient)botClient);
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
-                    Language language = new Language("rand", "rand");
                     string lang = await language.GetCurrentLanguage(chat.Id.ToString());
                     if (lang == "eng")
                     {
@@ -227,6 +238,11 @@ namespace CobainSaver
                 else if (message.Text == "/lastTen")
                 {
                     await logs.SendLastTenUsers((TelegramBotClient)botClient, chat.Id.ToString());
+                }
+                else if (message.Text.StartsWith("/uniqUsers"))
+                {
+                    string dateLog = message.Text.Split(' ').Last();
+                    await logs.CountUniqUsers(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username); ;
                 }
                 else if (message.Text == "/changelang" || message.Text.StartsWith($"/changelang@{cobain.Username}"))
                 {

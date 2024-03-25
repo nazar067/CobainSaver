@@ -9,6 +9,7 @@
       "CobainSaver/1.0.0": {
         "dependencies": {
           "RestSharp": "110.2.0",
+          "SpotifyAPI.Web": "7.1.1",
           "Telegram.Bot": "19.0.0",
           "VideoLibrary": "3.2.3",
           "YoutubeDLSharp": "1.0.0",
@@ -153,6 +154,17 @@
       "runtime.ubuntu.14.04-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {},
       "runtime.ubuntu.16.04-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {},
       "runtime.ubuntu.16.10-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {},
+      "SpotifyAPI.Web/7.1.1": {
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.3"
+        },
+        "runtime": {
+          "lib/net8.0/SpotifyAPI.Web.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
       "System.AppContext/4.3.0": {
         "dependencies": {
           "System.Runtime": "4.3.0"
@@ -934,6 +946,13 @@
       "sha512": "sha512-VB5cn/7OzUfzdnC8tqAIMQciVLiq2epm2NrAm1E9OjNRyG4lVhfR61SMcLizejzQP8R8Uf/0l5qOIbUEi+RdEg==",
       "path": "runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl/4.3.0",
       "hashPath": "runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512"
+    },
+    "SpotifyAPI.Web/7.1.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-xMgjZkBqVlZNZ/hROhx5XsKEWQtxRmFTZs5mv6Z9w+fwzBnCR1EFSwTcdpKNiVx/Pa+9p7PJO0q1Cb+fOkQq6Q==",
+      "path": "spotifyapi.web/7.1.1",
+      "hashPath": "spotifyapi.web.7.1.1.nupkg.sha512"
     },
     "System.AppContext/4.3.0": {
       "type": "package",

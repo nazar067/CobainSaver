@@ -44,6 +44,10 @@
               "target": "Package",
               "version": "[110.2.0, )"
             },
+            "SpotifyAPI.Web": {
+              "target": "Package",
+              "version": "[7.1.1, )"
+            },
             "Telegram.Bot": {
               "target": "Package",
               "version": "[19.0.0, )"
