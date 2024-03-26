@@ -197,7 +197,7 @@ namespace CobainSaver
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chat.Id,
-                            text: "/help - see all commands\n /logs - look at chat server logs\n " +
+                            text: "/help - see all commands\n " +
                             "/changelang - change bot's language",
                             replyToMessageId: update.Message.MessageId
                             );
@@ -206,7 +206,7 @@ namespace CobainSaver
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chat.Id,
-                            text: "/help - переглянути всі команді\n /logs - переглянути ваші логи\n " +
+                            text: "/help - переглянути всі команді\n " +
                             "/changelang - змінити мову",
                             replyToMessageId: update.Message.MessageId);
                     }
@@ -214,7 +214,7 @@ namespace CobainSaver
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chat.Id,
-                            text: "/help - посмотреть все команді\n /logs - посмотреть ваши логи\n " +
+                            text: "/help - посмотреть все команді\n " +
                             "/changelang - сменить язык",
                             replyToMessageId: update.Message.MessageId);
                     }
