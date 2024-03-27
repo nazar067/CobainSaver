@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using CobainSaver.Downloader;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
@@ -102,7 +103,14 @@ namespace CobainSaver
                 var cobain = await botClient.GetMeAsync();
                 // эта переменная будет содержать в себе все связанное с сообщениями
                 var message = update.Message;
-                Downloader video = new Downloader();
+                Instagram insta = new Instagram();
+                PornHub porn = new PornHub();
+                Reddit reddit = new Reddit();
+                Spotify spotify = new Spotify();
+                TikTok tikTok = new TikTok();
+                Twitter twitter = new Twitter();
+                YouTube youTube = new YouTube();
+                //Downloader video = new Downloader();
                 // From - это от кого пришло сообщение (или любой другой Update)
                 var user = message.From;
                 var chat = message.Chat;
@@ -115,42 +123,42 @@ namespace CobainSaver
                     || message.Text.Contains("youtu.be/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVideo);
-                    await video.YoutubeDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await youTube.YoutubeDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
                 else if (message.Text.Contains("https://music.youtube.com/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVoice);
-                    await video.YoutubeMusicDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await youTube.YoutubeMusicDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
                 else if (message.Text.Contains("https://open.spotify.com/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVoice);
-                    await video.SpotifyDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await spotify.SpotifyDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
                 else if (message.Text.Contains("https://vm.tiktok.com") || message.Text.Contains("https://www.tiktok.com") || message.Text.Contains("https://m.tiktok.com"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
-                    await video.TikTokDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await tikTok.TikTokDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
                 else if (message.Text.Contains("https://www.reddit.com") || message.Text.Contains("https://redd.it/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
-                    await video.ReditDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await reddit.ReditDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
                 else if (message.Text.Contains("https://x.com/") || message.Text.Contains("https://twitter.com/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
-                    await video.TwitterDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await twitter.TwitterDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
                 else if (message.Text.Contains("https://www.instagram.com"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
-                    await video.InstagramDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await insta.InstagramDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
                 else if (message.Text.Contains("https://rt.pornhub.com/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVideo);
-                    await video.PornHubDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await porn.PornHubDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                 }
                 else if (message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
                 {
