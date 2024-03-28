@@ -94,7 +94,7 @@ namespace CobainSaver.Downloader
                         duration: Convert.ToInt32(duration),
                         replyToMessageId: update.Message.MessageId);
                 }
-                catch
+                catch(Exception ex)
                 {
                     //await Console.Out.WriteLineAsync(ex.ToString());
                     Language language = new Language("rand", "rand");
@@ -119,6 +119,17 @@ namespace CobainSaver.Downloader
                             chatId: chatId,
                             text: "Извините, с этим видео возникли проблемы: видео имеет возрастное ограничение",
                             replyToMessageId: update.Message.MessageId);
+                    }
+                    try
+                    {
+                        var message = update.Message;
+                        var user = message.From;
+                        var chat = message.Chat;
+                        Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
+                        await logs.WriteServerLogs();
+                    }
+                    catch (Exception e)
+                    {
                     }
                 }
                 streamVideo.Close();
@@ -151,6 +162,17 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Извините, с этим видео возникли проблемы: видео имеет возрастное ограничение",
                         replyToMessageId: update.Message.MessageId);
+                }
+                try
+                {
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception e)
+                {
                 }
                 //throw;
             }
@@ -251,7 +273,7 @@ namespace CobainSaver.Downloader
                         duration: Convert.ToInt32(duration),
                         replyToMessageId: update.Message.MessageId); ;
                 }
-                catch
+                catch(Exception ex)
                 { //await Console.Out.WriteLineAsync(ex.ToString());
                     Language language = new Language("rand", "rand");
                     string lang = await language.GetCurrentLanguage(chatId.ToString());
@@ -275,6 +297,17 @@ namespace CobainSaver.Downloader
                             chatId: chatId,
                             text: "Извините, этот тип аудио не поддерживается, отправляйте мне только публичный контент",
                             replyToMessageId: update.Message.MessageId);
+                    }
+                    try
+                    {
+                        var message = update.Message;
+                        var user = message.From;
+                        var chat = message.Chat;
+                        Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
+                        await logs.WriteServerLogs();
+                    }
+                    catch (Exception e)
+                    {
                     }
                 }
 
@@ -308,6 +341,17 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Извините, этот тип аудио не поддерживается, отправляйте мне только публичный контент",
                         replyToMessageId: update.Message.MessageId);
+                }
+                try
+                {
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception e)
+                {
                 }
                 //throw;
             }

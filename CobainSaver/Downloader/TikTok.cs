@@ -11,6 +11,9 @@ using Telegram.Bot.Types;
 using Telegram.Bot;
 using VideoLibrary;
 using YoutubeDLSharp;
+using System.Net.Sockets;
+using AngleSharp.Dom;
+using System.Text.Json.Nodes;
 
 namespace CobainSaver.Downloader
 {
@@ -113,31 +116,36 @@ namespace CobainSaver.Downloader
                     {
                         client.DownloadFile(music, filePath);
                     }
-                    using (var client = new WebClient())
+                    try
                     {
-                        client.DownloadFile(thumbnail, thumbnailPath);
+                        using (var client = new WebClient())
+                        {
+                            client.DownloadFile(thumbnail, thumbnailPath);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        //await Console.Out.WriteLineAsync(e.ToString());
+                    }
+                    if (!System.IO.File.Exists(thumbnailPath))
+                    {
+                        using (var client = new WebClient())
+                        {
+                            client.DownloadFile("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg", thumbnailPath);
+                        }
                     }
                     await using Stream stream = System.IO.File.OpenRead(filePath);
                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
-
-                    try
-                    {
-                        await botClient.SendAudioAsync(
-                            chatId: chatId,
-                            audio: InputFile.FromStream(stream),
-                            performer: perfomer,
-                            title: title,
-                            duration: duration,
-                            disableNotification: true,
-                            thumbnail: InputFile.FromStream(streamThumb),
-                            replyToMessageId: update.Message.MessageId
-                            );
-                    }
-                    catch (Exception ex)
-                    {
-                        await TikTokDownloaderReserve(chatId, update, cancellationToken, messageText, botClient);
-                    }
-
+                    await botClient.SendAudioAsync(
+                        chatId: chatId,
+                        audio: InputFile.FromStream(stream),
+                        performer: perfomer,
+                        title: title,
+                        duration: duration,
+                        disableNotification: true,
+                        thumbnail: InputFile.FromStream(streamThumb),
+                        replyToMessageId: update.Message.MessageId
+                        );
                     stream.Close();
                     streamThumb.Close();
 
@@ -178,42 +186,36 @@ namespace CobainSaver.Downloader
                     {
                         client.DownloadFile(music, filePath);
                     }
-                    using (var client = new WebClient())
+                    try
                     {
-                        client.DownloadFile(thumbnail, thumbnailPath);
+                        using (var client = new WebClient())
+                        {
+                            client.DownloadFile(thumbnail, thumbnailPath);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        //await Console.Out.WriteLineAsync(e.ToString());
+                    }
+                    if (!System.IO.File.Exists(thumbnailPath))
+                    {
+                        using (var client = new WebClient())
+                        {
+                            client.DownloadFile("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg", thumbnailPath);
+                        }
                     }
                     await using Stream stream = System.IO.File.OpenRead(filePath);
                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
-
-                    try
-                    {
-                        await botClient.SendAudioAsync(
-                            chatId: chatId,
-                            audio: InputFile.FromStream(stream),
-                            performer: perfomer,
-                            title: musicTitle,
-                            duration: duration,
-                            disableNotification: true,
-                            thumbnail: InputFile.FromStream(streamThumb),
-                            replyToMessageId: update.Message.MessageId
-                            );
-                    }
-                    catch (Exception ex)
-                    {
-                        try
-                        {
-                            var message = update.Message;
-                            var user = message.From;
-                            var chat = message.Chat;
-                            Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
-                            await logs.WriteServerLogs();
-                        }
-                        catch (Exception e)
-                        {
-                        }
-                        await TikTokDownloaderReserve(chatId, update, cancellationToken, messageText, botClient);
-                    }
-
+                    await botClient.SendAudioAsync(
+                        chatId: chatId,
+                        audio: InputFile.FromStream(stream),
+                        performer: perfomer,
+                        title: musicTitle,
+                        duration: duration,
+                        disableNotification: true,
+                        thumbnail: InputFile.FromStream(streamThumb),
+                        replyToMessageId: update.Message.MessageId
+                        );
                     stream.Close();
                     streamThumb.Close();
 
@@ -295,70 +297,36 @@ namespace CobainSaver.Downloader
                     {
                         client.DownloadFile(music, filePath);
                     }
-                    using (var client = new WebClient())
+                    try
                     {
-                        client.DownloadFile(thumbnail, thumbnailPath);
+                        using (var client = new WebClient())
+                        {
+                            client.DownloadFile(thumbnail, thumbnailPath);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        //await Console.Out.WriteLineAsync(e.ToString());
+                    }
+                    if (!System.IO.File.Exists(thumbnailPath))
+                    {
+                        using (var client = new WebClient())
+                        {
+                            client.DownloadFile("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg", thumbnailPath);
+                        }
                     }
                     await using Stream stream = System.IO.File.OpenRead(filePath);
                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
-                    try
-                    {
-                        await botClient.SendAudioAsync(
-                            chatId: chatId,
-                            audio: InputFile.FromStream(stream),
-                            performer: perfomer,
-                            title: title,
-                            duration: duration,
-                            disableNotification: true,
-                            thumbnail: InputFile.FromStream(streamThumb),
-                            replyToMessageId: update.Message.MessageId
-                            );
-                        var message = update.Message;
-                        var user = message.From;
-                        var chat = message.Chat;
-                        Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, "OK, content has been sent");
-                        await logs.WriteServerLogs();
-                    }
-                    catch (Exception ex)
-                    {
-                        //Console.WriteLine(ex.ToString());
-                        Language language = new Language("rand", "rand");
-                        string lang = await language.GetCurrentLanguage(chatId.ToString());
-                        if (lang == "eng")
-                        {
-                            await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: "Sorry, I need more time to process this content, your video or photo will load in a moment",
-                                replyToMessageId: update.Message.MessageId);
-                        }
-                        if (lang == "ukr")
-                        {
-                            await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: "Вибачте, для опрацювання цього контенту мені потрібно більше часу, за мить ваше відео або фото завантажаться",
-                                replyToMessageId: update.Message.MessageId);
-                        }
-                        if (lang == "rus")
-                        {
-                            await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: "Извините, для обработки данного контента мне нужно больше времени, через мгновение ваше видео или фото загрузятся ",
-                                replyToMessageId: update.Message.MessageId);
-                        }
-                        try
-                        {
-                            var message = update.Message;
-                            var user = message.From;
-                            var chat = message.Chat;
-                            Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
-                            await logs.WriteServerLogs();
-                        }
-                        catch (Exception e)
-                        {
-                        }
-                        await TikTokDownloaderReserveAPI(chatId, update, cancellationToken, messageText, botClient);
-                    }
-
+                    await botClient.SendAudioAsync(
+                        chatId: chatId,
+                        audio: InputFile.FromStream(stream),
+                        performer: perfomer,
+                        title: title,
+                        duration: duration,
+                        disableNotification: true,
+                        thumbnail: InputFile.FromStream(streamThumb),
+                        replyToMessageId: update.Message.MessageId
+                        );
                     stream.Close();
                     streamThumb.Close();
 
@@ -381,9 +349,23 @@ namespace CobainSaver.Downloader
                     {
                         client.DownloadFile(video, videoPath);
                     }
-                    using (var client = new WebClient())
+                    try
                     {
-                        client.DownloadFile(thumbnailVideo, thumbnailVideoPath);
+                        using (var client = new WebClient())
+                        {
+                            client.DownloadFile(thumbnailVideo, thumbnailVideoPath);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        //await Console.Out.WriteLineAsync(e.ToString());
+                    }
+                    if (!System.IO.File.Exists(thumbnailVideoPath))
+                    {
+                        using (var client = new WebClient())
+                        {
+                            client.DownloadFile("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg", thumbnailVideoPath);
+                        }
                     }
                     await using Stream streamVideo = System.IO.File.OpenRead(videoPath);
                     await using Stream streamThumbVideo = System.IO.File.OpenRead(thumbnailVideoPath);
@@ -392,64 +374,15 @@ namespace CobainSaver.Downloader
                     {
                         title = Regex.Replace(title, @"#.*", "");
                     }
-
-                    try
-                    {
-                        await botClient.SendVideoAsync(
-                            chatId: chatId,
-                            video: InputFile.FromStream(streamVideo),
-                            caption: title,
-                            disableNotification: true,
-                            duration: videoDuration,
-                            thumbnail: InputFile.FromStream(streamThumbVideo),
-                            replyToMessageId: update.Message.MessageId
-                            );
-                        var message = update.Message;
-                        var user = message.From;
-                        var chat = message.Chat;
-                        Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, "OK, content has been sent");
-                        await logs.WriteServerLogs();
-                    }
-                    catch (Exception ex)
-                    {
-                        //Console.WriteLine(ex.ToString());
-                        Language language = new Language("rand", "rand");
-                        string lang = await language.GetCurrentLanguage(chatId.ToString());
-                        if (lang == "eng")
-                        {
-                            await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: "Sorry, I need more time to process this content, your video or photo will load in a moment",
-                                replyToMessageId: update.Message.MessageId);
-                        }
-                        if (lang == "ukr")
-                        {
-                            await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: "Вибачте, для опрацювання цього контенту мені потрібно більше часу, за мить ваше відео або фото завантажаться",
-                                replyToMessageId: update.Message.MessageId);
-                        }
-                        if (lang == "rus")
-                        {
-                            await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: "Извините, для обработки данного контента мне нужно больше времени, через мгновение ваше видео или фото загрузятся ",
-                                replyToMessageId: update.Message.MessageId);
-                        }
-                        try
-                        {
-                            var message = update.Message;
-                            var user = message.From;
-                            var chat = message.Chat;
-                            Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
-                            await logs.WriteServerLogs();
-                        }
-                        catch (Exception e)
-                        {
-                        }
-                        await TikTokDownloaderReserveAPI(chatId, update, cancellationToken, messageText, botClient);
-                    }
-
+                    await botClient.SendVideoAsync(
+                        chatId: chatId,
+                        video: InputFile.FromStream(streamVideo),
+                        caption: title,
+                        disableNotification: true,
+                        duration: videoDuration,
+                        thumbnail: InputFile.FromStream(streamThumbVideo),
+                        replyToMessageId: update.Message.MessageId
+                        );
                     streamVideo.Close();
                     streamThumbVideo.Close();
                     System.IO.File.Delete(videoPath);
@@ -471,66 +404,36 @@ namespace CobainSaver.Downloader
                     {
                         client.DownloadFile(music, filePath);
                     }
-                    using (var client = new WebClient())
+                    try
                     {
-                        client.DownloadFile(thumbnail, thumbnailPath);
+                        using (var client = new WebClient())
+                        {
+                            client.DownloadFile(thumbnail, thumbnailPath);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        //await Console.Out.WriteLineAsync(e.ToString());
+                    }
+                    if (!System.IO.File.Exists(thumbnailPath))
+                    {
+                        using (var client = new WebClient())
+                        {
+                            client.DownloadFile("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg", thumbnailPath);
+                        }
                     }
                     await using Stream stream = System.IO.File.OpenRead(filePath);
                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
-
-                    try
-                    {
-                        await botClient.SendAudioAsync(
-                            chatId: chatId,
-                            audio: InputFile.FromStream(stream),
-                            performer: perfomer,
-                            title: musicTitle,
-                            duration: duration,
-                            disableNotification: true,
-                            thumbnail: InputFile.FromStream(streamThumb),
-                            replyToMessageId: update.Message.MessageId
-                            );
-                    }
-                    catch (Exception ex)
-                    {
-                        //Console.WriteLine(ex.ToString());
-                        Language language = new Language("rand", "rand");
-                        string lang = await language.GetCurrentLanguage(chatId.ToString());
-                        if (lang == "eng")
-                        {
-                            await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: "Sorry, I need more time to process this content, your video or photo will load in a moment",
-                                replyToMessageId: update.Message.MessageId);
-                        }
-                        if (lang == "ukr")
-                        {
-                            await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: "Вибачте, для опрацювання цього контенту мені потрібно більше часу, за мить ваше відео або фото завантажаться",
-                                replyToMessageId: update.Message.MessageId);
-                        }
-                        if (lang == "rus")
-                        {
-                            await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: "Извините, для обработки данного контента мне нужно больше времени, через мгновение ваше видео или фото загрузятся ",
-                                replyToMessageId: update.Message.MessageId);
-                        }
-                        try
-                        {
-                            var message = update.Message;
-                            var user = message.From;
-                            var chat = message.Chat;
-                            Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
-                            await logs.WriteServerLogs();
-                        }
-                        catch (Exception e)
-                        {
-                        }
-                        await TikTokDownloaderReserveAPI(chatId, update, cancellationToken, messageText, botClient);
-                    }
-
+                    await botClient.SendAudioAsync(
+                        chatId: chatId,
+                        audio: InputFile.FromStream(stream),
+                        performer: perfomer,
+                        title: musicTitle,
+                        duration: duration,
+                        disableNotification: true,
+                        thumbnail: InputFile.FromStream(streamThumb),
+                        replyToMessageId: update.Message.MessageId
+                        );
                     stream.Close();
                     streamThumb.Close();
 

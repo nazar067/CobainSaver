@@ -33,7 +33,7 @@ namespace CobainSaver.Downloader
                     Proxy = torProxy,
                     UseCookies = false
                 };
-                string cookie = "\"CLN\\0544477047348\\0541743018090:01f7799b1788709bc442045d28647f6d1d2897db18abec821733f062dd64a537d3293689\"";
+                string cookie = "\"CLN\\0544477047348\\0541743105702:01f750a3a23998725eb4c501c7eeb6caa1ed0aaeac5f7b3e4d3fd42390dcc09e7f3bf05c\"";
                 HttpClient instaClient = new HttpClient(instaHandler);
                 instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)");
                 instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");
@@ -204,7 +204,7 @@ namespace CobainSaver.Downloader
                     Proxy = torProxy,
                     UseCookies = false
                 };
-                string cookie = "\"CLN\\0544477047348\\0541743018090:01f7799b1788709bc442045d28647f6d1d2897db18abec821733f062dd64a537d3293689\"";
+                string cookie = "\"CLN\\0544477047348\\0541743105702:01f750a3a23998725eb4c501c7eeb6caa1ed0aaeac5f7b3e4d3fd42390dcc09e7f3bf05c\"";
                 HttpClient instaClient = new HttpClient(instaHandler);
                 instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)");
                 instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");
@@ -398,7 +398,7 @@ namespace CobainSaver.Downloader
                     Proxy = torProxy,
                     UseCookies = false
                 };
-                string cookie = "\"CLN\\0544477047348\\0541743018090:01f7799b1788709bc442045d28647f6d1d2897db18abec821733f062dd64a537d3293689\"";
+                string cookie = "\"CLN\\0544477047348\\0541743105702:01f750a3a23998725eb4c501c7eeb6caa1ed0aaeac5f7b3e4d3fd42390dcc09e7f3bf05c\"";
                 HttpClient instaClient = new HttpClient(instaHandler);
                 instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)");
                 instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");

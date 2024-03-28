@@ -252,6 +252,10 @@ namespace CobainSaver
                     string dateLog = message.Text.Split(' ').Last();
                     await logs.CountUniqUsers(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username); ;
                 }
+                else if (message.Text.StartsWith("/sendAll"))
+                {
+                    await logs.SendMsgToAllUsers(chat.Id.ToString(), (TelegramBotClient)botClient, update);
+                }
                 else if (message.Text == "/changelang" || message.Text.StartsWith($"/changelang@{cobain.Username}"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
@@ -375,7 +379,6 @@ namespace CobainSaver
                     string date = fileName.Replace(".txt", "");
                     string year = parts[4];
                     string chatToSend = parts[5];
-                    await botClient.SendChatActionAsync(chatId, ChatAction.UploadDocument);
                     await logs.SendUserLogs(year, month, date, chatId, update, (TelegramBotClient)botClient, chatToSend);
                     await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                 }

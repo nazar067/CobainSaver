@@ -17,6 +17,7 @@ using Newtonsoft.Json.Linq;
 using AngleSharp.Dom;
 using static System.Net.WebRequestMethods;
 using System.Net;
+using Microsoft.VisualBasic;
 
 namespace CobainSaver
 {
@@ -433,6 +434,7 @@ namespace CobainSaver
             }
             else
             {
+                await botClient.SendChatActionAsync(chatToSend, ChatAction.UploadDocument);
                 await using Stream stream = System.IO.File.OpenRead($"{filePath}");
                 await botClient.SendDocumentAsync(
                     chatId: chatToSend,
@@ -1339,6 +1341,82 @@ namespace CobainSaver
                     replyToMessageId: update.Message.MessageId
                 );
             }
+        }
+        public async Task SendMsgToAllUsers(string chatId, TelegramBotClient botClient, Update update)
+        {
+            try
+            {
+                string jsonString = System.IO.File.ReadAllText("source.json");
+                JObject jsonObjectAPI = JObject.Parse(jsonString);
+
+                if (chatId == jsonObjectAPI["AdminId"][0].ToString())
+                {
+                    await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
+                    string currentDirectory = Directory.GetCurrentDirectory() + "\\UserLogs";
+                    string[] directories = Directory.GetDirectories(currentDirectory);
+
+                    foreach (string userDirectory in directories)
+                    {
+                        string userId = userDirectory.Split("\\").Last();
+                        Logs logs = new Logs(Convert.ToInt64(userId), 21312312, ":", "", "");
+
+                        Language language = new Language("rand", "rand");
+                        string lang = await language.GetCurrentLanguage(userId.ToString());
+                        var url = "https://api.telegram.org/bot" + jsonObjectAPI["BotAPI"][0].ToString() + "/getChat?chat_id=" + userId;
+                        var response = await client.GetAsync(url);
+                        var responseString = await response.Content.ReadAsStringAsync();
+
+                        JObject jsonObject = JObject.Parse(responseString);
+
+                        if (jsonObject["ok"].ToString() == "True")
+                        {
+                            try
+                            {
+                                if (lang == "eng")
+                                {
+                                    await botClient.SendTextMessageAsync(
+                                        chatId: userId,
+                                        text: "Duplicate video sending problem solved....\n\nRead more - https://t.me/cobainSaver/15"
+                                    );
+                                }
+                                if (lang == "ukr")
+                                {
+                                    await botClient.SendTextMessageAsync(
+                                        chatId: userId,
+                                        text: "Проблему з дубльованим надсиланням відео вирішено...\n\nДетальніше - https://t.me/cobainSaver/15"
+                                    );
+                                }
+                                if (lang == "rus")
+                                {
+                                    await botClient.SendTextMessageAsync(
+                                        chatId: userId,
+                                        text: "Проблема с дублированием видео решена...\n\nПодробнее - https://t.me/cobainSaver/15"
+                                    );
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                            }
+                        }
+                    }
+                }
+                }
+            catch(Exception ex)
+            {
+                try
+                {
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, null, ex.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception e)
+                {
+                    return;
+                }
+            }
+            
         }
     }
 }
