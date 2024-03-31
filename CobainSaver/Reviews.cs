@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using CobainSaver.DataBase;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace CobainSaver
         public async Task UserReviews(string chatId, TelegramBotClient botClient)
         {
             bool check = await CheckIsFile(chatId);
-            if(DateTime.Now.Day == 17 && check == true)
+            if(DateTime.Now.Day == 15 && check == true)
             {
                 string jsonString = System.IO.File.ReadAllText("source.json");
                 JObject jsonObjectAPI = JObject.Parse(jsonString);
@@ -123,142 +124,10 @@ namespace CobainSaver
             }
             
         }
-        public async Task LogsUserReviews(string pollId, 
-            int firstVote, int secondVote, int thirdVote, int fourthVote, int fifthVote, string userId)
+        public async Task LogsUserReviews(string pollId, int mark, string userId)
         {
-            string correctDir = null;
-            string directory = Directory.GetCurrentDirectory() + "\\UserLogs";
-            string[] directories = System.IO.Directory.GetDirectories(directory);
-            string fileName = $"{DateTime.Now.ToShortDateString()}({pollId}).txt";
-            foreach (string dir in directories)
-            {
-                string[] underDir = System.IO.Directory.GetDirectories(dir);
-                foreach (string d in underDir)
-                {
-                    string[] f = Directory.GetFiles(d, fileName);
-
-                    // Выводим найденные файлы
-                    foreach (string file in f)
-                    {
-                        correctDir = file;
-                    }
-
-                }
-            }
-            if (correctDir == null)
-            {
-                return;
-            }
-
-            string serverFile = Directory.GetCurrentDirectory() + $"\\ServerLogs\\reviews\\{DateTime.Now.ToShortDateString()}\\reviews.txt";
-
-            string filePath = Path.Combine(directory, correctDir);
-            string[] userIds = System.IO.File.ReadAllLines(filePath);
-            string[] srvUserIds = System.IO.File.ReadAllLines(serverFile);
-
-            // Проверяем каждую строку
-            foreach (string line in userIds)
-            {
-                if (line == userId)
-                {
-                    return;
-                }
-            }
-            foreach (string line in srvUserIds)
-            {
-                if (line == userId)
-                {
-                    return;
-                }
-            }
-            string[] lines = System.IO.File.ReadAllLines(filePath);
-            string[] srvLines = System.IO.File.ReadAllLines(serverFile);
-            for (int i = 0; i < lines.Length; i++) 
-            {
-                if (lines[i].Contains("Yeah"))
-                {
-                    int oldValue = Convert.ToInt32(lines[i].Substring(lines[i].Length - 1));
-                    int newValue = oldValue + firstVote; // Вычисляем новое значение
-                    lines[i] = $"Yeah Im 100% satisfied! {newValue}"; // Обновляем строку
-                }
-                else if (lines[i].Contains("Satisfied"))
-                {
-                    // Аналогично обновляем строки для остальных переменных
-                    int oldValue = Convert.ToInt32(lines[i].Substring(lines[i].Length - 1));
-                    int newValue = oldValue + secondVote;
-                    lines[i] = $"Satisfied {newValue}";
-                }
-                else if (lines[i].Contains("Its fine"))
-                {
-                    // Аналогично обновляем строки для остальных переменных
-                    int oldValue = Convert.ToInt32(lines[i].Substring(lines[i].Length - 1));
-                    int newValue = oldValue + thirdVote;
-                    lines[i] = $"Its fine {newValue}";
-                }
-                else if (lines[i].Contains("Unhappy"))
-                {
-                    // Аналогично обновляем строки для остальных переменных
-                    int oldValue = Convert.ToInt32(lines[i].Substring(lines[i].Length - 1));
-                    int newValue = oldValue + fourthVote;
-                    lines[i] = $"Unhappy {newValue}";
-                }
-                else if (lines[i].Contains("I didnt like it at all!"))
-                {
-                    // Аналогично обновляем строки для остальных переменных
-                    int oldValue = Convert.ToInt32(lines[i].Substring(lines[i].Length - 1));
-                    int newValue = oldValue + fifthVote;
-                    lines[i] = $"I didnt like it at all! {newValue}";
-                }
-                System.IO.File.WriteAllLines(filePath, lines);
-                using (StreamWriter writer = System.IO.File.AppendText(filePath))
-                {
-                    writer.WriteLine(userId);
-                }
-
-            }
-            for (int i = 0; i < srvLines.Length; i++)
-            {
-                if (srvLines[i].Contains("Yeah"))
-                {
-                    int oldValue = Convert.ToInt32(srvLines[i].Substring(srvLines[i].Length - 1));
-                    int newValue = oldValue + firstVote; // Вычисляем новое значение
-                    srvLines[i] = $"Yeah Im 100% satisfied! {newValue}"; // Обновляем строку
-                }
-                else if (srvLines[i].Contains("Satisfied"))
-                {
-                    // Аналогично обновляем строки для остальных переменных
-                    int oldValue = Convert.ToInt32(srvLines[i].Substring(srvLines[i].Length - 1));
-                    int newValue = oldValue + secondVote;
-                    srvLines[i] = $"Satisfied {newValue}";
-                }
-                else if (srvLines[i].Contains("Its fine"))
-                {
-                    // Аналогично обновляем строки для остальных переменных
-                    int oldValue = Convert.ToInt32(srvLines[i].Substring(srvLines[i].Length - 1));
-                    int newValue = oldValue + thirdVote;
-                    srvLines[i] = $"Its fine {newValue}";
-                }
-                else if (srvLines[i].Contains("Unhappy"))
-                {
-                    // Аналогично обновляем строки для остальных переменных
-                    int oldValue = Convert.ToInt32(srvLines[i].Substring(srvLines[i].Length - 1));
-                    int newValue = oldValue + fourthVote;
-                    srvLines[i] = $"Unhappy {newValue}";
-                }
-                else if (srvLines[i].Contains("I didnt like it at all!"))
-                {
-                    // Аналогично обновляем строки для остальных переменных
-                    int oldValue = Convert.ToInt32(srvLines[i].Substring(srvLines[i].Length - 1));
-                    int newValue = oldValue + fifthVote;
-                    srvLines[i] = $"I didnt like it at all! {newValue}";
-                }
-                System.IO.File.WriteAllLines(serverFile, srvLines);
-                using (StreamWriter writer = System.IO.File.AppendText(serverFile))
-                {
-                    writer.WriteLine(userId);
-                }
-
-            }
+            AddToDataBase addDB = new AddToDataBase();
+            await addDB.AddUserReviews(Convert.ToInt64(userId), Convert.ToInt64(userId), mark, DateTime.Now.ToShortDateString());
         }
         public async Task<bool> CheckIsFile(string chatId)
         {

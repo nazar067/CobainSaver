@@ -10,6 +10,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot;
 using YoutubeDLSharp;
 using System.Text.RegularExpressions;
+using CobainSaver.DataBase;
 
 namespace CobainSaver.Downloader
 {
@@ -21,6 +22,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                AddToDataBase addDB = new AddToDataBase();
+
                 Language language = new Language("rand", "rand");
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
 
@@ -132,6 +135,7 @@ namespace CobainSaver.Downloader
                         duration: Convert.ToInt32(duration),
                         replyToMessageId: update.Message.MessageId
                     );
+                    await addDB.AddBotCommands(chatId, "pornHub", DateTime.Now.ToShortDateString());
                 }
                 catch (Exception ex)
                 {

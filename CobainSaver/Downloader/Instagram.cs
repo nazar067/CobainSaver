@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types;
 using Telegram.Bot;
+using CobainSaver.DataBase;
 
 namespace CobainSaver.Downloader
 {
@@ -23,6 +24,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                AddToDataBase addDB = new AddToDataBase();
+
                 WebProxy torProxy = new WebProxy
                 {
                     Address = new Uri(torProxyUrl),
@@ -98,6 +101,7 @@ namespace CobainSaver.Downloader
                                     chatId: chatId,
                                     video: InputFile.FromUri(video),
                                     replyToMessageId: update.Message.MessageId);
+                                await addDB.AddBotCommands(chatId, "instaStory", DateTime.Now.ToShortDateString());
                                 count++;
                             }
                             else
@@ -108,6 +112,7 @@ namespace CobainSaver.Downloader
                                     chatId: chatId,
                                     photo: InputFile.FromUri(photo),
                                     replyToMessageId: update.Message.MessageId);
+                                await addDB.AddBotCommands(chatId, "instaStory", DateTime.Now.ToShortDateString());
                                 count++;
                             }
                         }
@@ -193,6 +198,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                AddToDataBase addDB = new AddToDataBase();
+
                 //create new httpclient
                 WebProxy torProxy = new WebProxy
                 {
@@ -339,6 +346,7 @@ namespace CobainSaver.Downloader
                                 chatId: chatId,
                                 media: item,
                                 replyToMessageId: update.Message.MessageId);
+                            await addDB.AddBotCommands(chatId, "insta", DateTime.Now.ToShortDateString());
                         }
                     }
                     else if (jsonObject["items"][0]["video_versions"] != null)
@@ -350,6 +358,7 @@ namespace CobainSaver.Downloader
                             video: InputFile.FromUri(video),
                             caption: text,
                             replyToMessageId: update.Message.MessageId);
+                        await addDB.AddBotCommands(chatId, "insta", DateTime.Now.ToShortDateString());
                     }
                     else if (jsonObject["items"][0]["image_versions2"] != null)
                     {
@@ -360,6 +369,7 @@ namespace CobainSaver.Downloader
                             photo: InputFile.FromUri(img),
                             caption: text,
                             replyToMessageId: update.Message.MessageId);
+                        await addDB.AddBotCommands(chatId, "insta", DateTime.Now.ToShortDateString());
                     }
                 }
 
@@ -386,6 +396,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                AddToDataBase addDB = new AddToDataBase();
+
                 await botClient.SendChatActionAsync(chatId, ChatAction.UploadDocument);
                 //create new httpclient
                 WebProxy torProxy = new WebProxy
@@ -533,6 +545,7 @@ namespace CobainSaver.Downloader
                                 chatId: chatId,
                                 media: item,
                                 replyToMessageId: update.Message.MessageId);
+                            await addDB.AddBotCommands(chatId, "insta", DateTime.Now.ToShortDateString());
                             var message = update.Message;
                             var user = message.From;
                             var chat = message.Chat;
@@ -573,6 +586,7 @@ namespace CobainSaver.Downloader
                                 duration: roundedDuration,
                                 caption: text,
                                 replyToMessageId: update.Message.MessageId);
+                            await addDB.AddBotCommands(chatId, "insta", DateTime.Now.ToShortDateString());
                             var message = update.Message;
                             var user = message.From;
                             var chat = message.Chat;
@@ -645,6 +659,7 @@ namespace CobainSaver.Downloader
                                 photo: InputFile.FromStream(streamImg),
                                 caption: text,
                                 replyToMessageId: update.Message.MessageId);
+                            await addDB.AddBotCommands(chatId, "insta", DateTime.Now.ToShortDateString());
                             var message = update.Message;
                             var user = message.From;
                             var chat = message.Chat;
@@ -741,6 +756,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                AddToDataBase addDB = new AddToDataBase();
+
                 //create new httpclient
                 WebProxy torProxy = new WebProxy
                 {
@@ -896,6 +913,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         media: item,
                         replyToMessageId: update.Message.MessageId);
+                    await addDB.AddBotCommands(chatId, "insta", DateTime.Now.ToShortDateString());
                     var message = update.Message;
                     var user = message.From;
                     var chat = message.Chat;

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CobainSaver.DataBase;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -7,6 +9,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+using VideoLibrary;
+using YoutubeDLSharp;
 using YoutubeExplode;
 using YoutubeExplode.Videos.Streams;
 
@@ -21,6 +26,8 @@ namespace CobainSaver.Downloader
             //превью видео
             try
             {
+                AddToDataBase addDB = new AddToDataBase();
+
                 var youtube = new YoutubeClient();
                 var allInfo = await youtube.Videos.GetAsync(normallMsg);
 
@@ -93,6 +100,7 @@ namespace CobainSaver.Downloader
                         thumbnail: InputFile.FromStream(streamThumbVideo),
                         duration: Convert.ToInt32(duration),
                         replyToMessageId: update.Message.MessageId);
+                    await addDB.AddBotCommands(chatId, "youtube", DateTime.Now.ToShortDateString());
                 }
                 catch(Exception ex)
                 {
@@ -140,27 +148,177 @@ namespace CobainSaver.Downloader
             catch (Exception ex)
             {
                 //await Console.Out.WriteLineAsync(ex.ToString());
+                try
+                {
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception e)
+                {
+                }
+                await YoutubeDownloaderReserve(chatId, update, cancellationToken, messageText, (TelegramBotClient)botClient);
+                //throw;
+            }
+            finally
+            {
+
+            }
+        }
+        public async Task YoutubeDownloaderReserve(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        {
+            try
+            {
+                AddToDataBase addDB = new AddToDataBase();
+
+                string jsonString = System.IO.File.ReadAllText("source.json");
+                JObject jsonObjectAPI = JObject.Parse(jsonString);
+
+                await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
+                string url = await DeleteNotUrl(messageText);
+
+                var ytdl = new YoutubeDL();
+                ytdl.YoutubeDLPath = jsonObjectAPI["ffmpegPath"][1].ToString();
+                ytdl.FFmpegPath = jsonObjectAPI["ffmpegPath"][0].ToString();
+
+                string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                if (!Directory.Exists(audioPath))
+                {
+                    Directory.CreateDirectory(audioPath);
+                }
+                string pornPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "VIDEO.webm");
+                string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVIDEO.jpeg");
+
+
+                ytdl.OutputFileTemplate = pornPath;
+
+                var res = await ytdl.RunVideoDataFetch(url);
+                string title = res.Data.Title;
+                if (title.Contains("#"))
+                {
+                    title = Regex.Replace(title, @"#.*", "");
+                }
+                JObject jsonObject = JObject.Parse(res.Data.ToString());
+                string thumbnail = jsonObject["thumbnail"].ToString();
+                string duration = jsonObject["duration"].ToString();
+                await ytdl.RunVideoDownload(url);
+
+                await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
+
+                try
+                {
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile(thumbnail, thumbnailPath);
+                    }
+                }
+                catch (Exception e)
+                {
+                    //await Console.Out.WriteLineAsync(e.ToString());
+                }
+                if (!System.IO.File.Exists(thumbnailPath))
+                {
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg", thumbnailPath);
+                    }
+                }
+                await using Stream streamVideo = System.IO.File.OpenRead(pornPath);
+                await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
+
+                try
+                {
+                    await botClient.SendVideoAsync(
+                        chatId: chatId,
+                        video: InputFile.FromStream(streamVideo),
+                        thumbnail: InputFile.FromStream(streamThumb),
+                        caption: title,
+                        disableNotification: false,
+                        duration: Convert.ToInt32(duration),
+                        replyToMessageId: update.Message.MessageId
+                    );
+
+                    await addDB.AddBotCommands(chatId, "youtube", DateTime.Now.ToShortDateString());
+
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, "OK, content has been sent by reserve API");
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception ex)
+                {
+                    //Console.WriteLine(ex.ToString()); ;
+                    Language language = new Language("rand", "rand");
+                    string lang = await language.GetCurrentLanguage(chatId.ToString());
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Sorry, this video has a problem: the video is too big (the size should not exceed 50mb)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Вибачте, з цим відео виникла помилка: відео занадто велике (розмір має не перевищувати 50мб)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Извините, с этим видео возникли проблемы: видео слишком большое(размер должен не превышать 50мб)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    try
+                    {
+                        var message = update.Message;
+                        var user = message.From;
+                        var chat = message.Chat;
+                        Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
+                        await logs.WriteServerLogs();
+                    }
+                    catch (Exception e)
+                    {
+                    }
+                }
+                streamVideo.Close();
+                streamThumb.Close();
+
+                System.IO.File.Delete(pornPath);
+                System.IO.File.Delete(thumbnailPath);
+            }
+            catch (Exception ex)
+            {
+                //Console.WriteLine(ex.ToString());
                 Language language = new Language("rand", "rand");
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
                 if (lang == "eng")
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Sorry, this video has a problem: the video has an age restriction",
+                        text: "Sorry, this video has a problem: the video has an age restriction\n" +
+                        "\nIf you're sure the content is public or the bot has previously submitted this, please email us about this bug - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 if (lang == "ukr")
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Вибачте, з цим відео виникла помилка: відео має вікові обмеження",
+                        text: "Sorry, this video has a problem: the video has an age restriction\n" +
+                        "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 if (lang == "rus")
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Извините, с этим видео возникли проблемы: видео имеет возрастное ограничение",
+                        text: "Sorry, this video has a problem: the video has an age restriction\n" +
+                        "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
                 try
@@ -173,12 +331,8 @@ namespace CobainSaver.Downloader
                 }
                 catch (Exception e)
                 {
+                    return;
                 }
-                //throw;
-            }
-            finally
-            {
-
             }
         }
         public async Task YoutubeMusicDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
@@ -188,6 +342,8 @@ namespace CobainSaver.Downloader
             //превью видео
             try
             {
+                AddToDataBase addDB = new AddToDataBase();
+
                 var youtube = new YoutubeClient();
                 var allInfo = await youtube.Videos.GetAsync(normallMsg);
 
@@ -272,6 +428,7 @@ namespace CobainSaver.Downloader
                         thumbnail: InputFile.FromStream(streamThumbAudio),
                         duration: Convert.ToInt32(duration),
                         replyToMessageId: update.Message.MessageId); ;
+                    await addDB.AddBotCommands(chatId, "youtubeMusic", DateTime.Now.ToShortDateString());
                 }
                 catch(Exception ex)
                 { //await Console.Out.WriteLineAsync(ex.ToString());

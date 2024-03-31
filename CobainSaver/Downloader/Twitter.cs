@@ -9,6 +9,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot;
 using VideoLibrary;
 using System.Text.RegularExpressions;
+using CobainSaver.DataBase;
 
 namespace CobainSaver.Downloader
 {
@@ -17,6 +18,8 @@ namespace CobainSaver.Downloader
         private static readonly HttpClient client = new HttpClient();
         public async Task TwitterDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
+            AddToDataBase addDB = new AddToDataBase();
+
             string jsonString = System.IO.File.ReadAllText("source.json");
             JObject jsonObjectAPI = JObject.Parse(jsonString);
             string normallMsg = await DeleteNotUrl(messageText);
@@ -81,6 +84,7 @@ namespace CobainSaver.Downloader
                     media: item,
                     replyToMessageId: update.Message.MessageId);
             }
+            await addDB.AddBotCommands(chatId, "twitter", DateTime.Now.ToShortDateString());
         }
         static List<List<T>> ConvertTo2D<T>(List<T> arr, int rowSize)
         {

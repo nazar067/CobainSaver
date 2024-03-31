@@ -10,6 +10,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot;
 using System.Text.RegularExpressions;
 using System.Net;
+using CobainSaver.DataBase;
 
 namespace CobainSaver.Downloader
 {
@@ -49,6 +50,8 @@ namespace CobainSaver.Downloader
         }
         public async Task ReditDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
+            AddToDataBase addDB = new AddToDataBase();
+
             string normallMsg = await DeleteNotUrl(messageText);
             string postId = await GetPostId(normallMsg);
             if (postId == null)
@@ -77,6 +80,7 @@ namespace CobainSaver.Downloader
                     caption: caption,
                     replyToMessageId: update.Message.MessageId
                     );
+                await addDB.AddBotCommands(chatId, "reddit", DateTime.Now.ToShortDateString());
             }
             else
             {
@@ -106,6 +110,7 @@ namespace CobainSaver.Downloader
                             caption: caption,
                             replyToMessageId: update.Message.MessageId
                             );
+                    await addDB.AddBotCommands(chatId, "reddit", DateTime.Now.ToShortDateString());
                 }
                 else
                 {
@@ -114,6 +119,7 @@ namespace CobainSaver.Downloader
                         video: InputFile.FromStream(stream),
                         replyToMessageId: update.Message.MessageId
                         );
+                    await addDB.AddBotCommands(chatId, "reddit", DateTime.Now.ToShortDateString());
                 }
                 stream.Close();
                 System.IO.File.Delete(result);

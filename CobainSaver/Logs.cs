@@ -18,6 +18,7 @@ using AngleSharp.Dom;
 using static System.Net.WebRequestMethods;
 using System.Net;
 using Microsoft.VisualBasic;
+using CobainSaver.DataBase;
 
 namespace CobainSaver
 {
@@ -121,13 +122,19 @@ namespace CobainSaver
 
             string allServers = "allServers.txt";
             string allFilePath = Path.Combine(serverFolderPath, allServers);
+            string newErrors = $"{DateTime.Now.ToLongTimeString()} \nChatID: {ChatId} \nMessage: {Msg} \nError: {ServerMsg}";
+
             if (!System.IO.File.Exists(allFilePath))
             {
-                System.IO.File.WriteAllText(allFilePath, DateTime.Now.ToLongTimeString() + "\nChatID: " + ChatId + "\nMessage: " + Msg + "\nError: " + ServerMsg);
+                System.IO.File.WriteAllText(allFilePath, newErrors);
             }
             else
             {
-                System.IO.File.AppendAllText(allFilePath, $"{Environment.NewLine}{DateTime.Now.ToLongTimeString() + "\nChatID: " + ChatId + "\nMessage: " + Msg + "\nError: " + ServerMsg}");
+                // Читаем существующее содержимое файла
+                string existingContent = System.IO.File.ReadAllText(allFilePath);
+
+                // Соединяем новое содержимое с существующим и записываем в файл
+                System.IO.File.WriteAllText(allFilePath, newErrors + Environment.NewLine + existingContent);
             }
 
             string folderName = ChatId.ToString();
@@ -171,141 +178,62 @@ namespace CobainSaver
             string date = DateTime.Now.ToShortDateString();
             string file = $"{date}({pollId}).txt";
             string filePath = Path.Combine(lastFolderPath, file);
-
-            string serverFolder = "ServerLogs";
-            string serverFolderPath = Path.Combine(currentDirectory, serverFolder);
-
-            string serverFolderName = "reviews";
-            string srvFolderPath = Path.Combine(serverFolderPath, serverFolderName);
-            if (!Directory.Exists(srvFolderPath))
-            {
-                Directory.CreateDirectory(srvFolderPath);
-            }
-            string srvFolderName = DateTime.Now.ToShortDateString();
-            string srvLastFolderPath = Path.Combine(srvFolderPath, srvFolderName);
-            if (!Directory.Exists(srvLastFolderPath))
-            {
-                Directory.CreateDirectory(srvLastFolderPath);
-            }
-            string serverFile = $"reviews.txt";
-            string srvFilePath = Path.Combine(srvLastFolderPath, serverFile);
             if (!System.IO.File.Exists(filePath))
             {
-                System.IO.File.WriteAllText(filePath,
-                        $"Yeah Im 100% satisfied!" + " " + $"{0}\n" +
-                        $"Satisfied" + " " + $"{0}\n" +
-                        $"Its fine" + " " + $"{0}\n" +
-                        $"Unhappy" + " " + $"{0}\n" +
-                        $"I didnt like it at all!" + " " + $"{0}\n");
+                System.IO.File.WriteAllText(filePath, "ok");
             }
             else
             {
-                System.IO.File.WriteAllText(filePath,
-                        $"Yeah Im 100% satisfied!" + " " + $"{0}\n" +
-                        $"Satisfied" + " " + $"{0}\n" +
-                        $"Its fine" + " " + $"{0}\n" +
-                        $"Unhappy" + " " + $"{0}\n" +
-                        $"I didnt like it at all!" + " " + $"{0}\n");
-            }
-            if (!System.IO.File.Exists(srvFilePath))
-            {
-                System.IO.File.WriteAllText(srvFilePath,
-                        $"Yeah Im 100% satisfied!" + " " + $"{0}\n" +
-                        $"Satisfied" + " " + $"{0}\n" +
-                        $"Its fine" + " " + $"{0}\n" +
-                        $"Unhappy" + " " + $"{0}\n" +
-                        $"I didnt like it at all!" + " " + $"{0}\n");
-            }
-            else
-            {
-                System.IO.File.WriteAllText(srvFilePath,
-                        $"Yeah Im 100% satisfied!" + " " + $"{0}\n" +
-                        $"Satisfied" + " " + $"{0}\n" +
-                        $"Its fine" + " " + $"{0}\n" +
-                        $"Unhappy" + " " + $"{0}\n" +
-                        $"I didnt like it at all!" + " " + $"{0}\n");
+                System.IO.File.WriteAllText(filePath, "ok");
             }
         }
-        public async Task SendAllRewies(string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
+        public async Task SendAllRewies(string chatId, Update update, CancellationToken cancellationToken, string date, TelegramBotClient botClient)
         {
             string jsonString = System.IO.File.ReadAllText("source.json");
             JObject jsonObject = JObject.Parse(jsonString);
             if (chatId == jsonObject["AdminId"][0].ToString())
             {
-                await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
-                string currentDirectory = Directory.GetCurrentDirectory() + "\\ServerLogs";
-
-                if (!Directory.Exists(currentDirectory))
+                string marks = null;
+                using (ApplicationContext db = new ApplicationContext())
                 {
-                    Language language = new Language("rand", "rand");
-                    string lang = await language.GetCurrentLanguage(chatId.ToString());
-                    if (lang == "eng")
+                    if (date == "/reviews")
                     {
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "There are no logs in your chat",
-                            replyToMessageId: update.Message.MessageId
-                            );
+                        date = DateTime.Now.ToShortDateString();
                     }
-                    if (lang == "ukr")
+                    Dictionary<int, int> counts = new Dictionary<int, int>();
+
+                    // Заполняем словарь нулями
+                    for (int i = 0; i <= 4; i++)
                     {
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "У вашому чаті немає логів",
-                            replyToMessageId: update.Message.MessageId);
+                        counts[i] = 0;
                     }
-                    if (lang == "rus")
+
+                    // Получаем количество каждого значения mark из базы данных за заданную дату
+                    var markCounts = db.UserReviews
+                        .Where(ur => ur.date == date)
+                        .GroupBy(ur => ur.mark)
+                        .Select(g => new { Mark = g.Key, Count = g.Count() })
+                        .ToList();
+
+                    // Обновляем словарь с количеством значений mark
+                    foreach (var item in markCounts)
                     {
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "В вашем чате нет логов",
-                            replyToMessageId: update.Message.MessageId);
+                        if (counts.ContainsKey(item.Mark))
+                        {
+                            counts[item.Mark] = item.Count;
+                        }
                     }
-                    return;
+
+                    // Выводим количество значений mark
+                    foreach (var kvp in counts)
+                    {
+                        //Console.WriteLine($"{kvp.Key}: {kvp.Value}");
+                        marks += $"\n{kvp.Key}: {kvp.Value}";
+                    }
                 }
-
-                string file = "allServers.txt";
-
-                string filePath = Path.Combine(currentDirectory, file);
-
-                if (!System.IO.File.Exists(filePath))
-                {
-                    Language language = new Language("rand", "rand");
-                    string lang = await language.GetCurrentLanguage(chatId.ToString());
-                    if (lang == "eng")
-                    {
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "There are no logs for that date",
-                            replyToMessageId: update.Message.MessageId
-                            );
-                    }
-                    if (lang == "ukr")
-                    {
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "Логів за цю дату немає",
-                            replyToMessageId: update.Message.MessageId);
-                    }
-                    if (lang == "rus")
-                    {
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "Логи за эту дату отсутствуют.",
-                            replyToMessageId: update.Message.MessageId);
-                    }
-                    return;
-                }
-                else
-                {
-                    await using Stream stream = System.IO.File.OpenRead($"{filePath}");
-                    await botClient.SendDocumentAsync(
+                await botClient.SendTextMessageAsync(
                     chatId: chatId,
-                        document: InputFile.FromStream(stream: stream, fileName: "allServers.txt"),
-                        replyToMessageId: update.Message.MessageId
-                        );
-                    stream.Close();
-                }
+                    text: marks);
             }
         }
         public async Task SendUserLogs(string year, string month, string date, string chatId, Update update, TelegramBotClient botClient, string chatToSend)
@@ -446,45 +374,26 @@ namespace CobainSaver
         public async Task WriteLastUsers()
         {
             string currentDirectory = Directory.GetCurrentDirectory() + "\\ServerLogs";
-            string uniqFolder = "UniqUsers";
-            string uniqFolderPath = Path.Combine(currentDirectory, uniqFolder);
 
-            if (!Directory.Exists(uniqFolderPath))
-            {
-                Directory.CreateDirectory(uniqFolderPath);
-            }
             string listPath = Path.Combine(currentDirectory, "list.txt");
-            string uniqPath = Path.Combine(uniqFolderPath, DateTime.Now.ToShortDateString() + ".txt");
             if (!System.IO.File.Exists(listPath)) 
             {
                 System.IO.File.WriteAllText(listPath, ChatId.ToString());
             }
-            if (!System.IO.File.Exists(uniqPath))
-            {
-                System.IO.File.WriteAllText(uniqPath, ChatId.ToString());
-            }
             List<string> existingLines = new List<string>();
-            List<string> uniqExistingLines = new List<string>();
             if (System.IO.File.Exists(listPath))
             {
                 existingLines = System.IO.File.ReadAllLines(listPath).ToList();
             }
-            if (System.IO.File.Exists(uniqPath))
-            {
-                uniqExistingLines = System.IO.File.ReadAllLines(uniqPath).ToList();
-            }
 
             // Удаление дубликатов
             existingLines.RemoveAll(line => line.Equals(ChatId.ToString()));
-            uniqExistingLines.RemoveAll(line => line.Equals(ChatId.ToString()));
 
             // Добавление новой строки в начало
             existingLines.Insert(0, ChatId.ToString());
-            uniqExistingLines.Insert(0, ChatId.ToString());
 
             // Запись в файл
             System.IO.File.WriteAllLines(listPath, existingLines);
-            System.IO.File.WriteAllLines(uniqPath, uniqExistingLines);
         }
         public async Task SendLastTenUsers(TelegramBotClient botClient, string chatId)
         {
@@ -1300,7 +1209,18 @@ namespace CobainSaver
                     text: directories.Length.ToString(),
                     replyToMessageId: update.Message.MessageId
                     );
+            }
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                // Подсчитываем количество уникальных значений в столбце user_id
+                int uniqueUserCount = db.UserLinks.Select(item => item.user_id).Distinct().Count();
 
+                // Выводим результат
+                await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: "Data base: " + uniqueUserCount.ToString(),
+                    replyToMessageId: update.Message.MessageId
+                );
             }
         }
         public async Task CountUniqUsers(string date, string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
@@ -1310,36 +1230,55 @@ namespace CobainSaver
             if (chatId == jsonObject["AdminId"][0].ToString())
             {
                 await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
-                string currentDirectory = Directory.GetCurrentDirectory() + "\\ServerLogs" + "\\UniqUsers";
-                string file = null;
                 if (date == "/uniqUsers")
                 {
-                    file = DateTime.Now.ToShortDateString() + ".txt";
+                    date = DateTime.Now.ToShortDateString();
                 }
-                else
+                using (ApplicationContext db = new ApplicationContext())
                 {
-                    file = date + ".txt"; ;
-                }
-                string filePath = Path.Combine(currentDirectory, file);
-                if (!System.IO.File.Exists(filePath)) 
-                {
+                    // Подсчитываем количество уникальных значений в столбце user_id
+                    int uniqueUserCount = db.UserLinks
+                        .Where(link => link.date == date) // Фильтруем по заданной дате
+                        .Select(link => link.user_id)
+                        .Distinct()
+                        .Count();
+
+                    // Выводим результат
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "No users for this date",
+                        text: uniqueUserCount.ToString(),
                         replyToMessageId: update.Message.MessageId
                     );
-                    return;
                 }
-                string[] lines = System.IO.File.ReadAllLines(filePath);
+            }
+        }
+        public async Task CountUniqChats(string date, string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
+        {
+            string jsonString = System.IO.File.ReadAllText("source.json");
+            JObject jsonObject = JObject.Parse(jsonString);
+            if (chatId == jsonObject["AdminId"][0].ToString())
+            {
+                await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
+                if (date == "/uniqChats")
+                {
+                    date = DateTime.Now.ToShortDateString();
+                }
+                using (ApplicationContext db = new ApplicationContext())
+                {
+                    // Подсчитываем количество уникальных значений в столбце chat_id
+                    int uniqueUserCount = db.UserLinks
+                        .Where(link => link.date == date) // Фильтруем по заданной дате
+                        .Select(link => link.chat_id)
+                        .Distinct()
+                        .Count();
 
-                // Считаем количество строк в массиве
-                int lineCount = lines.Length;
-
-                await botClient.SendTextMessageAsync(
-                    chatId: chatId,
-                    text: lineCount.ToString(),
-                    replyToMessageId: update.Message.MessageId
-                );
+                    // Выводим результат
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: uniqueUserCount.ToString(),
+                        replyToMessageId: update.Message.MessageId
+                    );
+                }
             }
         }
         public async Task SendMsgToAllUsers(string chatId, TelegramBotClient botClient, Update update)

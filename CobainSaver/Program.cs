@@ -1,4 +1,5 @@
-﻿using CobainSaver.Downloader;
+﻿using CobainSaver.DataBase;
+using CobainSaver.Downloader;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -110,6 +111,7 @@ namespace CobainSaver
                 TikTok tikTok = new TikTok();
                 Twitter twitter = new Twitter();
                 YouTube youTube = new YouTube();
+                AddToDataBase addDB = new AddToDataBase();
                 //Downloader video = new Downloader();
                 // From - это от кого пришло сообщение (или любой другой Update)
                 var user = message.From;
@@ -124,46 +126,55 @@ namespace CobainSaver
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVideo);
                     await youTube.YoutubeDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await addDB.AddUserLinks(chat.Id, user.Id, "youtube", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text.Contains("https://music.youtube.com/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVoice);
                     await youTube.YoutubeMusicDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await addDB.AddUserLinks(chat.Id, user.Id, "youtubeMusic", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text.Contains("https://open.spotify.com/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVoice);
                     await spotify.SpotifyDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await addDB.AddUserLinks(chat.Id, user.Id, "spotify", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text.Contains("https://vm.tiktok.com") || message.Text.Contains("https://www.tiktok.com") || message.Text.Contains("https://m.tiktok.com"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
                     await tikTok.TikTokDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await addDB.AddUserLinks(chat.Id, user.Id, "tiktok", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text.Contains("https://www.reddit.com") || message.Text.Contains("https://redd.it/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
                     await reddit.ReditDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await addDB.AddUserLinks(chat.Id, user.Id, "reddit", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text.Contains("https://x.com/") || message.Text.Contains("https://twitter.com/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
                     await twitter.TwitterDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await addDB.AddUserLinks(chat.Id, user.Id, "twitter", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text.Contains("https://www.instagram.com"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
                     await insta.InstagramDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await addDB.AddUserLinks(chat.Id, user.Id, "instagram", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text.Contains("https://rt.pornhub.com/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVideo);
                     await porn.PornHubDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await addDB.AddUserLinks(chat.Id, user.Id, "pornhub", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                     await logs.SendAllYears((TelegramBotClient)botClient, chat.Id.ToString(), 0, chat.Id.ToString());
+                    await addDB.AddUserCommands(chat.Id, user.Id, "logs", message.MessageId, DateTime.Now.ToShortDateString());
                     //string dateLog = message.Text.Split(' ').Last();
                     // await logs.SendUserLogs(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                 }
@@ -195,6 +206,7 @@ namespace CobainSaver
                             text: "Привет, я CobainSaver, отправь мне ссылку на видео",
                             replyToMessageId: update.Message.MessageId);
                     }
+                    await addDB.AddUserCommands(chat.Id, user.Id, "start", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text == "/help" || message.Text.StartsWith($"/help@{cobain.Username}"))
                 {
@@ -222,15 +234,17 @@ namespace CobainSaver
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chat.Id,
-                            text: "/help - посмотреть все команді\n " +
+                            text: "/help - посмотреть все команды\n " +
                             "/changelang - сменить язык",
                             replyToMessageId: update.Message.MessageId);
                     }
+                    await addDB.AddUserCommands(chat.Id, user.Id, "help", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text == "/countUsers")
                 {
                     string dateLog = message.Text.Split(' ').Last();
                     await logs.CountAllUsers(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "countUsers", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text.StartsWith("/userLogs"))
                 {
@@ -238,23 +252,46 @@ namespace CobainSaver
                     if (!dateLog.Contains("/") && !dateLog.Contains("."))
                         dateLog = "/userLogs ";
                     await logs.SendUserLogsToAdmin(message.Text, dateLog, chat.Id.ToString(), update, cancellationToken, message, (TelegramBotClient)botClient, cobain.Username);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "userLogs", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text == "/serverLogs")
                 {
                     await logs.SendServerLogs(chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "serverLogs", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text == "/lastTen")
                 {
                     await logs.SendLastTenUsers((TelegramBotClient)botClient, chat.Id.ToString());
+                    await addDB.AddUserCommands(chat.Id, user.Id, "lastTen", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text.StartsWith("/uniqUsers"))
                 {
                     string dateLog = message.Text.Split(' ').Last();
                     await logs.CountUniqUsers(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username); ;
+                    await addDB.AddUserCommands(chat.Id, user.Id, "uniqUsers", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text.StartsWith("/uniqChats"))
+                {
+                    string dateLog = message.Text.Split(' ').Last();
+                    await logs.CountUniqChats(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username); ;
+                    await addDB.AddUserCommands(chat.Id, user.Id, "uniqChats", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text.StartsWith("/sendAll"))
                 {
                     await logs.SendMsgToAllUsers(chat.Id.ToString(), (TelegramBotClient)botClient, update);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "sendAll", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text.StartsWith("/reviews"))
+                {
+                    string dateLog = message.Text.Split(' ').Last();
+                    await logs.SendAllRewies(chat.Id.ToString(), update, cancellationToken, dateLog, (TelegramBotClient)botClient);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "sendAllReviews", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text == "/changelangAll")
+                {
+                    Language language = new Language("rand", "rand");
+                    await language.ChangeLanguageAllUsers(chat.Id.ToString(), (TelegramBotClient)botClient);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "changelangAll", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text == "/changelang" || message.Text.StartsWith($"/changelang@{cobain.Username}"))
                 {
@@ -264,9 +301,9 @@ namespace CobainSaver
                                     // first row
                                     new []
                                     {
-                                        InlineKeyboardButton.WithCallbackData(text: "Українська", callbackData: "ukr"),
-                                        InlineKeyboardButton.WithCallbackData(text: "English", callbackData: "eng"),
-                                        InlineKeyboardButton.WithCallbackData(text: "Русский", callbackData: "rus"),
+                                        InlineKeyboardButton.WithCallbackData(text: "Українська", callbackData: "uk"),
+                                        InlineKeyboardButton.WithCallbackData(text: "English", callbackData: "en"),
+                                        InlineKeyboardButton.WithCallbackData(text: "Русский", callbackData: "ru"),
                                     },
                                 });
                     Language language = new Language("rand", "rand");
@@ -295,6 +332,7 @@ namespace CobainSaver
                             text: "Выберите язык"
                         );
                     }
+                    await addDB.AddUserCommands(chat.Id, user.Id, "changelang", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 Reviews reviews = new Reviews();
                 await reviews.UserReviews(chat.Id.ToString(), (TelegramBotClient)botClient);
@@ -304,11 +342,14 @@ namespace CobainSaver
                 //Console.WriteLine(ex.ToString());
                 try
                 {
-                    var message = update.Message;
-                    var user = message.From;
-                    var chat = message.Chat;
-                    Logs logs = new Logs(chat.Id, user.Id, user.Username, null, ex.ToString());
-                    await logs.WriteServerLogs();
+                    if(!ex.ToString().Contains("System.NullReferenceException: Object reference not set to an instance of an object.\r\n   at CobainSaver.Program.CheckMsg(Update update, TelegramBotClient botClient, CancellationToken cancellationToken) in C:\\Users\\gamer\\source\\repos\\CobainSaver\\CobainSaver\\Program.cs"))
+                    {
+                        var message = update.Message;
+                        var user = message.From;
+                        var chat = message.Chat;
+                        Logs logs = new Logs(chat.Id, user.Id, user.Username, null, ex.ToString());
+                        await logs.WriteServerLogs();
+                    }
                 }
                 catch (Exception e)
                 {
@@ -321,21 +362,21 @@ namespace CobainSaver
             try
             {
                 var callbackQuery = update.CallbackQuery;
-                if (callbackQuery.Data.Contains("ukr"))
+                if (callbackQuery.Data.Contains("uk"))
                 {
                     string msg = "Мова змінена";
                     Language language = new Language(callbackQuery.Data, msg);
                     await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
                     await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                 }
-                if (callbackQuery.Data.Contains("eng"))
+                if (callbackQuery.Data.Contains("en"))
                 {
                     string msg = "Language has been changed";
                     Language language = new Language(callbackQuery.Data, msg);
                     await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
                     await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                 }
-                if (callbackQuery.Data.Contains("rus"))
+                if (callbackQuery.Data.Contains("ru"))
                 {
                     string msg = "Язык изменен";
                     Language language = new Language(callbackQuery.Data, msg);
@@ -432,23 +473,23 @@ namespace CobainSaver
                 Reviews reviews = new Reviews();
                 if (pollAnswer.OptionIds.Contains(0))
                 {
-                    await reviews.LogsUserReviews(pollAnswer.PollId, 1, 0, 0, 0, 0, userId);
+                    await reviews.LogsUserReviews(pollAnswer.PollId, pollAnswer.OptionIds[0], userId);
                 }
                 else if (pollAnswer.OptionIds.Contains(1))
                 {
-                    await reviews.LogsUserReviews(pollAnswer.PollId, 0, 1, 0, 0, 0, userId);
+                    await reviews.LogsUserReviews(pollAnswer.PollId, pollAnswer.OptionIds[0], userId);
                 }
                 else if (pollAnswer.OptionIds.Contains(2))
                 {
-                    await reviews.LogsUserReviews(pollAnswer.PollId, 0, 0, 1, 0, 0, userId);
+                    await reviews.LogsUserReviews(pollAnswer.PollId, pollAnswer.OptionIds[0], userId);
                 }
                 else if (pollAnswer.OptionIds.Contains(3))
                 {
-                    await reviews.LogsUserReviews(pollAnswer.PollId, 0, 0, 0, 1, 0, userId);
+                    await reviews.LogsUserReviews(pollAnswer.PollId, pollAnswer.OptionIds[0], userId);
                 }
                 else if (pollAnswer.OptionIds.Contains(4))
                 {
-                    await reviews.LogsUserReviews(pollAnswer.PollId, 0, 0, 0, 0, 1, userId);
+                    await reviews.LogsUserReviews(pollAnswer.PollId, pollAnswer.OptionIds[0], userId);
                 }
             }
             catch (Exception ex)

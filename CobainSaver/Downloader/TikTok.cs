@@ -14,6 +14,7 @@ using YoutubeDLSharp;
 using System.Net.Sockets;
 using AngleSharp.Dom;
 using System.Text.Json.Nodes;
+using CobainSaver.DataBase;
 
 namespace CobainSaver.Downloader
 {
@@ -27,6 +28,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                AddToDataBase addDB = new AddToDataBase();
+
                 string jsonString = System.IO.File.ReadAllText("source.json");
                 JObject jsonObjectAPI = JObject.Parse(jsonString);
                 string normallMsg = await DeleteNotUrl(messageText);
@@ -98,6 +101,9 @@ namespace CobainSaver.Downloader
                             disableNotification: true,
                             replyToMessageId: update.Message.MessageId); ;
                     }
+
+                    await addDB.AddBotCommands(chatId, "tiktok", DateTime.Now.ToShortDateString());
+
                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
                     string music = jsonObject["data"]["music"].ToString();
                     string perfomer = jsonObject["data"]["music_info"]["author"].ToString();
@@ -168,6 +174,9 @@ namespace CobainSaver.Downloader
                         disableNotification: true,
                         replyToMessageId: update.Message.MessageId
                         );
+
+                    await addDB.AddBotCommands(chatId, "tiktok", DateTime.Now.ToShortDateString());
+
                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
                     string music = jsonObject["data"]["music"].ToString();
                     string perfomer = jsonObject["data"]["music_info"]["author"].ToString();
@@ -243,6 +252,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                AddToDataBase addDB = new AddToDataBase();
+
                 string jsonString = System.IO.File.ReadAllText("source.json");
                 JObject jsonObjectAPI = JObject.Parse(jsonString);
                 string normallMsg = await DeleteNotUrl(messageText);
@@ -279,6 +290,9 @@ namespace CobainSaver.Downloader
                             disableNotification: true,
                             replyToMessageId: update.Message.MessageId); ;
                     }
+
+                    await addDB.AddBotCommands(chatId, "tiktok", DateTime.Now.ToShortDateString());
+
                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
                     string music = jsonObject["data"]["music"].ToString();
                     string perfomer = jsonObject["data"]["music_info"]["author"].ToString();
@@ -327,6 +341,11 @@ namespace CobainSaver.Downloader
                         thumbnail: InputFile.FromStream(streamThumb),
                         replyToMessageId: update.Message.MessageId
                         );
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, "OK, content has been sent");
+                    await logs.WriteServerLogs();
                     stream.Close();
                     streamThumb.Close();
 
@@ -383,6 +402,9 @@ namespace CobainSaver.Downloader
                         thumbnail: InputFile.FromStream(streamThumbVideo),
                         replyToMessageId: update.Message.MessageId
                         );
+
+                    await addDB.AddBotCommands(chatId, "tiktok", DateTime.Now.ToShortDateString());
+
                     streamVideo.Close();
                     streamThumbVideo.Close();
                     System.IO.File.Delete(videoPath);
@@ -434,11 +456,17 @@ namespace CobainSaver.Downloader
                         thumbnail: InputFile.FromStream(streamThumb),
                         replyToMessageId: update.Message.MessageId
                         );
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, "OK, content has been sent");
+                    await logs.WriteServerLogs();
                     stream.Close();
                     streamThumb.Close();
 
                     System.IO.File.Delete(filePath);
                     System.IO.File.Delete(thumbnailPath);
+
                 }
             }
             catch (Exception ex)
@@ -485,6 +513,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                AddToDataBase addDB = new AddToDataBase();
+
                 await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
                 string url = await DeleteNotUrl(messageText);
 
@@ -548,6 +578,9 @@ namespace CobainSaver.Downloader
                         duration: Convert.ToInt32(duration),
                         replyToMessageId: update.Message.MessageId
                     );
+
+                    await addDB.AddBotCommands(chatId, "tiktok", DateTime.Now.ToShortDateString());
+
                     var message = update.Message;
                     var user = message.From;
                     var chat = message.Chat;
