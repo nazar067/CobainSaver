@@ -79,14 +79,29 @@ namespace CobainSaver.Downloader
                 }
                 string videoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "video.mp4");
                 string thumbnailVideoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVideo.jpeg");
-                using (var client = new WebClient())
+                try
                 {
-                    client.DownloadFile(streamInfo.Url, videoPath);
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile(streamInfo.Url, videoPath);
+                    }
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile(thumbnail, thumbnailVideoPath);
+                    }
                 }
-                using (var client = new WebClient())
+                catch (Exception e)
                 {
-                    client.DownloadFile(thumbnail, thumbnailVideoPath);
+                    //await Console.Out.WriteLineAsync(e.ToString());
                 }
+                if (!System.IO.File.Exists(thumbnailVideoPath))
+                {
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg", thumbnailVideoPath);
+                    }
+                }
+
                 await using Stream streamVideo = System.IO.File.OpenRead(videoPath);
                 await using Stream streamThumbVideo = System.IO.File.OpenRead(thumbnailVideoPath);
 
