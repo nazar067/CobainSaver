@@ -175,8 +175,6 @@ namespace CobainSaver.Downloader
                         replyToMessageId: update.Message.MessageId
                         );
 
-                    await addDB.AddBotCommands(chatId, "tiktok", DateTime.Now.ToShortDateString());
-
                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
                     string music = jsonObject["data"]["music"].ToString();
                     string perfomer = jsonObject["data"]["music_info"]["author"].ToString();
@@ -230,6 +228,8 @@ namespace CobainSaver.Downloader
 
                     System.IO.File.Delete(filePath);
                     System.IO.File.Delete(thumbnailPath);
+
+                    await addDB.AddBotCommands(chatId, "tiktok", DateTime.Now.ToShortDateString());
                 }
             }
             catch (Exception ex)
@@ -291,7 +291,6 @@ namespace CobainSaver.Downloader
                             replyToMessageId: update.Message.MessageId); ;
                     }
 
-                    await addDB.AddBotCommands(chatId, "tiktok", DateTime.Now.ToShortDateString());
 
                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
                     string music = jsonObject["data"]["music"].ToString();
@@ -351,6 +350,8 @@ namespace CobainSaver.Downloader
 
                     System.IO.File.Delete(filePath);
                     System.IO.File.Delete(thumbnailPath);
+
+                    await addDB.AddBotCommands(chatId, "tiktok", DateTime.Now.ToShortDateString());
                 }
                 else
                 {
@@ -402,8 +403,6 @@ namespace CobainSaver.Downloader
                         thumbnail: InputFile.FromStream(streamThumbVideo),
                         replyToMessageId: update.Message.MessageId
                         );
-
-                    await addDB.AddBotCommands(chatId, "tiktok", DateTime.Now.ToShortDateString());
 
                     streamVideo.Close();
                     streamThumbVideo.Close();
@@ -467,6 +466,7 @@ namespace CobainSaver.Downloader
                     System.IO.File.Delete(filePath);
                     System.IO.File.Delete(thumbnailPath);
 
+                    await addDB.AddBotCommands(chatId, "tiktok", DateTime.Now.ToShortDateString());
                 }
             }
             catch (Exception ex)
@@ -579,8 +579,6 @@ namespace CobainSaver.Downloader
                         replyToMessageId: update.Message.MessageId
                     );
 
-                    await addDB.AddBotCommands(chatId, "tiktok", DateTime.Now.ToShortDateString());
-
                     var message = update.Message;
                     var user = message.From;
                     var chat = message.Chat;
@@ -630,6 +628,8 @@ namespace CobainSaver.Downloader
 
                 System.IO.File.Delete(pornPath);
                 System.IO.File.Delete(thumbnailPath);
+
+                await addDB.AddBotCommands(chatId, "tiktok", DateTime.Now.ToShortDateString());
             }
             catch (Exception ex)
             {
