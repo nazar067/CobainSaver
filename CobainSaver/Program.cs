@@ -112,6 +112,7 @@ namespace CobainSaver
                 Twitter twitter = new Twitter();
                 YouTube youTube = new YouTube();
                 AddToDataBase addDB = new AddToDataBase();
+                AdminCommands admin = new AdminCommands();
                 //Downloader video = new Downloader();
                 // From - это от кого пришло сообщение (или любой другой Update)
                 var user = message.From;
@@ -243,7 +244,7 @@ namespace CobainSaver
                 else if (message.Text == "/countUsers")
                 {
                     string dateLog = message.Text.Split(' ').Last();
-                    await logs.CountAllUsers(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
+                    await admin.CountAllUsers(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                     await addDB.AddUserCommands(chat.Id, user.Id, "countUsers", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text.StartsWith("/userLogs"))
@@ -256,35 +257,35 @@ namespace CobainSaver
                 }
                 else if (message.Text == "/serverLogs")
                 {
-                    await logs.SendServerLogs(chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
+                    await admin.SendServerLogs(chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
                     await addDB.AddUserCommands(chat.Id, user.Id, "serverLogs", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text == "/lastTen")
                 {
-                    await logs.SendLastTenUsers((TelegramBotClient)botClient, chat.Id.ToString());
+                    await admin.SendLastTenUsers((TelegramBotClient)botClient, chat.Id.ToString());
                     await addDB.AddUserCommands(chat.Id, user.Id, "lastTen", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text.StartsWith("/uniqUsers"))
                 {
                     string dateLog = message.Text.Split(' ').Last();
-                    await logs.CountUniqUsers(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username); ;
+                    await admin.CountUniqUsers(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username); ;
                     await addDB.AddUserCommands(chat.Id, user.Id, "uniqUsers", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text.StartsWith("/uniqChats"))
                 {
                     string dateLog = message.Text.Split(' ').Last();
-                    await logs.CountUniqChats(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username); ;
+                    await admin.CountUniqChats(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username); ;
                     await addDB.AddUserCommands(chat.Id, user.Id, "uniqChats", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text.StartsWith("/sendAll"))
                 {
-                    await logs.SendMsgToAllUsers(chat.Id.ToString(), (TelegramBotClient)botClient, update);
+                    await admin.SendMsgToAllUsers(chat.Id.ToString(), (TelegramBotClient)botClient, update);
                     await addDB.AddUserCommands(chat.Id, user.Id, "sendAll", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text.StartsWith("/reviews"))
                 {
                     string dateLog = message.Text.Split(' ').Last();
-                    await logs.SendAllRewies(chat.Id.ToString(), update, cancellationToken, dateLog, (TelegramBotClient)botClient);
+                    await admin.SendAllRewies(chat.Id.ToString(), update, cancellationToken, dateLog, (TelegramBotClient)botClient);
                     await addDB.AddUserCommands(chat.Id, user.Id, "sendAllReviews", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text == "/changelangAll")
@@ -292,6 +293,28 @@ namespace CobainSaver
                     Language language = new Language("rand", "rand");
                     await language.ChangeLanguageAllUsers(chat.Id.ToString(), (TelegramBotClient)botClient);
                     await addDB.AddUserCommands(chat.Id, user.Id, "changelangAll", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text == "/service")
+                {
+                    await admin.ServiceStatistic(chat.Id.ToString(), update, cancellationToken, (TelegramBotClient)botClient);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "service", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text.StartsWith("/countLinks"))
+                {
+                    string dateLog = message.Text.Split(' ').Last();
+                    await admin.CountAllLinks(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "countLinks", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text.StartsWith("/countBotLinks"))
+                {
+                    string dateLog = message.Text.Split(' ').Last();
+                    await admin.CountBotLinks(dateLog, chat.Id.ToString(), update, cancellationToken, message.Text, (TelegramBotClient)botClient, cobain.Username);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "countBotLinks", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text == "/lang")
+                {
+                    await admin.LanguageStatistics(chat.Id.ToString(), update, cancellationToken, (TelegramBotClient)botClient);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "lang", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text == "/changelang" || message.Text.StartsWith($"/changelang@{cobain.Username}"))
                 {
