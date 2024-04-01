@@ -299,6 +299,11 @@ namespace CobainSaver
                     await admin.ServiceStatistic(chat.Id.ToString(), update, cancellationToken, (TelegramBotClient)botClient);
                     await addDB.AddUserCommands(chat.Id, user.Id, "service", message.MessageId, DateTime.Now.ToShortDateString());
                 }
+                else if (message.Text == "/serviceBot")
+                {
+                    await admin.ServiceBotStatistic(chat.Id.ToString(), update, cancellationToken, (TelegramBotClient)botClient);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "serviceBot", message.MessageId, DateTime.Now.ToShortDateString());
+                }
                 else if (message.Text.StartsWith("/countLinks"))
                 {
                     string dateLog = message.Text.Split(' ').Last();

@@ -226,6 +226,35 @@ namespace CobainSaver
             }
 
         }
+        public async Task ServiceBotStatistic(string chatId, Update update, CancellationToken cancellationToken, TelegramBotClient botClient)
+        {
+            string jsonString = System.IO.File.ReadAllText("source.json");
+            JObject jsonObjectAPI = JObject.Parse(jsonString);
+
+            if (chatId == jsonObjectAPI["AdminId"][0].ToString())
+            {
+                await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
+                string statistic = null;
+                using (ApplicationContext db = new ApplicationContext())
+                {
+                    // Получаем все уникальные значения столбца link
+                    var uniqueLinks = db.BotCommands.Select(link => link.command_type).Distinct().ToList();
+
+                    // Подсчитываем количество каждого типа ссылок
+                    foreach (var link in uniqueLinks)
+                    {
+                        int linkCount = db.BotCommands.Count(l => l.command_type == link);
+                        statistic += $"\nКоличество {link}: {linkCount}";
+                    }
+                }
+                await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: statistic,
+                    replyToMessageId: update.Message.MessageId
+                    );
+            }
+
+        }
         public async Task ChatStatistic(string chatId, Update update, CancellationToken cancellationToken, TelegramBotClient botClient)
         {
             WebProxy torProxy = new WebProxy
