@@ -11,6 +11,7 @@ using VideoLibrary;
 using Telegram.Bot.Types;
 using System.Net;
 using Telegram.Bot.Types.ReplyMarkups;
+using System.Net.Http;
 
 namespace CobainSaver
 {
@@ -215,6 +216,76 @@ namespace CobainSaver
                     {
                         int linkCount = db.UserLinks.Count(l => l.link == link);
                         statistic += $"\nКоличество {link}: {linkCount}";
+                    }
+                }
+                await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: statistic,
+                    replyToMessageId: update.Message.MessageId
+                    );
+            }
+
+        }
+        public async Task ChatStatistic(string chatId, Update update, CancellationToken cancellationToken, TelegramBotClient botClient)
+        {
+            WebProxy torProxy = new WebProxy
+            {
+                Address = new Uri(torProxyUrl),
+            };
+            HttpClientHandler httpHandler = new HttpClientHandler()
+            {
+                AllowAutoRedirect = false,
+                Proxy = torProxy,
+                UseCookies = false
+            };
+            HttpClient httpClient = new HttpClient(httpHandler);
+
+            string jsonString = System.IO.File.ReadAllText("source.json");
+            JObject jsonObjectAPI = JObject.Parse(jsonString);
+
+            if (chatId == jsonObjectAPI["AdminId"][0].ToString())
+            {
+                await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
+                string statistic = null;
+                int count = 0;
+                using (ApplicationContext db = new ApplicationContext())
+                {
+                    // Получаем все уникальные значения столбца chat_id и подсчитываем количество каждого
+                    var chatIdStatistics = db.UserLinks
+                        .GroupBy(link => link.chat_id)
+                        .Select(group => new { ChatId = group.Key, Count = group.Count() })
+                        .OrderByDescending(item => item.Count)
+                        .ToList();
+
+                    // Формируем строку статистики
+                    foreach (var item in chatIdStatistics)
+                    {
+                        if (count < 10)
+                        {
+                            var url = "https://api.telegram.org/bot" + jsonObjectAPI["BotAPI"][0].ToString() + "/getChat?chat_id=" + item.ChatId;
+                            var response = await httpClient.GetAsync(url);
+                            var responseString = await response.Content.ReadAsStringAsync();
+
+                            JObject jsonObject = JObject.Parse(responseString);
+                            string userName = null;
+
+                            if (jsonObject["result"] != null)
+                            {
+                                if (jsonObject["result"]?["username"] != null)
+                                {
+                                    userName = jsonObject["result"]["username"].ToString();
+                                }
+                                else
+                                {
+                                    if (jsonObject["result"]["title"] != null)
+                                    {
+                                        userName = jsonObject["result"]["title"].ToString();
+                                    }
+                                }
+                            }
+                            statistic += $"\n{item.ChatId} ({userName}): {item.Count}";
+                            count++;
+                        }
                     }
                 }
                 await botClient.SendTextMessageAsync(

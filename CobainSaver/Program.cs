@@ -316,6 +316,11 @@ namespace CobainSaver
                     await admin.LanguageStatistics(chat.Id.ToString(), update, cancellationToken, (TelegramBotClient)botClient);
                     await addDB.AddUserCommands(chat.Id, user.Id, "lang", message.MessageId, DateTime.Now.ToShortDateString());
                 }
+                else if (message.Text == "/topTen")
+                {
+                    await admin.ChatStatistic(chat.Id.ToString(), update, cancellationToken, (TelegramBotClient)botClient);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "topTen", message.MessageId, DateTime.Now.ToShortDateString());
+                }
                 else if (message.Text == "/changelang" || message.Text.StartsWith($"/changelang@{cobain.Username}"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
