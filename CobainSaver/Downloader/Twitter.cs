@@ -10,6 +10,7 @@ using Telegram.Bot;
 using VideoLibrary;
 using System.Text.RegularExpressions;
 using CobainSaver.DataBase;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CobainSaver.Downloader
 {
@@ -41,6 +42,10 @@ namespace CobainSaver.Downloader
             var responseString = await response.Content.ReadAsStringAsync();
             JObject jsonObject = JObject.Parse(responseString);
             string caption = jsonObject["text"].ToString();
+            if (caption.Length > 1024)
+            {
+                caption = caption.Substring(0, 1024) + "...";
+            }
             List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
             foreach (var album in jsonObject["mediaURLs"])
             {

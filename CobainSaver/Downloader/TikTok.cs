@@ -167,6 +167,10 @@ namespace CobainSaver.Downloader
                     {
                         title = Regex.Replace(title, @"#.*", "");
                     }
+                    if(title.Length > 1024)
+                    {
+                        title = title.Substring(0, 1024) + "...";
+                    }
                     await botClient.SendVideoAsync(
                         chatId: chatId,
                         video: InputFile.FromUri(video),
@@ -394,6 +398,10 @@ namespace CobainSaver.Downloader
                     {
                         title = Regex.Replace(title, @"#.*", "");
                     }
+                    if (title.Length > 1024)
+                    {
+                        title = title.Substring(0, 1024) + "...";
+                    }
                     await botClient.SendVideoAsync(
                         chatId: chatId,
                         video: InputFile.FromStream(streamVideo),
@@ -538,6 +546,10 @@ namespace CobainSaver.Downloader
                 if (title.Contains("#"))
                 {
                     title = Regex.Replace(title, @"#.*", "");
+                }
+                if (title.Length > 1024)
+                {
+                    title = title.Substring(0, 1024) + "...";
                 }
                 JObject jsonObject = JObject.Parse(res.Data.ToString());
                 string thumbnail = jsonObject["thumbnail"].ToString();

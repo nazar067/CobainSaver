@@ -286,6 +286,10 @@ namespace CobainSaver.Downloader
                         {
                             text = Regex.Replace(text, @"#.*", "");
                         }
+                        if (text.Length > 1024)
+                        {
+                            text = text.Substring(0, 1024) + "...";
+                        }
                     }
                     catch
                     {
@@ -484,6 +488,10 @@ namespace CobainSaver.Downloader
                         if (text.Contains("#"))
                         {
                             text = Regex.Replace(text, @"#.*", "");
+                        }
+                        if (text.Length > 1024)
+                        {
+                            text = text.Substring(0, 1024) + "...";
                         }
                     }
                     catch
