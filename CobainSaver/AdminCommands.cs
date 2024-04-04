@@ -550,6 +550,63 @@ namespace CobainSaver
             }
 
         }
+        public async Task CheckUserById(TelegramBotClient botClient, string chatId, string userId)
+        {
+            WebProxy torProxy = new WebProxy
+            {
+                Address = new Uri(torProxyUrl),
+            };
+            HttpClientHandler httpHandler = new HttpClientHandler()
+            {
+                AllowAutoRedirect = false,
+                Proxy = torProxy,
+                UseCookies = false
+            };
+            HttpClient httpClient = new HttpClient(httpHandler);
+            string jsonString = System.IO.File.ReadAllText("source.json");
+            JObject jsonObjectCheck = JObject.Parse(jsonString);
+            if (chatId == jsonObjectCheck["AdminId"][0].ToString())
+            {
+                await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
+                var buttonsList = new List<InlineKeyboardButton[]>();
+                InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(buttonsList);
+                var url = "https://api.telegram.org/bot" + jsonObjectAPI["BotAPI"][0].ToString() + "/getChat?chat_id=" + userId;
+                var response = await httpClient.GetAsync(url);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                JObject jsonObject = JObject.Parse(responseString);
+                string userName = null;
+
+                if (jsonObject["result"] != null)
+                {
+                    if (jsonObject["result"]?["username"] != null)
+                    {
+                        userName = jsonObject["result"]["username"].ToString();
+                    }
+                    else
+                    {
+                        if (jsonObject["result"]["title"] != null)
+                        {
+                            userName = jsonObject["result"]["title"].ToString();
+                        }
+                    }
+                }
+
+                buttonsList.Add(new[]
+                {
+                    InlineKeyboardButton.WithCallbackData(text: userId + " " + $"({userName})"
+                    , callbackData: "BackToYear" + " " + userId + " " + 0 + " " + chatId),
+                });
+                    
+
+                await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    replyMarkup: inlineKeyboard,
+                    text: "Choose user"
+                );
+            }
+
+        }
         public async Task SendServerLogs(string chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string cobain)
         {
             string jsonString = System.IO.File.ReadAllText("source.json");
