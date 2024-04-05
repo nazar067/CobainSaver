@@ -111,6 +111,7 @@ namespace CobainSaver
                 TikTok tikTok = new TikTok();
                 Twitter twitter = new Twitter();
                 YouTube youTube = new YouTube();
+                Pinterest pinterest = new Pinterest();
                 AddToDataBase addDB = new AddToDataBase();
                 AdminCommands admin = new AdminCommands();
                 //Downloader video = new Downloader();
@@ -170,6 +171,12 @@ namespace CobainSaver
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVideo);
                     await porn.PornHubDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "pornhub", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text.Contains("https://www.pinterest.com") || message.Text.Contains("https://pin.it/") || message.Text.Contains("https://ru.pinterest.com/"))
+                {
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
+                    await pinterest.PinterestDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await addDB.AddUserLinks(chat.Id, user.Id, "pinterest", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
                 {
