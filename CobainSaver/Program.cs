@@ -101,7 +101,25 @@ namespace CobainSaver
         {
             try
             {
-                var cobain = await botClient.GetMeAsync();
+                User? cobain = null;
+                try
+                {
+                    cobain = await botClient.GetMeAsync();
+                }
+                catch(Exception ex) 
+                {
+                    try
+                    {
+                        var msg = update.Message;
+                        var usr = msg.From;
+                        var cht = msg.Chat;
+                        Logs log = new Logs(cht.Id, usr.Id, usr.Username, null, ex.ToString());
+                        await log.WriteServerLogs();
+                    }
+                    catch (Exception e)
+                    {
+                    }
+                }
                 // эта переменная будет содержать в себе все связанное с сообщениями
                 var message = update.Message;
                 Instagram insta = new Instagram();
