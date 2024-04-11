@@ -36,13 +36,13 @@ namespace CobainSaver.Downloader
                     Proxy = torProxy,
                     UseCookies = false
                 };
-                string cookie = "\"LDC\\05465822060876\\0541744097159:01f71a42c2078f634a990610e8dc45a62886606029dfedfb85e4b701a7cd9d63e08b6052\"";
+                string cookie = "\"LDC\\05465822060876\\0541744405077:01f79c3838416686e332961735c89c15d00902fc70c50f603b93cd813c37c618a94322b8\"";
                 HttpClient instaClient = new HttpClient(instaHandler);
                 instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)");
                 instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
                 instaClient.DefaultRequestHeaders.Add("Accept-Language", "ru-RU,ru;q=0.8,uk;q=0.6,en-US;q=0.4,en;q=0.2");
-                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=gn8wdQzROVohkOpYagwxDcc4dFJ7eKbZ; mid=Zf_2bAALAAH_Pp3BIfcPJNiJ2Qqp; ig_did=89D16B14-549A-483B-8CEC-8ABBED73D29F; datr=qRkAZhG5zemtpjDVj3HH2Fuw; ig_nrcb=1; ds_user_id=65822060876; sessionid=65822060876:JeLovdLZdM66gb:29:AYfg4KvaNFdWtcjsJsIutUl4wkhrQtvc4Eg3EUuVnw; ps_n=0; ps_l=0; rur={cookie}");
+                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=KbC9aLslZcCStO8VWkQvmG6xrKGqPn9a; mid=Zf_2bAALAAH_Pp3BIfcPJNiJ2Qqp; ig_did=89D16B14-549A-483B-8CEC-8ABBED73D29F; datr=qRkAZhG5zemtpjDVj3HH2Fuw; ig_nrcb=1; ds_user_id=65822060876; sessionid=65822060876:agcr4lVG6hFgVP:11:AYceChwTC8-9DWSyhFjkPc4VcBzuCntHBG7mEYpwYg; ps_n=0; ps_l=0; rur={cookie}");
                 instaClient.DefaultRequestHeaders.Add("Accept-Encoding", "Accept-Encoding");
                 instaClient.DefaultRequestHeaders.Add("Alt-Used", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
@@ -211,13 +211,13 @@ namespace CobainSaver.Downloader
                     Proxy = torProxy,
                     UseCookies = false
                 };
-                string cookie = "\"LDC\\05465822060876\\0541744046647:01f737b383f568918df9ea6a752b526c4468635e28e3d278281f8210727d273dd038e2a6\"";
+                string cookie = "\"LDC\\05465822060876\\0541744405077:01f79c3838416686e332961735c89c15d00902fc70c50f603b93cd813c37c618a94322b8\"";
                 HttpClient instaClient = new HttpClient(instaHandler);
                 instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)");
                 instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
                 instaClient.DefaultRequestHeaders.Add("Accept-Language", "ru-RU,ru;q=0.8,uk;q=0.6,en-US;q=0.4,en;q=0.2");
-                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=gn8wdQzROVohkOpYagwxDcc4dFJ7eKbZ; mid=Zf_2bAALAAH_Pp3BIfcPJNiJ2Qqp; ig_did=89D16B14-549A-483B-8CEC-8ABBED73D29F; datr=qRkAZhG5zemtpjDVj3HH2Fuw; ig_nrcb=1; ds_user_id=65822060876; sessionid=65822060876:JeLovdLZdM66gb:29:AYfg4KvaNFdWtcjsJsIutUl4wkhrQtvc4Eg3EUuVnw; ps_n=0; ps_l=0; rur={cookie}");
+                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=KbC9aLslZcCStO8VWkQvmG6xrKGqPn9a; mid=Zf_2bAALAAH_Pp3BIfcPJNiJ2Qqp; ig_did=89D16B14-549A-483B-8CEC-8ABBED73D29F; datr=qRkAZhG5zemtpjDVj3HH2Fuw; ig_nrcb=1; ds_user_id=65822060876; sessionid=65822060876:agcr4lVG6hFgVP:11:AYceChwTC8-9DWSyhFjkPc4VcBzuCntHBG7mEYpwYg; ps_n=0; ps_l=0; rur={cookie}");
                 instaClient.DefaultRequestHeaders.Add("Accept-Encoding", "Accept-Encoding");
                 instaClient.DefaultRequestHeaders.Add("Alt-Used", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
@@ -288,7 +288,7 @@ namespace CobainSaver.Downloader
                         }
                         if (text.Length > 1024)
                         {
-                            text = text.Substring(0, 1024) + "...";
+                            text = text.Substring(0, 1020) + "...";
                         }
                     }
                     catch
@@ -414,13 +414,13 @@ namespace CobainSaver.Downloader
                     Proxy = torProxy,
                     UseCookies = false
                 };
-                string cookie = "\"LDC\\05465822060876\\0541744046647:01f737b383f568918df9ea6a752b526c4468635e28e3d278281f8210727d273dd038e2a6\"";
+                string cookie = "\"LDC\\05465822060876\\0541744405077:01f79c3838416686e332961735c89c15d00902fc70c50f603b93cd813c37c618a94322b8\"";
                 HttpClient instaClient = new HttpClient(instaHandler);
                 instaClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)");
                 instaClient.DefaultRequestHeaders.Add("Host", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
                 instaClient.DefaultRequestHeaders.Add("Accept-Language", "ru-RU,ru;q=0.8,uk;q=0.6,en-US;q=0.4,en;q=0.2");
-                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=gn8wdQzROVohkOpYagwxDcc4dFJ7eKbZ; mid=Zf_2bAALAAH_Pp3BIfcPJNiJ2Qqp; ig_did=89D16B14-549A-483B-8CEC-8ABBED73D29F; datr=qRkAZhG5zemtpjDVj3HH2Fuw; ig_nrcb=1; ds_user_id=65822060876; sessionid=65822060876:JeLovdLZdM66gb:29:AYfg4KvaNFdWtcjsJsIutUl4wkhrQtvc4Eg3EUuVnw; ps_n=0; ps_l=0; rur={cookie}");
+                instaClient.DefaultRequestHeaders.Add("Cookie", $"csrftoken=KbC9aLslZcCStO8VWkQvmG6xrKGqPn9a; mid=Zf_2bAALAAH_Pp3BIfcPJNiJ2Qqp; ig_did=89D16B14-549A-483B-8CEC-8ABBED73D29F; datr=qRkAZhG5zemtpjDVj3HH2Fuw; ig_nrcb=1; ds_user_id=65822060876; sessionid=65822060876:agcr4lVG6hFgVP:11:AYceChwTC8-9DWSyhFjkPc4VcBzuCntHBG7mEYpwYg; ps_n=0; ps_l=0; rur={cookie}");
                 instaClient.DefaultRequestHeaders.Add("Accept-Encoding", "Accept-Encoding");
                 instaClient.DefaultRequestHeaders.Add("Alt-Used", "www.instagram.com");
                 instaClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
@@ -491,7 +491,7 @@ namespace CobainSaver.Downloader
                         }
                         if (text.Length > 1024)
                         {
-                            text = text.Substring(0, 1024) + "...";
+                            text = text.Substring(0, 1020) + "...";
                         }
                     }
                     catch

@@ -148,6 +148,12 @@ namespace CobainSaver
                     await youTube.YoutubeDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "youtube", message.MessageId, DateTime.Now.ToShortDateString());
                 }
+                else if (message.Text.Contains("https://music.youtube.com/playlist?"))
+                {
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
+                    await youTube.YoutubeMusicPlaylist(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient, 0, 0);
+                    await addDB.AddUserLinks(chat.Id, user.Id, "youtubeMusic", message.MessageId, DateTime.Now.ToShortDateString());
+                }
                 else if (message.Text.Contains("https://music.youtube.com/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVoice);
@@ -508,6 +514,48 @@ namespace CobainSaver
                     string messageId = parts[3];
                     string chatToSend = parts[4];
                     await logs.SendAllMonths((TelegramBotClient)botClient, chatId.ToString(), year, Convert.ToInt32(messageId), chatToSend);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                }
+                if (callbackQuery.Data.StartsWith("L "))
+                {
+                    YouTube youTube = new YouTube();
+                    string data = callbackQuery.Data.ToString();
+                    string[] parts = data.Split(' ');
+                    string url = parts[1];
+                    string chatId = parts[2];
+                    url = "https://music.youtube.com/watch?v=" + url;
+                    await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
+                    await youTube.YoutubeMusicDownloader(Convert.ToInt64(chatId), update, cancellationToken, url, (TelegramBotClient)botClient);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                }
+                if (callbackQuery.Data.StartsWith("Next"))
+                {
+                    YouTube youTube = new YouTube();
+                    string data = callbackQuery.Data.ToString();
+                    string[] parts = data.Split(' ');
+                    string chatId = parts[1];
+                    string url = parts[2];
+                    url = "https://music.youtube.com/playlist?list=" + url;
+                    int page = Convert.ToInt32(parts[3]);
+                    page++;
+                    int msgId = Convert.ToInt32(parts[4]);
+                    await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
+                    await youTube.YoutubeMusicPlaylist(Convert.ToInt64(chatId), update, cancellationToken, url, (TelegramBotClient)botClient, page, msgId);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                }
+                if (callbackQuery.Data.StartsWith("Previous"))
+                {
+                    YouTube youTube = new YouTube();
+                    string data = callbackQuery.Data.ToString();
+                    string[] parts = data.Split(' ');
+                    string chatId = parts[1];
+                    string url = parts[2];
+                    url = "https://music.youtube.com/playlist?list=" + url;
+                    int page = Convert.ToInt32(parts[3]);
+                    page--;
+                    int msgId = Convert.ToInt32(parts[4]);
+                    await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
+                    await youTube.YoutubeMusicPlaylist(Convert.ToInt64(chatId), update, cancellationToken, url, (TelegramBotClient)botClient, page, msgId);
                     await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                 }
             }

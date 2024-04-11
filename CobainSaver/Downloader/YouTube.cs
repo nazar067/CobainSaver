@@ -1,4 +1,5 @@
-﻿using CobainSaver.DataBase;
+﻿using AngleSharp.Dom;
+using CobainSaver.DataBase;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -10,9 +11,12 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using VideoLibrary;
 using YoutubeDLSharp;
 using YoutubeExplode;
+using YoutubeExplode.Channels;
+using YoutubeExplode.Common;
 using YoutubeExplode.Videos.Streams;
 
 namespace CobainSaver.Downloader
@@ -361,7 +365,6 @@ namespace CobainSaver.Downloader
 
                 var youtube = new YoutubeClient();
                 var allInfo = await youtube.Videos.GetAsync(normallMsg);
-
                 var videoUrl = normallMsg;
                 var streamManifest = await youtube.Videos.Streams.GetManifestAsync(videoUrl);
 
@@ -371,26 +374,53 @@ namespace CobainSaver.Downloader
                 {
                     Language language = new Language("rand", "rand");
                     string lang = await language.GetCurrentLanguage(chatId.ToString());
-                    if (lang == "eng")
+                    if (update.Message == null)
                     {
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "Sorry, this audio has a problem: the audio is too big (the size should not exceed 50mb)",
-                            replyToMessageId: update.Message.MessageId);
+                        if (lang == "eng")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Sorry, this audio has a problem: the audio is too big (the size should not exceed 50mb)"
+                                );
+                        }
+                        if (lang == "ukr")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Вибачте, з цим аудіо виникла помилка: аудіо занадто велике (розмір має не перевищувати 50мб)"
+                                );
+                        }
+                        if (lang == "rus")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Извините, с этим аудио возникли проблемы: аудио слишком большое(размер должен не превышать 50мб)"
+                                );
+                        }
                     }
-                    if (lang == "ukr")
+                    else
                     {
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "Вибачте, з цим аудіо виникла помилка: аудіо занадто велике (розмір має не перевищувати 50мб)",
-                            replyToMessageId: update.Message.MessageId);
-                    }
-                    if (lang == "rus")
-                    {
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "Извините, с этим аудио возникли проблемы: аудио слишком большое(размер должен не превышать 50мб)",
-                            replyToMessageId: update.Message.MessageId);
+                        if (lang == "eng")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Sorry, this audio has a problem: the audio is too big (the size should not exceed 50mb)",
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                        if (lang == "ukr")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Вибачте, з цим аудіо виникла помилка: аудіо занадто велике (розмір має не перевищувати 50мб)",
+                                replyToMessageId: update.Message.MessageId);
+                        }
+                        if (lang == "rus")
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Извините, с этим аудио возникли проблемы: аудио слишком большое(размер должен не превышать 50мб)",
+                                replyToMessageId: update.Message.MessageId);
+                        }
                     }
                     return;
                 }
@@ -435,17 +465,31 @@ namespace CobainSaver.Downloader
                 // Отправляем видео обратно пользователю
                 try
                 {
-                    await botClient.SendAudioAsync(
-                        chatId: chatId,
-                        title: title,
-                        audio: InputFile.FromStream(streamAudio),
-                        performer: author,
-                        thumbnail: InputFile.FromStream(streamThumbAudio),
-                        duration: Convert.ToInt32(duration),
-                        replyToMessageId: update.Message.MessageId); ;
-                    await addDB.AddBotCommands(chatId, "youtubeMusic", DateTime.Now.ToShortDateString());
+                    if (update.Message == null)
+                    {
+                        await botClient.SendAudioAsync(
+                            chatId: chatId,
+                            title: title,
+                            audio: InputFile.FromStream(streamAudio),
+                            performer: author,
+                            thumbnail: InputFile.FromStream(streamThumbAudio),
+                            duration: Convert.ToInt32(duration)); 
+                        await addDB.AddBotCommands(chatId, "youtubeMusic", DateTime.Now.ToShortDateString());
+                    }
+                    else
+                    {
+                        await botClient.SendAudioAsync(
+                            chatId: chatId,
+                            title: title,
+                            audio: InputFile.FromStream(streamAudio),
+                            performer: author,
+                            thumbnail: InputFile.FromStream(streamThumbAudio),
+                            duration: Convert.ToInt32(duration),
+                            replyToMessageId: update.Message.MessageId); ;
+                        await addDB.AddBotCommands(chatId, "youtubeMusic", DateTime.Now.ToShortDateString());
+                    }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 { //await Console.Out.WriteLineAsync(ex.ToString());
                     Language language = new Language("rand", "rand");
                     string lang = await language.GetCurrentLanguage(chatId.ToString());
@@ -487,32 +531,60 @@ namespace CobainSaver.Downloader
                 streamThumbAudio.Close();
                 System.IO.File.Delete(audioPath);
                 System.IO.File.Delete(thumbnailAudioPath);
+                
             }
             catch (Exception ex)
             {
-                //await Console.Out.WriteLineAsync(ex.ToString());
+                await Console.Out.WriteLineAsync(ex.ToString());
                 Language language = new Language("rand", "rand");
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
-                if (lang == "eng")
+                if (update.Message == null)
                 {
-                    await botClient.SendTextMessageAsync(
-                        chatId: chatId,
-                        text: "Sorry, this type of audio is not supported, only send me public content",
-                        replyToMessageId: update.Message.MessageId);
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Sorry, this type of audio is not supported, only send me public content"
+                            );
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Вибачте, цей тип аудіо не підтримується, надсилайте мені тільки публічний контент"
+                            );
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Извините, этот тип аудио не поддерживается, отправляйте мне только публичный контент"
+                            );
+                    }
                 }
-                if (lang == "ukr")
+                else
                 {
-                    await botClient.SendTextMessageAsync(
-                        chatId: chatId,
-                        text: "Вибачте, цей тип аудіо не підтримується, надсилайте мені тільки публічний контент",
-                        replyToMessageId: update.Message.MessageId);
-                }
-                if (lang == "rus")
-                {
-                    await botClient.SendTextMessageAsync(
-                        chatId: chatId,
-                        text: "Извините, этот тип аудио не поддерживается, отправляйте мне только публичный контент",
-                        replyToMessageId: update.Message.MessageId);
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Sorry, this type of audio is not supported, only send me public content",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Вибачте, цей тип аудіо не підтримується, надсилайте мені тільки публічний контент",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Извините, этот тип аудио не поддерживается, отправляйте мне только публичный контент",
+                            replyToMessageId: update.Message.MessageId);
+                    }
                 }
                 try
                 {
@@ -532,6 +604,289 @@ namespace CobainSaver.Downloader
 
             }
         }
+        public async Task YoutubeMusicPlaylist(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, int page, int msgId)
+        {
+            try
+            {
+                Language language = new Language("rand", "rand");
+                string lang = await language.GetCurrentLanguage(chatId.ToString());
+
+                Message message = null;
+
+                string normallMsg = await DeleteNotUrl(messageText);
+                var youtube = new YoutubeClient();
+                var allInfo = await youtube.Playlists.GetAsync(normallMsg);
+                var videoUrl = normallMsg;
+                var videosSubset = await youtube.Playlists.GetVideosAsync(videoUrl);
+
+                // Определяем текущую страницу и размер страницы
+                int pageSize = 10;
+                int currentPage = 0;
+                if (page == 0)
+                {
+                    currentPage = page;
+                    currentPage++;
+                }
+                else
+                {
+                    currentPage = page;
+                }
+                int totalPages = (int)Math.Ceiling((double)videosSubset.Count / pageSize);
+
+                // Формируем список песен для текущей страницы
+                var songsForCurrentPage = videosSubset.Skip((currentPage - 1) * pageSize).Take(pageSize);
+
+                // Создаем кнопки для текущей страницы
+                var buttonsList = new List<InlineKeyboardButton[]>();
+                InlineKeyboardMarkup inlineKeyboard;
+
+                foreach (var music in songsForCurrentPage)
+                {
+                    buttonsList.Add(new[]
+                    {
+                        InlineKeyboardButton.WithCallbackData(text: music.Title, callbackData: "L" + " " + music.Id + " " + chatId),
+                    });
+                }
+                if(page == 0)
+                {
+                    message = await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: $"Choose song in {allInfo.Title}, Page {currentPage} of {totalPages}"
+                    );
+                    // Добавляем кнопки "назад" и "вперед", если необходимо
+                    if (currentPage > 1)
+                    {
+                        if (lang == "eng")
+                        {
+                            buttonsList.Add(new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData(text: "◀️ Back", callbackData: "Previous" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
+                            });
+                        }
+                        if (lang == "ukr")
+                        {
+                            buttonsList.Add(new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "Previous" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
+                            });
+                        }
+                        if (lang == "rus")
+                        {
+                            buttonsList.Add(new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "Previous" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
+                            });
+                        }
+                    }
+                    if (currentPage < totalPages)
+                    {
+                        if (lang == "eng")
+                        {
+                            buttonsList.Add(new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData(text: "Next ▶️", callbackData: "Next" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
+                            });
+                        }
+                        if (lang == "ukr")
+                        {
+                            buttonsList.Add(new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "Next" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
+                            });
+                        }
+                        if (lang == "rus")
+                        {
+                            buttonsList.Add(new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "Next" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
+                            });
+                        }
+                    }
+
+                    inlineKeyboard = new InlineKeyboardMarkup(buttonsList);
+
+                    // Отправляем сообщение с кнопками
+                    if (lang == "eng")
+                    {
+                        await botClient.EditMessageTextAsync(
+                            messageId: message.MessageId,
+                            chatId: chatId,
+                            replyMarkup: inlineKeyboard,
+                            text: $"Choose song in {allInfo.Title} \nPage {currentPage} of {totalPages}"
+                        );
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.EditMessageTextAsync(
+                            messageId: message.MessageId,
+                            chatId: chatId,
+                            replyMarkup: inlineKeyboard,
+                            text: $"Виберіть пісню в {allInfo.Title} \nСторінка {currentPage} з {totalPages}"
+                        );
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.EditMessageTextAsync(
+                            messageId: message.MessageId,
+                            chatId: chatId,
+                            replyMarkup: inlineKeyboard,
+                            text: $"Выберите песню в {allInfo.Title} \nСтраница {currentPage} с {totalPages}"
+                        );
+                    }
+                }
+                else if(page != 0)
+                {
+                    // Добавляем кнопки "назад" и "вперед", если необходимо
+                    if (currentPage > 1)
+                    {
+                        if (lang == "eng") 
+                        {
+                            buttonsList.Add(new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData(text: "◀️ Back", callbackData: "Previous" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
+                            });
+                        }
+                        if (lang == "ukr")
+                        {
+                            buttonsList.Add(new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "Previous" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
+                            });
+                        }
+                        if (lang == "rus")
+                        {
+                            buttonsList.Add(new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "Previous" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
+                            });
+                        }
+                    }
+                    if (currentPage < totalPages)
+                    {
+                        if(lang == "eng")
+                        {
+                            buttonsList.Add(new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData(text: "Next ▶️", callbackData: "Next" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
+                            });
+                        }
+                        if (lang == "ukr")
+                        {
+                            buttonsList.Add(new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "Next" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
+                            });
+                        }
+                        if (lang == "rus")
+                        {
+                            buttonsList.Add(new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "Next" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
+                            });
+                        }
+                    }
+
+                    inlineKeyboard = new InlineKeyboardMarkup(buttonsList);
+
+                    // Отправляем сообщение с кнопками
+                    if(lang == "eng")
+                    {
+                        await botClient.EditMessageTextAsync(
+                            messageId: msgId,
+                            chatId: chatId,
+                            replyMarkup: inlineKeyboard,
+                            text: $"Choose song in {allInfo.Title} \nPage {currentPage} of {totalPages}"
+                        );
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.EditMessageTextAsync(
+                            messageId: msgId,
+                            chatId: chatId,
+                            replyMarkup: inlineKeyboard,
+                            text: $"Виберіть пісню в {allInfo.Title} \nСторінка {currentPage} з {totalPages}"
+                        );
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.EditMessageTextAsync(
+                            messageId: msgId,
+                            chatId: chatId,
+                            replyMarkup: inlineKeyboard,
+                            text: $"Выберите песню в {allInfo.Title} \nСтраница {currentPage} с {totalPages}"
+                        );
+                    }
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                await Console.Out.WriteLineAsync(e.ToString());
+                Language language = new Language("rand", "rand");
+                string lang = await language.GetCurrentLanguage(chatId.ToString());
+                if (update.Message == null)
+                {
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Sorry, this playlist is unavailable, only send me public content"
+                            );
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Вибачте, цей тип плейлист недоступний, надсилайте мені тільки публічний контент"
+                            );
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Извините, этот плейлист недоступен, отправляйте мне только публичный контент"
+                            );
+                    }
+                }
+                else
+                {
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Sorry, this playlist is unavailable, only send me public content",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Вибачте, цей тип плейлист недоступний, надсилайте мені тільки публічний контент",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Извините, этот плейлист недоступен, отправляйте мне только публичный контент",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                }
+                try
+                {
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, e.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+        }
+
         public async Task<string> DeleteNotUrl(string message)
         {
             // Регулярное выражение для URL-адресов
