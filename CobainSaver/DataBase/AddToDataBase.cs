@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using Telegram.Bot.Types;
 
 namespace CobainSaver.DataBase
 {
@@ -171,6 +173,34 @@ namespace CobainSaver.DataBase
                 try
                 {
                     Logs logs = new Logs(chatId, 0, "username", "AddUserLanguage", ex.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception e)
+                {
+                    return;
+                }
+            }
+        }
+        public async Task AddChatReviews(long chatId, string date)
+        {
+            try
+            {
+                using (ApplicationContext db = new ApplicationContext())
+                {
+                    ChatReview chatReview = new ChatReview
+                    {
+                        chat_id = chatId,
+                        date = date
+                    };
+                    db.ChatReviews.Add(chatReview);
+                    db.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    Logs logs = new Logs(chatId, 0, "username", "AddChatReview", ex.ToString());
                     await logs.WriteServerLogs();
                 }
                 catch (Exception e)

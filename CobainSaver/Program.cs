@@ -59,7 +59,7 @@ namespace CobainSaver
             // Обязательно ставим блок try-catch, чтобы наш бот не "падал" в случае каких-либо ошибок
             try
             {
-                var cobain = await botClient.GetMeAsync();
+                //var cobain = await botClient.GetMeAsync();
                 // Сразу же ставим конструкцию switch, чтобы обрабатывать приходящие Update
                 switch (update.Type)
                 {
@@ -518,6 +518,7 @@ namespace CobainSaver
                 }
                 if (callbackQuery.Data.StartsWith("L "))
                 {
+                    AddToDataBase addDB = new AddToDataBase();
                     YouTube youTube = new YouTube();
                     string data = callbackQuery.Data.ToString();
                     string[] parts = data.Split(' ');
@@ -527,8 +528,9 @@ namespace CobainSaver
                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
                     await youTube.YoutubeMusicDownloader(Convert.ToInt64(chatId), update, cancellationToken, url, (TelegramBotClient)botClient);
                     await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                    await addDB.AddUserLinks(Convert.ToInt64(chatId), Convert.ToInt64(chatId), "youtubeMusic", 0, DateTime.Now.ToShortDateString());
                 }
-                if (callbackQuery.Data.StartsWith("Next"))
+                if (callbackQuery.Data.StartsWith("N"))
                 {
                     YouTube youTube = new YouTube();
                     string data = callbackQuery.Data.ToString();
@@ -543,7 +545,7 @@ namespace CobainSaver
                     await youTube.YoutubeMusicPlaylist(Convert.ToInt64(chatId), update, cancellationToken, url, (TelegramBotClient)botClient, page, msgId);
                     await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                 }
-                if (callbackQuery.Data.StartsWith("Previous"))
+                if (callbackQuery.Data.StartsWith("P"))
                 {
                     YouTube youTube = new YouTube();
                     string data = callbackQuery.Data.ToString();

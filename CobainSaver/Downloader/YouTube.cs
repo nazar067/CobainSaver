@@ -608,6 +608,7 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                AddToDataBase addDB = new AddToDataBase();
                 Language language = new Language("rand", "rand");
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
 
@@ -660,21 +661,21 @@ namespace CobainSaver.Downloader
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "◀️ Back", callbackData: "Previous" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
+                                InlineKeyboardButton.WithCallbackData(text: "◀️ Back", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
                             });
                         }
                         if (lang == "ukr")
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "Previous" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
+                                InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
                             });
                         }
                         if (lang == "rus")
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "Previous" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
+                                InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
                             });
                         }
                     }
@@ -684,21 +685,21 @@ namespace CobainSaver.Downloader
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "Next ▶️", callbackData: "Next" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
+                                InlineKeyboardButton.WithCallbackData(text: "Next ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
                             });
                         }
                         if (lang == "ukr")
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "Next" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
+                                InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
                             });
                         }
                         if (lang == "rus")
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "Next" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
+                                InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
                             });
                         }
                     }
@@ -743,21 +744,21 @@ namespace CobainSaver.Downloader
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "◀️ Back", callbackData: "Previous" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
+                                InlineKeyboardButton.WithCallbackData(text: "◀️ Back", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
                             });
                         }
                         if (lang == "ukr")
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "Previous" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
+                                InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
                             });
                         }
                         if (lang == "rus")
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "Previous" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
+                                InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
                             });
                         }
                     }
@@ -767,21 +768,21 @@ namespace CobainSaver.Downloader
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "Next ▶️", callbackData: "Next" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
+                                InlineKeyboardButton.WithCallbackData(text: "Next ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
                             });
                         }
                         if (lang == "ukr")
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "Next" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
+                                InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
                             });
                         }
                         if (lang == "rus")
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "Next" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
+                                InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
                             });
                         }
                     }
@@ -818,11 +819,12 @@ namespace CobainSaver.Downloader
                     }
 
                 }
+                await addDB.AddBotCommands(chatId, "youtubeMusic", DateTime.Now.ToShortDateString());
 
             }
             catch (Exception e)
             {
-                await Console.Out.WriteLineAsync(e.ToString());
+                //await Console.Out.WriteLineAsync(e.ToString());
                 Language language = new Language("rand", "rand");
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
                 if (update.Message == null)

@@ -17,9 +17,11 @@ namespace CobainSaver
         private static readonly HttpClient client = new HttpClient();
         public async Task UserReviews(string chatId, TelegramBotClient botClient)
         {
-            bool check = await CheckIsFile(chatId);
-            if(DateTime.Now.Day == 15 && check == true)
+            bool check = await CheckIsFile(chatId, DateTime.Now.ToShortDateString());
+            if(DateTime.Now.Day == 13 && check == true)
             {
+                AddToDataBase addDB = new AddToDataBase();
+
                 string jsonString = System.IO.File.ReadAllText("source.json");
                 JObject jsonObjectAPI = JObject.Parse(jsonString);
 
@@ -35,7 +37,7 @@ namespace CobainSaver
 
                     Language language = new Language("rand", "rand");
                     string lang = await language.GetCurrentLanguage(userId.ToString());
-                    bool checkUser = await CheckIsFile(userId);
+                    bool checkUser = await CheckIsFile(userId, DateTime.Now.ToShortDateString());
                     var url = "https://api.telegram.org/bot" + jsonObjectAPI["BotAPI"][0].ToString() + "/getChat?chat_id=" + userId;
                     var response = await client.GetAsync(url);
                     var responseString = await response.Content.ReadAsStringAsync();
@@ -46,6 +48,7 @@ namespace CobainSaver
                     {
                         try
                         {
+                            await addDB.AddChatReviews(Convert.ToInt64(userId), DateTime.Now.ToShortDateString());
                             if (lang == "eng" && checkUser == true)
                             {
                                 pollMessage = await botClient.SendPollAsync(
@@ -129,24 +132,31 @@ namespace CobainSaver
             AddToDataBase addDB = new AddToDataBase();
             await addDB.AddUserReviews(Convert.ToInt64(userId), Convert.ToInt64(userId), mark, DateTime.Now.ToShortDateString());
         }
-        public async Task<bool> CheckIsFile(string chatId)
+        public async Task<bool> CheckIsFile(string chatId, string date)
         {
-            string fileName = null;
-            string directory = Directory.GetCurrentDirectory() + "\\UserLogs\\" + chatId + "\\reviews";
-            if (!Directory.Exists(directory))
+            try
             {
-                Directory.CreateDirectory(directory);
-            }
-            string[] files = Directory.GetFiles(directory);
-            foreach (var file in files)
-            {
-                fileName = file;
-                if (fileName.Contains(DateTime.Now.ToShortDateString()))
+                using (ApplicationContext db = new ApplicationContext())
                 {
-                    return false;
+                    // Выполняем LINQ запрос для поиска записи с заданными chat_id и date
+                    var check = db.ChatReviews
+                        .FirstOrDefault(chat => chat.chat_id == Convert.ToInt64(chatId) && chat.date == date);
+
+
+                    if (check != null)
+                    {
+                        return false;
+                    }
+                    return true;
                 }
             }
-            return true;
+            catch(Exception e)
+            {
+                //await Console.Out.WriteLineAsync(e.ToString());
+                if(e.ToString().StartsWith("Npgsql.PostgresException (0x80004005):"))
+                    return true;
+                return false;
+            }
         }
     }
 }
