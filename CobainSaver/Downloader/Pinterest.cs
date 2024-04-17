@@ -36,7 +36,7 @@ namespace CobainSaver.Downloader
                 {
                     Directory.CreateDirectory(audioPath);
                 }
-                string pornPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "VIDEO.mp4");
+                string pornPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "VIDEO.MPEG4");
                 string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVIDEO.jpeg");
 
 

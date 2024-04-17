@@ -172,7 +172,7 @@ namespace CobainSaver.Downloader
                     else if (album.ToString().Contains("video."))
                     {
                         await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
-                        string filePath = Path.Combine(videoPath, DateTime.Now.Millisecond.ToString() + "video.mp3");
+                        string filePath = Path.Combine(videoPath, DateTime.Now.Millisecond.ToString() + "video.MPEG4");
                         string thumbPath = Path.Combine(videoPath, DateTime.Now.Millisecond.ToString() + "thumb.jpeg");
                         using (var client = new WebClient())
                         {

@@ -81,7 +81,7 @@ namespace CobainSaver.Downloader
                 {
                     Directory.CreateDirectory(audioPath);
                 }
-                string videoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "video.mp4");
+                string videoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "video.MPEG4");
                 string thumbnailVideoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVideo.jpeg");
                 try
                 {
@@ -436,7 +436,7 @@ namespace CobainSaver.Downloader
                 {
                     Directory.CreateDirectory(path);
                 }
-                string audioPath = Path.Combine(path, chatId + DateTime.Now.Millisecond.ToString() + "audio.mp3");
+                string audioPath = Path.Combine(path, chatId + DateTime.Now.Millisecond.ToString() + "audio.M4A");
                 string thumbnailAudioPath = Path.Combine(path, chatId + DateTime.Now.Millisecond.ToString() + "thumbVideo.jpeg");
                 try
                 {

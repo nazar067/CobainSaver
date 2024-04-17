@@ -116,7 +116,7 @@ namespace CobainSaver.Downloader
                     {
                         Directory.CreateDirectory(audioPath);
                     }
-                    string filePath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "audio.mp3");
+                    string filePath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "audio.M4A");
                     string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumb.jpeg");
                     using (var client = new WebClient())
                     {
@@ -191,8 +191,8 @@ namespace CobainSaver.Downloader
                     {
                         Directory.CreateDirectory(audioPath);
                     }
-                    string filePath = Path.Combine(audioPath, chatId + "audio.mp3");
-                    string thumbnailPath = Path.Combine(audioPath, chatId + "thumb.jpeg");
+                    string filePath = Path.Combine(audioPath, DateTime.Now.Millisecond.ToString() + "audio.M4A");
+                    string thumbnailPath = Path.Combine(audioPath, DateTime.Now.Millisecond.ToString() + "thumb.jpeg");
                     using (var client = new WebClient())
                     {
                         client.DownloadFile(music, filePath);
@@ -308,7 +308,7 @@ namespace CobainSaver.Downloader
                     {
                         Directory.CreateDirectory(audioPath);
                     }
-                    string filePath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "audio.mp3");
+                    string filePath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "audio.M4A");
                     string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumb.jpeg");
                     using (var client = new WebClient())
                     {
@@ -365,7 +365,7 @@ namespace CobainSaver.Downloader
                     int videoDuration = Convert.ToInt32(jsonObject["data"]["duration"]);
                     string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
 
-                    string videoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "video.mp4");
+                    string videoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "video.MPEG4");
                     string thumbnailVideo = jsonObject["data"]["origin_cover"].ToString();
                     string thumbnailVideoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVideo.jpeg");
 
@@ -427,7 +427,7 @@ namespace CobainSaver.Downloader
                     {
                         Directory.CreateDirectory(audioPath);
                     }
-                    string filePath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "audio.mp3");
+                    string filePath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "audio.M4A");
                     string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumb.jpeg");
                     using (var client = new WebClient())
                     {
@@ -535,7 +535,7 @@ namespace CobainSaver.Downloader
                 {
                     Directory.CreateDirectory(audioPath);
                 }
-                string pornPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "VIDEO.mp4");
+                string pornPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "VIDEO.MPEG4");
                 string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVIDEO.jpeg");
 
 
