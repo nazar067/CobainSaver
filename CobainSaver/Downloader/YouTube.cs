@@ -819,7 +819,6 @@ namespace CobainSaver.Downloader
                     }
 
                 }
-                await addDB.AddBotCommands(chatId, "youtubeMusic", DateTime.Now.ToShortDateString());
 
             }
             catch (Exception e)

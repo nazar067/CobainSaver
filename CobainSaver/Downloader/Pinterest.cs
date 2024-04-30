@@ -36,7 +36,7 @@ namespace CobainSaver.Downloader
                 {
                     Directory.CreateDirectory(audioPath);
                 }
-                string pornPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "VIDEO.MPEG4");
+                string pornPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "VIDEO.mp4");
                 string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVIDEO.jpeg");
 
 
@@ -169,14 +169,14 @@ namespace CobainSaver.Downloader
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                //Console.WriteLine(ex.ToString());
                 Language language = new Language("rand", "rand");
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
                 if (lang == "eng")
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Sorry, story not found or content is private\n" +
+                        text: "Sorry, video not found or content is private\n" +
                         "\nIf you're sure the content is public or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
@@ -184,7 +184,7 @@ namespace CobainSaver.Downloader
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Вибачте, сторі не знайдено або контент є приватним\n" +
+                        text: "Вибачте, відео не знайдено або контент є приватним\n" +
                         "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
@@ -192,7 +192,7 @@ namespace CobainSaver.Downloader
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Извините, история не найдена или контент является приватным\n" +
+                        text: "Извините, видео не найдена или контент является приватным\n" +
                         "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
