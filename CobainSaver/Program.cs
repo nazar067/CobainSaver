@@ -555,6 +555,10 @@ namespace CobainSaver
                     url = "https://music.youtube.com/playlist?list=" + url;
                     int page = Convert.ToInt32(parts[3]);
                     page--;
+                    if(page == 0)
+                    {
+                        page--;
+                    }
                     int msgId = Convert.ToInt32(parts[4]);
                     await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
                     await youTube.YoutubeMusicPlaylist(Convert.ToInt64(chatId), update, cancellationToken, url, (TelegramBotClient)botClient, page, msgId);

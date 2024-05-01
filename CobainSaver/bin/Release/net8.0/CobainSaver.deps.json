@@ -12,6 +12,7 @@
           "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.2",
           "RestSharp": "110.2.0",
           "SpotifyAPI.Web": "7.1.1",
+          "StackExchange.Redis": "2.7.33",
           "Telegram.Bot": "19.0.0",
           "VideoLibrary": "3.2.3",
           "YoutubeDLSharp": "1.0.0",
@@ -537,6 +538,17 @@
           }
         }
       },
+      "Pipelines.Sockets.Unofficial/2.2.8": {
+        "dependencies": {
+          "System.IO.Pipelines": "6.0.3"
+        },
+        "runtime": {
+          "lib/net5.0/Pipelines.Sockets.Unofficial.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "2.2.8.1080"
+          }
+        }
+      },
       "RestSharp/110.2.0": {
         "dependencies": {
           "System.Text.Json": "8.0.0"
@@ -604,6 +616,18 @@
           "lib/net8.0/SpotifyAPI.Web.dll": {
             "assemblyVersion": "1.0.0.0",
             "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "StackExchange.Redis/2.7.33": {
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
+          "Pipelines.Sockets.Unofficial": "2.2.8"
+        },
+        "runtime": {
+          "lib/net6.0/StackExchange.Redis.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.7.33.41805"
           }
         }
       },
@@ -1540,6 +1564,13 @@
       "path": "npgsql.entityframeworkcore.postgresql/8.0.2",
       "hashPath": "npgsql.entityframeworkcore.postgresql.8.0.2.nupkg.sha512"
     },
+    "Pipelines.Sockets.Unofficial/2.2.8": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-zG2FApP5zxSx6OcdJQLbZDk2AVlN2BNQD6MorwIfV6gVj0RRxWPEp2LXAxqDGZqeNV1Zp0BNPcNaey/GXmTdvQ==",
+      "path": "pipelines.sockets.unofficial/2.2.8",
+      "hashPath": "pipelines.sockets.unofficial.2.2.8.nupkg.sha512"
+    },
     "RestSharp/110.2.0": {
       "type": "package",
       "serviceable": true,
@@ -1665,6 +1696,13 @@
       "sha512": "sha512-xMgjZkBqVlZNZ/hROhx5XsKEWQtxRmFTZs5mv6Z9w+fwzBnCR1EFSwTcdpKNiVx/Pa+9p7PJO0q1Cb+fOkQq6Q==",
       "path": "spotifyapi.web/7.1.1",
       "hashPath": "spotifyapi.web.7.1.1.nupkg.sha512"
+    },
+    "StackExchange.Redis/2.7.33": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-2kCX5fvhEE824a4Ab5Imyi8DRuGuTxyklXV01kegkRpsWJcPmO6+GAQ+HegKxvXAxlXZ8yaRspvWJ8t3mMClfQ==",
+      "path": "stackexchange.redis/2.7.33",
+      "hashPath": "stackexchange.redis.2.7.33.nupkg.sha512"
     },
     "System.AppContext/4.3.0": {
       "type": "package",

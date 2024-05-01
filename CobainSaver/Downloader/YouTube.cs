@@ -1,6 +1,7 @@
 ﻿using AngleSharp.Dom;
 using CobainSaver.DataBase;
 using Newtonsoft.Json.Linq;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,9 @@ using YoutubeDLSharp;
 using YoutubeExplode;
 using YoutubeExplode.Channels;
 using YoutubeExplode.Common;
+using YoutubeExplode.Videos.ClosedCaptions;
 using YoutubeExplode.Videos.Streams;
+using static System.Net.WebRequestMethods;
 
 namespace CobainSaver.Downloader
 {
@@ -619,7 +622,11 @@ namespace CobainSaver.Downloader
                 var allInfo = await youtube.Playlists.GetAsync(normallMsg);
                 var videoUrl = normallMsg;
                 var videosSubset = await youtube.Playlists.GetVideosAsync(videoUrl);
-
+                string thumbnail = "https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg";
+                foreach (var thumb in allInfo.Thumbnails)
+                {
+                    thumbnail = thumb.Url;
+                }
                 // Определяем текущую страницу и размер страницы
                 int pageSize = 10;
                 int currentPage = 0;
@@ -633,6 +640,15 @@ namespace CobainSaver.Downloader
                     currentPage = page;
                 }
                 int totalPages = (int)Math.Ceiling((double)videosSubset.Count / pageSize);
+
+                if (page < 0)
+                {
+                    currentPage = totalPages;
+                }
+                if(page > totalPages)
+                {
+                    currentPage = 1;
+                }
 
                 // Формируем список песен для текущей страницы
                 var songsForCurrentPage = videosSubset.Skip((currentPage - 1) * pageSize).Take(pageSize);
@@ -648,142 +664,145 @@ namespace CobainSaver.Downloader
                         InlineKeyboardButton.WithCallbackData(text: music.Title, callbackData: "L" + " " + music.Id + " " + chatId),
                     });
                 }
-                if(page == 0)
+
+
+                string path = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                if (!Directory.Exists(path))
                 {
-                    message = await botClient.SendTextMessageAsync(
+                    Directory.CreateDirectory(path);
+                }
+                string thumbnailPath = Path.Combine(path, chatId + DateTime.Now.Millisecond.ToString() + "thumbVideo.jpeg");
+                try
+                {
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile(thumbnail, thumbnailPath);
+                    }
+                }
+                catch (Exception e)
+                {
+                }
+                if (!System.IO.File.Exists(thumbnailPath))
+                {
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg", thumbnailPath);
+                    }
+                }
+                await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
+
+
+                if (page == 0)
+                {
+                    message = await botClient.SendPhotoAsync(
                         chatId: chatId,
-                        text: $"Choose song in {allInfo.Title}, Page {currentPage} of {totalPages}"
+                        photo: InputFile.FromStream(streamThumb),
+                        caption: $"Choose song in {allInfo.Title}, Page {currentPage} of {totalPages}"
                     );
                     // Добавляем кнопки "назад" и "вперед", если необходимо
-                    if (currentPage > 1)
+                    if(totalPages > 1)
                     {
                         if (lang == "eng")
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "◀️ Back", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
-                            });
+                            InlineKeyboardButton.WithCallbackData(text: "◀️ Back", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
+                            InlineKeyboardButton.WithCallbackData(text: "Next ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId)
+                        });
                         }
                         if (lang == "ukr")
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
-                            });
+                            InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
+                            InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId)
+                        });
                         }
                         if (lang == "rus")
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
-                            });
-                        }
-                    }
-                    if (currentPage < totalPages)
-                    {
-                        if (lang == "eng")
-                        {
-                            buttonsList.Add(new[]
-                            {
-                                InlineKeyboardButton.WithCallbackData(text: "Next ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
-                            });
-                        }
-                        if (lang == "ukr")
-                        {
-                            buttonsList.Add(new[]
-                            {
-                                InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
-                            });
-                        }
-                        if (lang == "rus")
-                        {
-                            buttonsList.Add(new[]
-                            {
-                                InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
-                            });
+                            InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId),
+                            InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + message.MessageId)
+                        });
                         }
                     }
 
                     inlineKeyboard = new InlineKeyboardMarkup(buttonsList);
 
+
                     // Отправляем сообщение с кнопками
                     if (lang == "eng")
                     {
-                        await botClient.EditMessageTextAsync(
+                        await botClient.EditMessageCaptionAsync(
                             messageId: message.MessageId,
                             chatId: chatId,
                             replyMarkup: inlineKeyboard,
-                            text: $"Choose song in {allInfo.Title} \nPage {currentPage} of {totalPages}"
+                            parseMode: ParseMode.MarkdownV2,
+                            caption: $"*{await EscapeMarkdownV2(allInfo.Title)}*\n" +
+                            $"\n" +
+                            $"_Page *{currentPage}/{totalPages}*_" +
+                            $"\n" +
+                            $"\n⬇️ Select a song to download"
                         );
                     }
                     if (lang == "ukr")
                     {
-                        await botClient.EditMessageTextAsync(
+                        await botClient.EditMessageCaptionAsync(
                             messageId: message.MessageId,
                             chatId: chatId,
                             replyMarkup: inlineKeyboard,
-                            text: $"Виберіть пісню в {allInfo.Title} \nСторінка {currentPage} з {totalPages}"
+                            parseMode: ParseMode.MarkdownV2,
+                            caption: $"*{await EscapeMarkdownV2(allInfo.Title)}*\n" +
+                            $"\n" +
+                            $"_Сторінка *{currentPage}/{totalPages}*_" +
+                            $"\n" +
+                            $"\n⬇️ Виберіть пісню"
                         );
                     }
                     if (lang == "rus")
                     {
-                        await botClient.EditMessageTextAsync(
+                        await botClient.EditMessageCaptionAsync(
                             messageId: message.MessageId,
                             chatId: chatId,
                             replyMarkup: inlineKeyboard,
-                            text: $"Выберите песню в {allInfo.Title} \nСтраница {currentPage} с {totalPages}"
+                            parseMode: ParseMode.MarkdownV2,
+                            caption: $"*{await EscapeMarkdownV2(allInfo.Title)}*\n" +
+                            $"\n" +
+                            $"_Страница *{currentPage}/{totalPages}*_" +
+                            $"\n" +
+                            $"\n⬇️ Виберите песню"
                         );
                     }
                 }
                 else if(page != 0)
                 {
                     // Добавляем кнопки "назад" и "вперед", если необходимо
-                    if (currentPage > 1)
+                    if(totalPages > 1)
                     {
-                        if (lang == "eng") 
+                        if (lang == "eng")
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "◀️ Back", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
-                            });
+                            InlineKeyboardButton.WithCallbackData(text: "◀️ Back", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
+                            InlineKeyboardButton.WithCallbackData(text: "Next ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId)
+                        });
                         }
                         if (lang == "ukr")
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
-                            });
+                            InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
+                            InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId)
+                        });
                         }
                         if (lang == "rus")
                         {
                             buttonsList.Add(new[]
                             {
-                                InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
-                            });
-                        }
-                    }
-                    if (currentPage < totalPages)
-                    {
-                        if(lang == "eng")
-                        {
-                            buttonsList.Add(new[]
-                            {
-                                InlineKeyboardButton.WithCallbackData(text: "Next ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
-                            });
-                        }
-                        if (lang == "ukr")
-                        {
-                            buttonsList.Add(new[]
-                            {
-                                InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
-                            });
-                        }
-                        if (lang == "rus")
-                        {
-                            buttonsList.Add(new[]
-                            {
-                                InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
-                            });
+                            InlineKeyboardButton.WithCallbackData(text: "◀️ Назад", callbackData: "P" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId),
+                            InlineKeyboardButton.WithCallbackData(text: "Вперед ▶️", callbackData: "N" + " " + chatId + " " + allInfo.Id + " " + currentPage + " " + msgId)
+                        });
                         }
                     }
 
@@ -792,29 +811,44 @@ namespace CobainSaver.Downloader
                     // Отправляем сообщение с кнопками
                     if(lang == "eng")
                     {
-                        await botClient.EditMessageTextAsync(
+                        await botClient.EditMessageCaptionAsync(
                             messageId: msgId,
                             chatId: chatId,
                             replyMarkup: inlineKeyboard,
-                            text: $"Choose song in {allInfo.Title} \nPage {currentPage} of {totalPages}"
+                            parseMode: ParseMode.MarkdownV2,
+                            caption: $"*{await EscapeMarkdownV2(allInfo.Title)}*\n" +
+                            $"\n" +
+                            $"_Page *{currentPage}/{totalPages}*_" +
+                            $"\n" +
+                            $"\n⬇️ Select a song to download"
                         );
                     }
                     if (lang == "ukr")
                     {
-                        await botClient.EditMessageTextAsync(
+                        await botClient.EditMessageCaptionAsync(
                             messageId: msgId,
                             chatId: chatId,
                             replyMarkup: inlineKeyboard,
-                            text: $"Виберіть пісню в {allInfo.Title} \nСторінка {currentPage} з {totalPages}"
+                            parseMode: ParseMode.MarkdownV2,
+                            caption: $"*{await EscapeMarkdownV2(allInfo.Title)}*\n" +
+                            $"\n" +
+                            $"_Сторінка *{currentPage}/{totalPages}*_" +
+                            $"\n" +
+                            $"\n⬇️ Виберіть пісню"
                         );
                     }
                     if (lang == "rus")
                     {
-                        await botClient.EditMessageTextAsync(
+                        await botClient.EditMessageCaptionAsync(
                             messageId: msgId,
                             chatId: chatId,
                             replyMarkup: inlineKeyboard,
-                            text: $"Выберите песню в {allInfo.Title} \nСтраница {currentPage} с {totalPages}"
+                            parseMode: ParseMode.MarkdownV2,
+                            caption: $"*{await EscapeMarkdownV2(allInfo.Title)}*\n" +
+                            $"\n" +
+                            $"_Страница *{currentPage}/{totalPages}*_" +
+                            $"\n" +
+                            $"\n⬇️ Виберите песню"
                         );
                     }
 
@@ -823,7 +857,7 @@ namespace CobainSaver.Downloader
             }
             catch (Exception e)
             {
-                //await Console.Out.WriteLineAsync(e.ToString());
+                await Console.Out.WriteLineAsync(e.ToString());
                 Language language = new Language("rand", "rand");
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
                 if (update.Message == null)
@@ -916,6 +950,40 @@ namespace CobainSaver.Downloader
 
             // Если не найдено ни одного совпадения, возвращаем пустую строку
             return string.Empty;
+        }
+        public async Task<string> EscapeMarkdownV2(string input)
+        {
+            // Dictionary of characters needing escaping and their replacements
+            Dictionary<string, string> escapeCharacters = new Dictionary<string, string>
+            {
+                { "\\", "\\\\" },
+                { "_", "\\_" },
+                { "*", "\\*" },
+                { "[", "\\[" },
+                { "]", "\\]" },
+                { "(", "\\(" },
+                { ")", "\\)" },
+                { "~", "\\~" },
+                { "`", "\\`" },
+                { ">", "\\>" },
+                { "#", "\\#" },
+                { "+", "\\+" },
+                { "-", "\\-" },
+                { "=", "\\=" },
+                { "|", "\\|" },
+                { "{", "\\{" },
+                { "}", "\\}" },
+                { ".", "\\." },
+                { "!", "\\!" },
+            };
+
+            // Iterate through the dictionary and perform replacements using regular expressions
+            foreach (var pair in escapeCharacters)
+            {
+                input = input.Replace(pair.Key, pair.Value);
+            }
+
+            return input;
         }
     }
 }

@@ -15,6 +15,7 @@ using System.Net.Sockets;
 using AngleSharp.Dom;
 using System.Text.Json.Nodes;
 using CobainSaver.DataBase;
+using StackExchange.Redis;
 
 namespace CobainSaver.Downloader
 {
@@ -167,7 +168,7 @@ namespace CobainSaver.Downloader
                     {
                         title = Regex.Replace(title, @"#.*", "");
                     }
-                    if(title.Length > 1020)
+                    if (title.Length > 1020)
                     {
                         title = title.Substring(0, 1020) + "...";
                     }
