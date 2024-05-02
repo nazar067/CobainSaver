@@ -20,6 +20,7 @@ using YoutubeExplode.Channels;
 using YoutubeExplode.Common;
 using YoutubeExplode.Videos.ClosedCaptions;
 using YoutubeExplode.Videos.Streams;
+using static System.Net.Mime.MediaTypeNames;
 using static System.Net.WebRequestMethods;
 
 namespace CobainSaver.Downloader
@@ -623,6 +624,52 @@ namespace CobainSaver.Downloader
                 var videoUrl = normallMsg;
                 var videosSubset = await youtube.Playlists.GetVideosAsync(videoUrl);
                 string thumbnail = "https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg";
+                string songsCount = null;
+                if (videosSubset.Count % 10 == 1 && videosSubset.Count % 100 != 11)
+                {
+                    if (lang == "eng")
+                    {
+                        songsCount = $"*{videosSubset.Count}*" + " song";
+                    }
+                    if (lang == "ukr")
+                    {
+                        songsCount = $"*{videosSubset.Count}*" + " трек";
+                    }
+                    if (lang == "rus")
+                    {
+                        songsCount = $"*{videosSubset.Count}*" + " трек";
+                    }
+                }
+                else if ((videosSubset.Count % 10 == 2 || videosSubset.Count % 10 == 3 || videosSubset.Count % 10 == 4) && (videosSubset.Count % 100 < 10 || videosSubset.Count % 100 >= 20))
+                {
+                    if (lang == "eng")
+                    {
+                        songsCount = $"*{videosSubset.Count}*" + " songs";
+                    }
+                    if (lang == "ukr")
+                    {
+                        songsCount = $"*{videosSubset.Count}*" + " трека";
+                    }
+                    if (lang == "rus")
+                    {
+                        songsCount = $"*{videosSubset.Count}*" + " трека";
+                    }
+                }
+                else
+                {
+                    if (lang == "eng")
+                    {
+                        songsCount = $"*{videosSubset.Count}*" + " songs";
+                    }
+                    if (lang == "ukr")
+                    {
+                        songsCount = $"*{videosSubset.Count}*" + " треків";
+                    }
+                    if (lang == "rus")
+                    {
+                        songsCount = $"*{videosSubset.Count}*" + " треков";
+                    }
+                }
                 foreach (var thumb in allInfo.Thumbnails)
                 {
                     thumbnail = thumb.Url;
@@ -741,6 +788,7 @@ namespace CobainSaver.Downloader
                             parseMode: ParseMode.MarkdownV2,
                             caption: $"*{await EscapeMarkdownV2(allInfo.Title)}*\n" +
                             $"\n" +
+                            $"{songsCount}\n" +
                             $"_Page *{currentPage}/{totalPages}*_" +
                             $"\n" +
                             $"\n⬇️ Select a song to download"
@@ -755,6 +803,7 @@ namespace CobainSaver.Downloader
                             parseMode: ParseMode.MarkdownV2,
                             caption: $"*{await EscapeMarkdownV2(allInfo.Title)}*\n" +
                             $"\n" +
+                            $"{songsCount}\n" +
                             $"_Сторінка *{currentPage}/{totalPages}*_" +
                             $"\n" +
                             $"\n⬇️ Виберіть пісню"
@@ -769,9 +818,10 @@ namespace CobainSaver.Downloader
                             parseMode: ParseMode.MarkdownV2,
                             caption: $"*{await EscapeMarkdownV2(allInfo.Title)}*\n" +
                             $"\n" +
+                            $"{songsCount}\n" +
                             $"_Страница *{currentPage}/{totalPages}*_" +
                             $"\n" +
-                            $"\n⬇️ Виберите песню"
+                            $"\n⬇️ Выберите песню"
                         );
                     }
                 }
@@ -818,6 +868,7 @@ namespace CobainSaver.Downloader
                             parseMode: ParseMode.MarkdownV2,
                             caption: $"*{await EscapeMarkdownV2(allInfo.Title)}*\n" +
                             $"\n" +
+                            $"{songsCount}\n" +
                             $"_Page *{currentPage}/{totalPages}*_" +
                             $"\n" +
                             $"\n⬇️ Select a song to download"
@@ -832,6 +883,7 @@ namespace CobainSaver.Downloader
                             parseMode: ParseMode.MarkdownV2,
                             caption: $"*{await EscapeMarkdownV2(allInfo.Title)}*\n" +
                             $"\n" +
+                            $"{songsCount}\n" +
                             $"_Сторінка *{currentPage}/{totalPages}*_" +
                             $"\n" +
                             $"\n⬇️ Виберіть пісню"
@@ -846,9 +898,10 @@ namespace CobainSaver.Downloader
                             parseMode: ParseMode.MarkdownV2,
                             caption: $"*{await EscapeMarkdownV2(allInfo.Title)}*\n" +
                             $"\n" +
+                            $"{songsCount}\n" +
                             $"_Страница *{currentPage}/{totalPages}*_" +
                             $"\n" +
-                            $"\n⬇️ Виберите песню"
+                            $"\n⬇️ Выберите песню"
                         );
                     }
 
