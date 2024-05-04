@@ -910,7 +910,7 @@ namespace CobainSaver.Downloader
             }
             catch (Exception e)
             {
-                await Console.Out.WriteLineAsync(e.ToString());
+                //await Console.Out.WriteLineAsync(e.ToString());
                 Language language = new Language("rand", "rand");
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
                 if (update.Message == null)
