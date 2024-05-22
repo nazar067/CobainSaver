@@ -209,5 +209,82 @@ namespace CobainSaver.DataBase
                 }
             }
         }
+        public async Task AddAds(int id, long chatId, string adsName, string message, bool isActive, bool isActiveAdmin, string startDate, string endDate)
+        {
+            try
+            {
+                using (ApplicationContext db = new ApplicationContext())
+                {
+                    var existingRecord = db.AdsProfiles.FirstOrDefault(ul => ul.Id == id);
+
+                    if (existingRecord != null)
+                    {
+                        // Если запись существует, обновляем ее
+                        existingRecord.ads_name = adsName;
+                        existingRecord.message = message;
+                        existingRecord.is_active = isActive;
+                        existingRecord.is_activeAdmin = isActiveAdmin;
+                        existingRecord.end_date = endDate;
+                        db.SaveChanges();
+                    }
+                    else
+                    {
+                        // Если записи с таким chat_id не существует, добавляем новую запись
+                        AdsProfile adsProfile = new AdsProfile
+                        {
+                            chat_id = chatId,
+                            ads_name = adsName,
+                            message = message,
+                            is_active = isActive,
+                            is_activeAdmin = isActiveAdmin,
+                            start_date = startDate,
+                            end_date = endDate
+                        };
+                        db.AdsProfiles.Add(adsProfile);
+                        db.SaveChanges();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    Logs logs = new Logs(chatId, 0, "username", "AddUserLanguage", ex.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception e)
+                {
+                    return;
+                }
+            }
+        }
+        public async Task DeleteAds(int id, long chatId)
+        {
+            try
+            {
+                using (ApplicationContext db = new ApplicationContext())
+                {
+                    var ads = await db.AdsProfiles.FindAsync(id);
+
+                    if (ads != null)
+                    {
+                        db.AdsProfiles.Remove(ads);
+                        db.SaveChanges();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    Logs logs = new Logs(chatId, 0, "username", "DeleteAds", ex.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception e)
+                {
+                    return;
+                }
+            }
+        }
     }
 }

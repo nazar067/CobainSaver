@@ -29,6 +29,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                Ads ads = new Ads();
+
                 AddToDataBase addDB = new AddToDataBase();
 
                 string jsonString = System.IO.File.ReadAllText("source.json");
@@ -85,12 +87,36 @@ namespace CobainSaver.Downloader
                 List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
                 if (jsonObject["data"]["images"] != null)
                 {
+                    int count = 0;
+                    string caption = jsonObject["data"]["title"].ToString();
+                    if (caption.Contains("#"))
+                    {
+                        caption = Regex.Replace(caption, @"#.*", "");
+                    }
+                    if (caption.Length > 800)
+                    {
+                        caption = caption.Substring(0, 800) + "...";
+                    }
                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
                     foreach (var album in jsonObject["data"]["images"])
                     {
-                        mediaAlbum.Add(
-                             new InputMediaPhoto(InputFile.FromUri(album.ToString()))
-                            );
+                        if(count == 0)
+                        {
+                            mediaAlbum.Add(
+                                 new InputMediaPhoto(InputFile.FromUri(album.ToString()))
+                                 {
+                                     Caption = await ads.ShowAds() + caption,
+                                     ParseMode = ParseMode.Html
+                                 }
+                                );
+                            count++;
+                        }
+                        else
+                        {
+                            mediaAlbum.Add(
+                                 new InputMediaPhoto(InputFile.FromUri(album.ToString()))
+                                );
+                        }
                     }
                     int rowSize = 10;
                     List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
@@ -172,12 +198,15 @@ namespace CobainSaver.Downloader
                     {
                         title = title.Substring(0, 1020) + "...";
                     }
+                    var getAds = await ads.ShowAds();
                     await botClient.SendVideoAsync(
                         chatId: chatId,
                         video: InputFile.FromUri(video),
-                        caption: title,
+                        caption: getAds +
+                        title,
                         disableNotification: true,
-                        replyToMessageId: update.Message.MessageId
+                        replyToMessageId: update.Message.MessageId,
+                        parseMode: ParseMode.Html
                         );
 
                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
@@ -257,6 +286,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                Ads ads = new Ads();
+
                 AddToDataBase addDB = new AddToDataBase();
 
                 string jsonString = System.IO.File.ReadAllText("source.json");
@@ -278,12 +309,36 @@ namespace CobainSaver.Downloader
                 List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
                 if (jsonObject["data"]["images"] != null)
                 {
+                    int count = 0;
+                    string caption = jsonObject["data"]["title"].ToString();
+                    if (caption.Contains("#"))
+                    {
+                        caption = Regex.Replace(caption, @"#.*", "");
+                    }
+                    if (caption.Length > 800)
+                    {
+                        caption = caption.Substring(0, 800) + "...";
+                    }
                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
                     foreach (var album in jsonObject["data"]["images"])
                     {
-                        mediaAlbum.Add(
-                             new InputMediaPhoto(InputFile.FromUri(album.ToString()))
+                        if(count == 0)
+                        {
+                            mediaAlbum.Add(
+                                 new InputMediaPhoto(InputFile.FromUri(album.ToString()))
+                                 {
+                                     Caption = await ads.ShowAds() + caption,
+                                     ParseMode = ParseMode.Html
+                                 }
                             );
+                            count++;
+                        }
+                        else
+                        {
+                            mediaAlbum.Add(
+                                 new InputMediaPhoto(InputFile.FromUri(album.ToString()))
+                            );
+                        }
                     }
                     int rowSize = 10;
                     List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
@@ -399,17 +454,18 @@ namespace CobainSaver.Downloader
                     {
                         title = Regex.Replace(title, @"#.*", "");
                     }
-                    if (title.Length > 1020)
+                    if (title.Length > 800)
                     {
-                        title = title.Substring(0, 1020) + "...";
+                        title = title.Substring(0, 800) + "...";
                     }
                     await botClient.SendVideoAsync(
                         chatId: chatId,
                         video: InputFile.FromStream(streamVideo),
-                        caption: title,
+                        caption: await ads.ShowAds() + title,
                         disableNotification: true,
                         duration: videoDuration,
                         thumbnail: InputFile.FromStream(streamThumbVideo),
+                        parseMode:ParseMode.Html,
                         replyToMessageId: update.Message.MessageId
                         );
 
@@ -499,7 +555,7 @@ namespace CobainSaver.Downloader
         {
             try
             {
-
+                Ads ads = new Ads();
                 AddToDataBase addDB = new AddToDataBase();
                 string jsonString = System.IO.File.ReadAllText("source.json");
                 JObject jsonObjectAPI = JObject.Parse(jsonString);
@@ -516,12 +572,36 @@ namespace CobainSaver.Downloader
                 List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
                 if (jsonObject["aweme_list"][0]["image_post_info"] != null)
                 {
+                    int count = 0;
+                    string caption = jsonObject["aweme_list"][0]["desc"].ToString();
+                    if (caption.Contains("#"))
+                    {
+                        caption = Regex.Replace(caption, @"#.*", "");
+                    }
+                    if (caption.Length > 800)
+                    {
+                        caption = caption.Substring(0, 800) + "...";
+                    }
                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
                     foreach (var album in jsonObject["aweme_list"][0]["image_post_info"]["images"])
                     {
-                        mediaAlbum.Add(
+                        if(count == 0)
+                        {
+                            mediaAlbum.Add(
+                             new InputMediaPhoto(InputFile.FromUri(album["display_image"]["url_list"][0].ToString()))
+                             {
+                                 Caption = await ads.ShowAds() + caption,
+                                 ParseMode = ParseMode.Html
+                             }
+                            );
+                            count++;
+                        }
+                        else
+                        {
+                            mediaAlbum.Add(
                              new InputMediaPhoto(InputFile.FromUri(album["display_image"]["url_list"][0].ToString()))
                             );
+                        }
                     }
                     int rowSize = 10;
                     List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
@@ -631,15 +711,15 @@ namespace CobainSaver.Downloader
                     {
                         title = Regex.Replace(title, @"#.*", "");
                     }
-                    if (title.Length > 1020)
+                    if (title.Length > 800)
                     {
-                        title = title.Substring(0, 1020) + "...";
+                        title = title.Substring(0, 800) + "...";
                     }
 
                     await botClient.SendVideoAsync(
                         chatId: chatId,
                         video: InputFile.FromUri(video),
-                        caption: title,
+                        caption: await ads.ShowAds() + title,
                         disableNotification: true,
                         replyToMessageId: update.Message.MessageId
                     );
@@ -727,6 +807,7 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                Ads ads = new Ads();
                 AddToDataBase addDB = new AddToDataBase();
                 string jsonString = System.IO.File.ReadAllText("source.json");
                 JObject jsonObjectAPI = JObject.Parse(jsonString);
@@ -743,12 +824,35 @@ namespace CobainSaver.Downloader
                 List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
                 if (jsonObject["aweme_list"][0]["image_post_info"] != null)
                 {
+                    int count = 0;
+                    string caption = jsonObject["aweme_list"][0]["desc"].ToString();
+                    if (caption.Contains("#"))
+                    {
+                        caption = Regex.Replace(caption, @"#.*", "");
+                    }
+                    if (caption.Length > 800)
+                    {
+                        caption = caption.Substring(0, 800) + "...";
+                    }
                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
                     foreach (var album in jsonObject["aweme_list"][0]["image_post_info"]["images"])
                     {
-                        mediaAlbum.Add(
+                        if(count == 0)
+                        {
+                            mediaAlbum.Add(
+                             new InputMediaPhoto(InputFile.FromUri(album["display_image"]["url_list"][0].ToString()))
+                             {
+                                 Caption = await ads.ShowAds() + caption,
+                                 ParseMode = ParseMode.Html
+                             }
+                            );
+                        }
+                        else
+                        {
+                            mediaAlbum.Add(
                              new InputMediaPhoto(InputFile.FromUri(album["display_image"]["url_list"][0].ToString()))
                             );
+                        }
                     }
                     int rowSize = 10;
                     List<List<IAlbumInputMedia>> result = ConvertTo2D(mediaAlbum, rowSize);
@@ -856,12 +960,12 @@ namespace CobainSaver.Downloader
                     string title = jsonObject["aweme_list"][0]["desc"].ToString();
                     int videoDuration = Convert.ToInt32(jsonObject["aweme_list"][0]["video"]["duration"]);
                     if (title.Contains("#"))
-                    {
+                    {   
                         title = Regex.Replace(title, @"#.*", "");
                     }
-                    if (title.Length > 1020)
+                    if (title.Length > 800)
                     {
-                        title = title.Substring(0, 1020) + "...";
+                        title = title.Substring(0, 800) + "...";
                     }
                     string path = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
 
@@ -896,9 +1000,10 @@ namespace CobainSaver.Downloader
                     await botClient.SendVideoAsync(
                         chatId: chatId,
                         video: InputFile.FromStream(streamVideo),
-                        caption: title,
+                        caption: await ads.ShowAds() + title,
                         disableNotification: true,
-                        duration: videoDuration,
+                        duration: videoDuration / 1000,
+                        parseMode: ParseMode.Html,
                         thumbnail: InputFile.FromStream(streamThumbVideo),
                         replyToMessageId: update.Message.MessageId
                     );
@@ -992,6 +1097,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                Ads ads = new Ads();
+
                 AddToDataBase addDB = new AddToDataBase();
 
                 await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
@@ -1018,9 +1125,9 @@ namespace CobainSaver.Downloader
                 {
                     title = Regex.Replace(title, @"#.*", "");
                 }
-                if (title.Length > 1020)
+                if (title.Length > 800)
                 {
-                    title = title.Substring(0, 1020) + "...";
+                    title = title.Substring(0, 800) + "...";
                 }
                 JObject jsonObject = JObject.Parse(res.Data.ToString());
                 string thumbnail = jsonObject["thumbnail"].ToString();
@@ -1056,9 +1163,10 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         video: InputFile.FromStream(streamVideo),
                         thumbnail: InputFile.FromStream(streamThumb),
-                        caption: title,
+                        caption: await ads.ShowAds() + title,
                         disableNotification: false,
                         duration: Convert.ToInt32(duration),
+                        parseMode: ParseMode.Html,
                         replyToMessageId: update.Message.MessageId
                     );
 

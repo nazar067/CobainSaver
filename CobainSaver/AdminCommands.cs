@@ -12,6 +12,7 @@ using Telegram.Bot.Types;
 using System.Net;
 using Telegram.Bot.Types.ReplyMarkups;
 using System.Net.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace CobainSaver
 {
@@ -688,6 +689,210 @@ namespace CobainSaver
                     stream.Close();
                 }
             }
+        }
+        public async Task AddUserAds(TelegramBotClient botClient, string chatId ,string adminId)
+        {
+            AddToDataBase addToDataBase = new AddToDataBase();
+            string jsonString = System.IO.File.ReadAllText("source.json");
+            JObject jsonObject = JObject.Parse(jsonString);
+            if (adminId == jsonObject["AdminId"][0].ToString())
+            {
+                await addToDataBase.AddAds(0, Convert.ToInt64(chatId), "default", "default", false, false, DateTime.Now.ToShortDateString(), "default");;
+                await botClient.SendTextMessageAsync(
+                    chatId: adminId,
+                    text: "Success");
+            }
+        }
+        public async Task ChangeUserAds(TelegramBotClient botClient, int id, string newName, string newMessage, bool newIsActive, bool newIsActiveAdmin, string newEndDate, string adminId, Message msg)
+        {
+            AddToDataBase addToDataBase = new AddToDataBase();
+            string jsonString = System.IO.File.ReadAllText("source.json");
+            JObject jsonObject = JObject.Parse(jsonString);
+            if (adminId == jsonObject["AdminId"][0].ToString())
+            {
+                using(ApplicationContext db = new ApplicationContext())
+                {
+                    var adsProfile = await db.AdsProfiles.Where(profile => profile.Id == id).ToListAsync();
+                    if (adsProfile.Count == 0)
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: adminId,
+                            text: "cant find id"
+                            );
+                        return;
+                    }
+                    string formatedMessage = GetParseMode(msg, newMessage);
+                    foreach (var profile in adsProfile)
+                    {
+                        await addToDataBase.AddAds(id, 0, newName, formatedMessage, newIsActive, newIsActiveAdmin, "", newEndDate);
+                        await botClient.SendTextMessageAsync(
+                            chatId: adminId,
+                            text: "Success");
+                    }
+                }
+
+            }
+        }
+        public async Task EditEndDate(TelegramBotClient botClient, int id, string endDate, string adminId)
+        {
+            string jsonString = System.IO.File.ReadAllText("source.json");
+            JObject jsonObject = JObject.Parse(jsonString);
+            if (adminId == jsonObject["AdminId"][0].ToString())
+            {
+                using (ApplicationContext db = new ApplicationContext())
+                {
+                    AddToDataBase add = new AddToDataBase();
+                    var adsProfile = await db.AdsProfiles.Where(profile => profile.Id == id).ToListAsync();
+                    if (adsProfile == null)
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: adminId,
+                            text: "cant find id"
+                            );
+                        return;
+                    }
+                    foreach (var profile in adsProfile)
+                    {
+                        await add.AddAds(id, profile.chat_id, profile.ads_name, profile.message, profile.is_active, profile.is_activeAdmin, profile.start_date, endDate);
+                        await botClient.SendTextMessageAsync(
+                            chatId: adminId,
+                            text: "success update"
+                            );
+                    }
+                }
+            }
+        }
+        public async Task EditIsActiveAdmin(TelegramBotClient botClient, int id, bool isActiveAdmin, string adminId)
+        {
+            string jsonString = System.IO.File.ReadAllText("source.json");
+            JObject jsonObject = JObject.Parse(jsonString);
+            if (adminId == jsonObject["AdminId"][0].ToString())
+            {
+                using (ApplicationContext db = new ApplicationContext())
+                {
+                    AddToDataBase add = new AddToDataBase();
+                    var adsProfile = await db.AdsProfiles.Where(profile => profile.Id == id).ToListAsync();
+                    if (adsProfile == null)
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: adminId,
+                            text: "cant find id"
+                            );
+                        return;
+                    }
+                    foreach (var profile in adsProfile)
+                    {
+                        await add.AddAds(id, profile.chat_id, profile.ads_name, profile.message, profile.is_active, isActiveAdmin, profile.start_date, profile.end_date);
+                        await botClient.SendTextMessageAsync(
+                            chatId: adminId,
+                            text: "success update"
+                            );
+                    }
+                }
+            }
+        }
+        private static string GetParseMode(Message message, string targetMessage)
+        {
+            var formattedText = targetMessage;
+            var text = message.Text;
+            var entityStack = new Stack<(string OpeningTag, string ClosingTag)>();
+
+            if (message.Entities != null && message.Entities.Length > 0)
+            {
+                var offset = text.IndexOf(targetMessage);
+
+                if (offset >= 0)
+                {
+                    var charFormat = new Dictionary<int, List<(string OpeningTag, string ClosingTag)>>();
+
+                    foreach (var entity in message.Entities)
+                    {
+                        if (entity.Offset >= offset && entity.Offset + entity.Length <= offset + targetMessage.Length)
+                        {
+                            var relativeOffset = entity.Offset - offset;
+
+                            string openingTag = "", closingTag = "";
+                            switch (entity.Type)
+                            {
+                                case MessageEntityType.Bold:
+                                    openingTag = "<b>";
+                                    closingTag = "</b>";
+                                    break;
+                                case MessageEntityType.Italic:
+                                    openingTag = "<i>";
+                                    closingTag = "</i>";
+                                    break;
+                                case MessageEntityType.Code:
+                                    openingTag = "<code>";
+                                    closingTag = "</code>";
+                                    break;
+                                case MessageEntityType.Pre:
+                                    openingTag = "<pre>";
+                                    closingTag = "</pre>";
+                                    break;
+                                case MessageEntityType.TextLink:
+                                    openingTag = $"<a href=\"{entity.Url}\">";
+                                    closingTag = "</a>";
+                                    break;
+                                case MessageEntityType.TextMention:
+                                    openingTag = "<a>";
+                                    closingTag = "</a>";
+                                    break;
+                                case MessageEntityType.Spoiler:
+                                    openingTag = "<tg-spoiler>";
+                                    closingTag = "</tg-spoiler>";
+                                    break;
+                                case MessageEntityType.Underline:
+                                    openingTag = "<u>";
+                                    closingTag = "</u>";
+                                    break;
+                                case MessageEntityType.Strikethrough:
+                                    openingTag = "<s>";
+                                    closingTag = "</s>";
+                                    break;
+                            }
+
+                            for (int i = relativeOffset; i < relativeOffset + entity.Length; i++)
+                            {
+                                if (!charFormat.ContainsKey(i))
+                                {
+                                    charFormat[i] = new List<(string OpeningTag, string ClosingTag)>();
+                                }
+                                charFormat[i].Add((openingTag, closingTag));
+                            }
+                        }
+                    }
+
+                    var sb = new StringBuilder();
+
+                    for (int i = 0; i < targetMessage.Length; i++)
+                    {
+                        if (charFormat.ContainsKey(i))
+                        {
+                            foreach (var format in charFormat[i])
+                            {
+                                sb.Append(format.OpeningTag);
+                                entityStack.Push(format);
+                            }
+                        }
+
+                        sb.Append(targetMessage[i]);
+
+                        if (charFormat.ContainsKey(i))
+                        {
+                            while (entityStack.Count > 0)
+                            {
+                                var format = entityStack.Pop();
+                                sb.Append(format.ClosingTag);
+                            }
+                        }
+                    }
+
+                    formattedText = sb.ToString();
+                }
+            }
+
+            return formattedText;
         }
     }
 }

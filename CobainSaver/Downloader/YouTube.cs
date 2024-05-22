@@ -34,6 +34,8 @@ namespace CobainSaver.Downloader
             //превью видео
             try
             {
+                Ads ads = new Ads();
+
                 AddToDataBase addDB = new AddToDataBase();
 
                 var youtube = new YoutubeClient();
@@ -118,10 +120,11 @@ namespace CobainSaver.Downloader
                     // Отправляем видео обратно пользователю
                     await botClient.SendVideoAsync(
                         chatId: chatId,
-                        caption: title,
+                        caption: await ads.ShowAds() + title,
                         video: InputFile.FromStream(streamVideo),
                         thumbnail: InputFile.FromStream(streamThumbVideo),
                         duration: Convert.ToInt32(duration),
+                        parseMode: ParseMode.Html,
                         replyToMessageId: update.Message.MessageId);
                     await addDB.AddBotCommands(chatId, "youtube", DateTime.Now.ToShortDateString());
                 }
@@ -194,6 +197,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                Ads ads = new Ads();
+
                 AddToDataBase addDB = new AddToDataBase();
 
                 string jsonString = System.IO.File.ReadAllText("source.json");
@@ -257,9 +262,10 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         video: InputFile.FromStream(streamVideo),
                         thumbnail: InputFile.FromStream(streamThumb),
-                        caption: title,
+                        caption: await ads.ShowAds() + title,
                         disableNotification: false,
                         duration: Convert.ToInt32(duration),
+                        parseMode: ParseMode.Html,
                         replyToMessageId: update.Message.MessageId
                     );
 
@@ -539,7 +545,7 @@ namespace CobainSaver.Downloader
             }
             catch (Exception ex)
             {
-                await Console.Out.WriteLineAsync(ex.ToString());
+                //await Console.Out.WriteLineAsync(ex.ToString());
                 Language language = new Language("rand", "rand");
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
                 if (update.Message == null)

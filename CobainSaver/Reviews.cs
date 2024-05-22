@@ -18,7 +18,7 @@ namespace CobainSaver
         public async Task UserReviews(string chatId, TelegramBotClient botClient)
         {
             bool check = await CheckIsFile(chatId, DateTime.Now.ToShortDateString());
-            if(DateTime.Now.Day == 13 && check == true)
+            if(DateTime.Now.Day == 01 && check == true)
             {
                 AddToDataBase addDB = new AddToDataBase();
 

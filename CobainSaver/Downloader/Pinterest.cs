@@ -20,6 +20,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                Ads ads = new Ads();
+
                 AddToDataBase addDB = new AddToDataBase();
 
                 string jsonString = System.IO.File.ReadAllText("source.json");
@@ -115,9 +117,10 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         video: InputFile.FromStream(streamVideo),
                         thumbnail: InputFile.FromStream(streamThumb),
-                        caption: title,
+                        caption: await ads.ShowAds() + title,
                         disableNotification: false,
                         duration: duration,
+                        parseMode: ParseMode.Html,
                         replyToMessageId: update.Message.MessageId
                     );
 
@@ -214,6 +217,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                Ads ads = new Ads();
+
                 await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
                 AddToDataBase addDB = new AddToDataBase();
                 string url = await DeleteNotUrl(messageText);
@@ -243,9 +248,11 @@ namespace CobainSaver.Downloader
                     await botClient.SendPhotoAsync(
                         chatId: chatId,
                         photo: InputFile.FromUri(imageUrl),
+                        caption: await ads.ShowAds(),
                         disableNotification: false,
+                        parseMode: ParseMode.Html,
                         replyToMessageId: update.Message.MessageId
-                    );
+                    ) ;
                     await addDB.AddBotCommands(chatId, "pinterest", DateTime.Now.ToShortDateString());
                 }
                 else
@@ -273,6 +280,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                Ads ads = new Ads();
+
                 await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
                 AddToDataBase addDB = new AddToDataBase();
                 string url = await DeleteNotUrl(messageText);
@@ -321,7 +330,9 @@ namespace CobainSaver.Downloader
                     await botClient.SendPhotoAsync(
                         chatId: chatId,
                         photo: InputFile.FromStream(stream),
+                        caption: await ads.ShowAds(),
                         disableNotification: false,
+                        parseMode: ParseMode.Html,
                         replyToMessageId: update.Message.MessageId
                     );
                     await addDB.AddBotCommands(chatId, "pinterest", DateTime.Now.ToShortDateString());

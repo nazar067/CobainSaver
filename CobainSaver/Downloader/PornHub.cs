@@ -22,6 +22,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                Ads ads = new Ads();
+
                 AddToDataBase addDB = new AddToDataBase();
 
                 Language language = new Language("rand", "rand");
@@ -130,9 +132,10 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         video: InputFile.FromStream(streamVideo),
                         thumbnail: InputFile.FromStream(streamThumb),
-                        caption: title,
+                        caption: await ads.ShowAds() + title,
                         disableNotification: false,
                         duration: Convert.ToInt32(duration),
+                        parseMode: ParseMode.Html,
                         replyToMessageId: update.Message.MessageId
                     );
                     await addDB.AddBotCommands(chatId, "pornHub", DateTime.Now.ToShortDateString());

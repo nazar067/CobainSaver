@@ -20,6 +20,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                Ads ads = new Ads();
+
                 AddToDataBase addDB = new AddToDataBase();
 
                 string jsonString = System.IO.File.ReadAllText("source.json");
@@ -114,9 +116,10 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         video: InputFile.FromStream(streamVideo),
                         thumbnail: InputFile.FromStream(streamThumb),
-                        caption: title,
+                        caption: await ads.ShowAds() + title,
                         disableNotification: false,
                         duration: duration,
+                        parseMode: ParseMode.Html,
                         replyToMessageId: update.Message.MessageId
                     );
 

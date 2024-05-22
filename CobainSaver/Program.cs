@@ -14,6 +14,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 using YoutubeExplode;
 using YoutubeExplode.Exceptions;
 using YoutubeExplode.Videos.Streams;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CobainSaver
 {
@@ -133,6 +134,7 @@ namespace CobainSaver
                 Twitch twitch = new Twitch();
                 AddToDataBase addDB = new AddToDataBase();
                 AdminCommands admin = new AdminCommands();
+                Ads ads = new Ads();
                 //Downloader video = new Downloader();
                 // From - это от кого пришло сообщение (или любой другой Update)
                 var user = message.From;
@@ -148,65 +150,76 @@ namespace CobainSaver
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVideo);
                     await youTube.YoutubeDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "youtube", message.MessageId, DateTime.Now.ToShortDateString());
+                    await ads.DeleteAds(chat.Id);
                 }
                 else if (message.Text.Contains("https://music.youtube.com/playlist?"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
                     await youTube.YoutubeMusicPlaylist(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient, 0, 0);
                     await addDB.AddUserLinks(chat.Id, user.Id, "youtubeMusic", message.MessageId, DateTime.Now.ToShortDateString());
+                    await ads.DeleteAds(chat.Id);
                 }
                 else if (message.Text.Contains("https://music.youtube.com/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVoice);
                     await youTube.YoutubeMusicDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "youtubeMusic", message.MessageId, DateTime.Now.ToShortDateString());
+                    await ads.DeleteAds(chat.Id);
                 }
                 else if (message.Text.Contains("https://open.spotify.com/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVoice);
                     await spotify.SpotifyDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "spotify", message.MessageId, DateTime.Now.ToShortDateString());
+                    await ads.DeleteAds(chat.Id);
                 }
                 else if (message.Text.Contains("https://vm.tiktok.com") || message.Text.Contains("https://www.tiktok.com") || message.Text.Contains("https://m.tiktok.com"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
                     await tikTok.TikTokDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "tiktok", message.MessageId, DateTime.Now.ToShortDateString());
+                    await ads.DeleteAds(chat.Id);
                 }
                 else if (message.Text.Contains("https://www.reddit.com") || message.Text.Contains("https://redd.it/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
                     await reddit.ReditDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "reddit", message.MessageId, DateTime.Now.ToShortDateString());
+                    await ads.DeleteAds(chat.Id);
                 }
                 else if (message.Text.Contains("https://x.com/") || message.Text.Contains("https://twitter.com/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
                     await twitter.TwitterDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "twitter", message.MessageId, DateTime.Now.ToShortDateString());
+                    await ads.DeleteAds(chat.Id);
                 }
                 else if (message.Text.Contains("https://www.instagram.com"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
                     await insta.InstagramDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "instagram", message.MessageId, DateTime.Now.ToShortDateString());
+                    await ads.DeleteAds(chat.Id);
                 }
                 else if (message.Text.Contains("https://rt.pornhub.com/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVideo);
                     await porn.PornHubDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "pornhub", message.MessageId, DateTime.Now.ToShortDateString());
+                    await ads.DeleteAds(chat.Id);
                 }
                 else if (message.Text.Contains("https://www.pinterest.com") || message.Text.Contains("https://pin.it/") || message.Text.Contains("https://ru.pinterest.com/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
                     await pinterest.PinterestDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "pinterest", message.MessageId, DateTime.Now.ToShortDateString());
+                    await ads.DeleteAds(chat.Id);
                 }
                 else if (message.Text.Contains("https://clips.twitch.tv") || message.Text.Contains("https://www.twitch.tv"))
                 {
                     await twitch.ClipsDownload(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "twitch", message.MessageId, DateTime.Now.ToShortDateString());
+                    await ads.DeleteAds(chat.Id);
                 }
                 else if (message.Text.StartsWith("/logs") || message.Text.StartsWith($"/logs@{cobain.Username}"))
                 {
@@ -256,7 +269,9 @@ namespace CobainSaver
                         await botClient.SendTextMessageAsync(
                             chatId: chat.Id,
                             text: "/help - see all commands\n " +
-                            "/changelang - change bot's language",
+                            "/changelang - change bot's language\n " +
+                            "/adshelp - advertising commands\n" +
+                            "/ads - open ads manger",
                             replyToMessageId: update.Message.MessageId
                             );
                     }
@@ -265,7 +280,9 @@ namespace CobainSaver
                         await botClient.SendTextMessageAsync(
                             chatId: chat.Id,
                             text: "/help - переглянути всі команді\n " +
-                            "/changelang - змінити мову",
+                            "/changelang - змінити мову\n " +
+                            "/adshelp - рекламні команди\n" +
+                            "/ads - відкрити менеджер реклами",
                             replyToMessageId: update.Message.MessageId);
                     }
                     if (lang == "rus")
@@ -273,7 +290,9 @@ namespace CobainSaver
                         await botClient.SendTextMessageAsync(
                             chatId: chat.Id,
                             text: "/help - посмотреть все команды\n " +
-                            "/changelang - сменить язык",
+                            "/changelang - сменить язык\n " +
+                            "/adshelp - рекламные команды\n" +
+                            "/ads - открыть менеджер рекламы",
                             replyToMessageId: update.Message.MessageId);
                     }
                     await addDB.AddUserCommands(chat.Id, user.Id, "help", message.MessageId, DateTime.Now.ToShortDateString());
@@ -367,7 +386,76 @@ namespace CobainSaver
                 {
                     string userId = message.Text.Split(' ').Last();
                     await admin.CheckUserById((TelegramBotClient)botClient, chat.Id.ToString(), userId);
-                    await addDB.AddUserCommands(chat.Id, user.Id, "topTen", message.MessageId, DateTime.Now.ToShortDateString());
+                    await addDB.AddUserCommands(chat.Id, user.Id, "user", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text == "/ads")
+                {
+                    string userId = message.Text.Split(' ').Last();
+                    await ads.SendAllAds((TelegramBotClient)botClient, chat.Id);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "ads", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text.StartsWith("/adsAdd"))
+                {
+                    string userId = message.Text.Split(' ').Last();
+                    await admin.AddUserAds((TelegramBotClient)botClient, userId, chat.Id.ToString());
+                    await addDB.AddUserCommands(chat.Id, user.Id, "ads", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text.StartsWith("/adsEditName"))
+                {
+                    string[] parts = message.Text.Split(' ');
+                    int id = Convert.ToInt32(parts[1]);
+                    string name = parts[2];
+                    await ads.EditAdName((TelegramBotClient)botClient, id, name, chat.Id);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "adsEditName", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text.StartsWith("/adsEditDesc"))
+                {
+                    string[] parts = message.Text.Split(' ');
+                    int id = Convert.ToInt32(parts[1]);
+                    string desc = string.Join(" ", parts.Skip(2));
+                    await ads.EditAdDescription((TelegramBotClient)botClient, id, desc, chat.Id, message);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "adsEditDesc", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text.StartsWith("/adsEditActiveAdmin"))
+                {
+                    string[] parts = message.Text.Split(' ');
+                    int id = Convert.ToInt32(parts[1]);
+                    bool active = Convert.ToBoolean(parts[2]);
+                    await admin.EditIsActiveAdmin((TelegramBotClient)botClient, id, active, chat.Id.ToString());
+                    await addDB.AddUserCommands(chat.Id, user.Id, "adsEditActiveAdmin", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text.StartsWith("/adsEditActive"))
+                {
+                    string[] parts = message.Text.Split(' ');
+                    int id = Convert.ToInt32(parts[1]);
+                    bool active = Convert.ToBoolean(parts[2]);
+                    await ads.EditAdActive((TelegramBotClient)botClient, id, active, chat.Id);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "adsEditActive", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text.StartsWith("/adsEditEndDate"))
+                {
+                    string[] parts = message.Text.Split(' ');
+                    int id = Convert.ToInt32(parts[1]);
+                    string endDate = parts[2];
+                    await admin.EditEndDate((TelegramBotClient)botClient, id, endDate, chat.Id.ToString());
+                    await addDB.AddUserCommands(chat.Id, user.Id, "adsEditEndDate", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text.StartsWith("/adsEdit"))
+                {
+                    string[] parts = message.Text.Split(' ');
+                    int id = Convert.ToInt32(parts[1]);
+                    string name = parts[2];
+                    string msg = parts[3];
+                    bool isActive = Convert.ToBoolean(parts[4]);
+                    bool isActiveAdmin = Convert.ToBoolean(parts[5]);
+                    string endDate = parts[6];
+                    await admin.ChangeUserAds((TelegramBotClient)botClient, id, name, msg, isActive, isActiveAdmin, endDate, chat.Id.ToString(), message);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "adsEdit", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text == "/adshelp")
+                {
+                    await ads.AdsHelp((TelegramBotClient)botClient, chat.Id, update);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "adsHelp", message.MessageId, DateTime.Now.ToShortDateString());
                 }
                 else if (message.Text == "/changelang" || message.Text.StartsWith($"/changelang@{cobain.Username}"))
                 {
@@ -568,6 +656,15 @@ namespace CobainSaver
                     int msgId = Convert.ToInt32(parts[4]);
                     await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
                     await youTube.YoutubeMusicPlaylist(Convert.ToInt64(chatId), update, cancellationToken, url, (TelegramBotClient)botClient, page, msgId);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                }
+                if (callbackQuery.Data.StartsWith("Ad"))
+                {
+                    Ads ads = new Ads();
+                    string data = callbackQuery.Data.ToString();
+                    string[] parts = data.Split(' ');
+                    string id = parts[1];
+                    await ads.SendAdDesc((TelegramBotClient) botClient, Convert.ToInt32(id));
                     await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                 }
             }

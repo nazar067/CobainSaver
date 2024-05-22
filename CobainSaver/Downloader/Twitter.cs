@@ -25,6 +25,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                Ads ads = new Ads();                
+
                 AddToDataBase addDB = new AddToDataBase();
 
                 string jsonString = System.IO.File.ReadAllText("source.json");
@@ -48,9 +50,9 @@ namespace CobainSaver.Downloader
                 var responseString = await response.Content.ReadAsStringAsync();
                 JObject jsonObject = JObject.Parse(responseString);
                 string caption = jsonObject["text"].ToString();
-                if (caption.Length > 1024)
+                if (caption.Length > 800)
                 {
-                    caption = caption.Substring(0, 1024) + "...";
+                    caption = caption.Substring(0, 800) + "...";
                 }
                 List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
                 foreach (var album in jsonObject["mediaURLs"])
@@ -61,8 +63,8 @@ namespace CobainSaver.Downloader
                         mediaAlbum.Add(
                              new InputMediaPhoto(InputFile.FromUri(album.ToString()))
                              {
-                                 Caption = caption,
-                                 ParseMode = ParseMode.Markdown
+                                 Caption = await ads.ShowAds() + caption,
+                                 ParseMode = ParseMode.Html
                              }
                             );
                     }
@@ -74,8 +76,8 @@ namespace CobainSaver.Downloader
                             mediaAlbum.Add(
                                  new InputMediaVideo(InputFile.FromUri(album.ToString()))
                                  {
-                                     Caption = caption,
-                                     ParseMode = ParseMode.Markdown
+                                     Caption = await ads.ShowAds() + caption,
+                                     ParseMode = ParseMode.Html
                                  }
                                 );
                         }
@@ -121,6 +123,8 @@ namespace CobainSaver.Downloader
         {
             try
             {
+                Ads ads = new Ads();
+
                 AddToDataBase addDB = new AddToDataBase();
 
                 string jsonString = System.IO.File.ReadAllText("source.json");
@@ -151,9 +155,9 @@ namespace CobainSaver.Downloader
                 string caption = jsonObject["text"].ToString();
                 int duration = Convert.ToInt32(jsonObject["media_extended"][0]["duration_millis"]) / 1000;
                 string thumbnail = jsonObject["media_extended"][0]["thumbnail_url"].ToString();
-                if (caption.Length > 1024)
+                if (caption.Length > 800)
                 {
-                    caption = caption.Substring(0, 1020) + "...";
+                    caption = caption.Substring(0, 800) + "...";
                 }
                 List<IAlbumInputMedia> mediaAlbum = new List<IAlbumInputMedia>();
                 foreach (var album in jsonObject["mediaURLs"])
@@ -164,8 +168,8 @@ namespace CobainSaver.Downloader
                         mediaAlbum.Add(
                              new InputMediaPhoto(InputFile.FromUri(album.ToString()))
                              {
-                                 Caption = caption,
-                                 ParseMode = ParseMode.Markdown
+                                 Caption = await ads.ShowAds() + caption,
+                                 ParseMode = ParseMode.Html
                              }
                             );
                     }
@@ -203,10 +207,11 @@ namespace CobainSaver.Downloader
                             await botClient.SendVideoAsync(
                                 chatId: chatId,
                                 video: InputFile.FromStream(stream),
-                                caption: caption,
+                                caption: await ads.ShowAds() + caption,
                                 duration: duration,
                                 thumbnail: InputFile.FromStream(streamThumb),
                                 disableNotification: true,
+                                parseMode: ParseMode.Html,
                                 replyToMessageId: update.Message.MessageId
                                 );
                         }
