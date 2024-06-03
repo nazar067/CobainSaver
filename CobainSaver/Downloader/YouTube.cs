@@ -446,7 +446,7 @@ namespace CobainSaver.Downloader
                 {
                     Directory.CreateDirectory(path);
                 }
-                string audioPath = Path.Combine(path, chatId + DateTime.Now.Millisecond.ToString() + "audio.M4A");
+                string audioPath = Path.Combine(path, chatId + DateTime.Now.Millisecond.ToString() + "audio.m4a");
                 string thumbnailAudioPath = Path.Combine(path, chatId + DateTime.Now.Millisecond.ToString() + "thumbVideo.jpeg");
                 try
                 {
