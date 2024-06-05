@@ -17,44 +17,89 @@ namespace CobainSaver.Downloader
     {
         public async Task SpotifyGetName(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
-            string jsonString = System.IO.File.ReadAllText("source.json");
-            JObject jsonObjectAPI = JObject.Parse(jsonString);
-
-            HttpClient spotifyClient = new HttpClient();
-
-            string client_id = jsonObjectAPI["Spotify"][0].ToString();
-            string client_secret = jsonObjectAPI["Spotify"][1].ToString();
-
-            string base64Auth = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{client_id}:{client_secret}"));
-
-            string url = await DeleteNotUrl(messageText);
-
-            string id = await ExtractTrackId(url);
-
-            var authOptions = new
+            try
             {
-                url = "https://accounts.spotify.com/api/token",
-                headers = new
+                string jsonString = System.IO.File.ReadAllText("source.json");
+                JObject jsonObjectAPI = JObject.Parse(jsonString);
+
+                HttpClient spotifyClient = new HttpClient();
+
+                string client_id = jsonObjectAPI["Spotify"][0].ToString();
+                string client_secret = jsonObjectAPI["Spotify"][1].ToString();
+
+                string base64Auth = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{client_id}:{client_secret}"));
+
+                string url = await DeleteNotUrl(messageText);
+
+                string id = await ExtractTrackId(url);
+
+                var authOptions = new
                 {
-                    Authorization = "Basic " + base64Auth
-                },
-                form = new
+                    url = "https://accounts.spotify.com/api/token",
+                    headers = new
+                    {
+                        Authorization = "Basic " + base64Auth
+                    },
+                    form = new
+                    {
+                        grant_type = "client_credentials"
+                    }
+                };
+
+                string accessToken = await GetAccessToken(authOptions, base64Auth);
+                spotifyClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+                var spotify = new SpotifyClient(accessToken);
+
+                var track = await spotify.Tracks.Get(id);
+                string artist = null;
+                foreach (var artists in track.Artists)
                 {
-                    grant_type = "client_credentials"
+                    artist = artists.Name;
                 }
-            };
-
-            string accessToken = await GetAccessToken(authOptions, base64Auth);
-            spotifyClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
-            var spotify = new SpotifyClient(accessToken);
-
-            var track = await spotify.Tracks.Get(id);
-            string artist = null;
-            foreach (var artists in track.Artists)
-            {
-                artist = artists.Name;
+                await FindSongYTMusic(track.Name + " " + artist, chatId, update, cancellationToken, messageText, botClient);
             }
-            await FindSongYTMusic(track.Name + " " + artist, chatId, update, cancellationToken, messageText, botClient);
+            catch (Exception ex)
+            {
+                //Console.WriteLine(ex.ToString());
+                Language language = new Language("rand", "rand");
+                string lang = await language.GetCurrentLanguage(chatId.ToString());
+                if (lang == "eng")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Sorry this song was not found or private\n" +
+                        "\nIf you're sure the content is public or the bot has previously submitted this, please email us about this bug - t.me/cobainSaver",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "ukr")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Вибачте ця пісня не знайдена або приватна\n" +
+                        "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "rus")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Извините эта песня не найдена или приватная\n" +
+                        "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                try
+                {
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception e)
+                {
+                    return;
+                }
+            }
         }
 
         public async Task FindSongYTMusic(string info, long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
