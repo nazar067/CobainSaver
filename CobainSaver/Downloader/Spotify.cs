@@ -7,19 +7,29 @@ using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
 using Telegram.Bot;
+using YoutubeSearchApi.Net.Models.Youtube;
+using YoutubeSearchApi.Net.Services;
+using System.Text.RegularExpressions;
 
 namespace CobainSaver.Downloader
 {
     internal class Spotify
     {
-        public async Task SpotifyDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        public async Task SpotifyGetName(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
+            string jsonString = System.IO.File.ReadAllText("source.json");
+            JObject jsonObjectAPI = JObject.Parse(jsonString);
+
             HttpClient spotifyClient = new HttpClient();
 
-            string client_id = "";
-            string client_secret = "";
+            string client_id = jsonObjectAPI["Spotify"][0].ToString();
+            string client_secret = jsonObjectAPI["Spotify"][1].ToString();
 
             string base64Auth = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{client_id}:{client_secret}"));
+
+            string url = await DeleteNotUrl(messageText);
+
+            string id = await ExtractTrackId(url);
 
             var authOptions = new
             {
@@ -36,29 +46,36 @@ namespace CobainSaver.Downloader
 
             string accessToken = await GetAccessToken(authOptions, base64Auth);
             spotifyClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
-            Console.WriteLine("Access token: " + accessToken);
             var spotify = new SpotifyClient(accessToken);
 
-            var track = await spotify.Tracks.Get("3pZcPE0ugJCI6zu5scIjp5");
-            var response = await spotifyClient.GetAsync("https://api.spotify.com/v1/audio-analysis/2takcwOaAZWiXQijPHIx7B");
-            await Console.Out.WriteLineAsync(response.StatusCode.ToString());
-            var responseString = await response.Content.ReadAsStringAsync();
-            JObject jsonObject = JObject.Parse(responseString);
-            Console.WriteLine(jsonObject);
-            string currentDirectory = Directory.GetCurrentDirectory();
-
-            string serverFolderName = "ServerLogs";
-            string serverFolderPath = Path.Combine(currentDirectory, serverFolderName);
-
-            string allServers = "jsonSpotify.json";
-            string allFilePath = Path.Combine(serverFolderPath, allServers);
-            if (!System.IO.File.Exists(allFilePath))
+            var track = await spotify.Tracks.Get(id);
+            string artist = null;
+            foreach (var artists in track.Artists)
             {
-                System.IO.File.WriteAllText(allFilePath, jsonObject.ToString());
+                artist = artists.Name;
             }
-            else
+            await FindSongYTMusic(track.Name + " " + artist, chatId, update, cancellationToken, messageText, botClient);
+        }
+
+        public async Task FindSongYTMusic(string info, long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        {
+            YouTube youTube = new YouTube();
+            using (var httpClient = new HttpClient())
             {
-                System.IO.File.AppendAllText(allFilePath, jsonObject.ToString());
+                YoutubeSearchClient client = new YoutubeSearchClient(httpClient);
+
+                var responseObject = await client.SearchAsync(info);
+
+                string videoId = null;
+
+                foreach (YoutubeVideo video in responseObject.Results)
+                {
+                    videoId = video.Id;
+                    break;
+                }
+                string song = "spotify " + "https://music.youtube.com/watch?v=" + videoId;
+
+                await youTube.YoutubeMusicDownloader(chatId, update, cancellationToken, song, botClient);
             }
         }
         static async Task<string> GetAccessToken(dynamic authOptions, string base64Auth)
@@ -85,6 +102,82 @@ namespace CobainSaver.Downloader
                     return null;
                 }
             }
+        }
+        public async Task<string> DeleteNotUrl(string message)
+        {
+            // Регулярное выражение для URL-адресов
+            Regex regexUrl = new Regex(@"\bhttps://\S+\b");
+
+            // Регулярное выражение для коротких ссылок YouTube
+            Regex regexShortUrl = new Regex(@"youtu.be/\w+");
+
+            // Поиск URL-адреса
+            Match matchUrl = regexUrl.Match(message);
+
+            // Поиск короткой ссылки YouTube
+            Match matchShortUrl = regexShortUrl.Match(message);
+
+            // Если найден URL-адрес, возвращаем его
+            if (matchUrl.Success)
+            {
+                return matchUrl.Value;
+            }
+
+            // Если найдена короткая ссылка YouTube, добавляем "https://" и возвращаем
+            if (matchShortUrl.Success)
+            {
+                return "https://" + matchShortUrl.Value;
+            }
+
+            // Если не найдено ни одного совпадения, возвращаем пустую строку
+            return string.Empty;
+        }
+        public async Task<string> EscapeMarkdownV2(string input)
+        {
+            // Dictionary of characters needing escaping and their replacements
+            Dictionary<string, string> escapeCharacters = new Dictionary<string, string>
+            {
+                { "\\", "\\\\" },
+                { "_", "\\_" },
+                { "*", "\\*" },
+                { "[", "\\[" },
+                { "]", "\\]" },
+                { "(", "\\(" },
+                { ")", "\\)" },
+                { "~", "\\~" },
+                { "`", "\\`" },
+                { ">", "\\>" },
+                { "#", "\\#" },
+                { "+", "\\+" },
+                { "-", "\\-" },
+                { "=", "\\=" },
+                { "|", "\\|" },
+                { "{", "\\{" },
+                { "}", "\\}" },
+                { ".", "\\." },
+                { "!", "\\!" },
+            };
+
+            // Iterate through the dictionary and perform replacements using regular expressions
+            foreach (var pair in escapeCharacters)
+            {
+                input = input.Replace(pair.Key, pair.Value);
+            }
+
+            return input;
+        }
+        public async Task<string> ExtractTrackId(string url)
+        {
+            // Используем регулярное выражение для извлечения части строки между "track/" и "?"
+            string pattern = @"track/([^?]+)";
+            Match match = Regex.Match(url, pattern);
+
+            if (match.Success)
+            {
+                return match.Groups[1].Value;
+            }
+
+            return string.Empty; // Возвращаем пустую строку, если совпадений не найдено
         }
     }
 }

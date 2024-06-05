@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "DeulV5xZeOM5BPrNRkkQNb0ZY3+/yVnAOboNtVCeRNOoxBXjuC+G4RtYA3m6rq4Ixj3EJoAosPtHyIFnBAz6mg==",
+  "dgSpecHash": "/K/pLZ5c2na9MkAjCs4kMeYa3KkdfZNJpfY1rKOewMn4EWHx5iIACTYaYUr/T6BLemXrjz3SDc55iFTEe0AJkg==",
   "success": true,
   "projectFilePath": "C:\\Users\\gamer\\source\\repos\\CobainSaver\\CobainSaver\\CobainSaver.csproj",
   "expectedPackageFiles": [
@@ -24,6 +24,7 @@
     "C:\\Users\\gamer\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\8.0.0\\microsoft.extensions.dependencyinjection.8.0.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\microsoft.extensions.dependencymodel\\8.0.0\\microsoft.extensions.dependencymodel.8.0.0.nupkg.sha512",
+    "C:\\Users\\gamer\\.nuget\\packages\\microsoft.extensions.http\\6.0.0\\microsoft.extensions.http.6.0.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\microsoft.extensions.logging\\8.0.0\\microsoft.extensions.logging.8.0.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.0\\microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\microsoft.extensions.options\\8.0.0\\microsoft.extensions.options.8.0.0.nupkg.sha512",
@@ -127,7 +128,8 @@
     "C:\\Users\\gamer\\.nuget\\packages\\telegram.bot\\19.0.0\\telegram.bot.19.0.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\videolibrary\\3.2.3\\videolibrary.3.2.3.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\youtubedlsharp\\1.0.0\\youtubedlsharp.1.0.0.nupkg.sha512",
-    "C:\\Users\\gamer\\.nuget\\packages\\youtubeexplode\\6.3.11\\youtubeexplode.6.3.11.nupkg.sha512"
+    "C:\\Users\\gamer\\.nuget\\packages\\youtubeexplode\\6.3.11\\youtubeexplode.6.3.11.nupkg.sha512",
+    "C:\\Users\\gamer\\.nuget\\packages\\youtubesearchapi.net\\1.1.1\\youtubesearchapi.net.1.1.1.nupkg.sha512"
   ],
   "logs": []
 }

@@ -17,6 +17,10 @@
     "Your rapid key",
     "Your rapid host"
   ],
+  "Spotify": [
+    "clientId",
+    "clientSecret"
+  ],
   "AdminId": [
     "Admin id"
   ],

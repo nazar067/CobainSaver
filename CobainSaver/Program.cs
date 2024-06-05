@@ -169,7 +169,7 @@ namespace CobainSaver
                 else if (message.Text.Contains("https://open.spotify.com/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVoice);
-                    await spotify.SpotifyDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await spotify.SpotifyGetName(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "spotify", message.MessageId, DateTime.Now.ToShortDateString());
                     await ads.DeleteAds(chat.Id);
                 }

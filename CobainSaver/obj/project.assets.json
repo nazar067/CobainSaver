@@ -502,6 +502,25 @@
           "buildTransitive/net6.0/_._": {}
         }
       },
+      "Microsoft.Extensions.Http/6.0.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0",
+          "Microsoft.Extensions.Logging": "6.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
+          "Microsoft.Extensions.Options": "6.0.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/Microsoft.Extensions.Http.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/Microsoft.Extensions.Http.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Microsoft.Extensions.Logging/8.0.0": {
         "type": "package",
         "dependencies": {
@@ -2309,6 +2328,20 @@
             "related": ".xml"
           }
         }
+      },
+      "YoutubeSearchApi.Net/1.1.1": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "6.0.0",
+          "Microsoft.Extensions.Http": "6.0.0",
+          "Newtonsoft.Json": "13.0.1"
+        },
+        "compile": {
+          "lib/net5.0/YoutubeSearchApi.Net.dll": {}
+        },
+        "runtime": {
+          "lib/net5.0/YoutubeSearchApi.Net.dll": {}
+        }
       }
     }
   },
@@ -3092,6 +3125,25 @@
         "lib/netstandard2.0/Microsoft.Extensions.DependencyModel.xml",
         "microsoft.extensions.dependencymodel.8.0.0.nupkg.sha512",
         "microsoft.extensions.dependencymodel.nuspec",
+        "useSharedDesignerContext.txt"
+      ]
+    },
+    "Microsoft.Extensions.Http/6.0.0": {
+      "sha512": "15+pa2G0bAMHbHewaQIdr/y6ag2H3yh4rd9hTXavtWDzQBkvpe2RMqFg8BxDpcQWssmjmBApGPcw93QRz6YcMg==",
+      "type": "package",
+      "path": "microsoft.extensions.http/6.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/net461/Microsoft.Extensions.Http.dll",
+        "lib/net461/Microsoft.Extensions.Http.xml",
+        "lib/netstandard2.0/Microsoft.Extensions.Http.dll",
+        "lib/netstandard2.0/Microsoft.Extensions.Http.xml",
+        "microsoft.extensions.http.6.0.0.nupkg.sha512",
+        "microsoft.extensions.http.nuspec",
         "useSharedDesignerContext.txt"
       ]
     },
@@ -7212,6 +7264,21 @@
         "youtubeexplode.6.3.11.nupkg.sha512",
         "youtubeexplode.nuspec"
       ]
+    },
+    "YoutubeSearchApi.Net/1.1.1": {
+      "sha512": "tKa8/ZxKXt4lm+EmVwD1doQ1mW8hoQfsLKg6iVRIbAK8RBYjMyPfIG4xIzDjPepnwevLkAUlWxooRMd7ZO9kPw==",
+      "type": "package",
+      "path": "youtubesearchapi.net/1.1.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "README.md",
+        "lib/net5.0/YoutubeSearchApi.Net.dll",
+        "lib/netstandard2.0/YoutubeSearchApi.Net.dll",
+        "youtubesearchapi.net.1.1.1.nupkg.sha512",
+        "youtubesearchapi.net.nuspec"
+      ]
     }
   },
   "projectFileDependencyGroups": {
@@ -7224,7 +7291,8 @@
       "Telegram.Bot >= 19.0.0",
       "VideoLibrary >= 3.2.3",
       "YoutubeDLSharp >= 1.0.0",
-      "YoutubeExplode >= 6.3.11"
+      "YoutubeExplode >= 6.3.11",
+      "YoutubeSearchApi.Net >= 1.1.1"
     ]
   },
   "packageFolders": {
@@ -7303,6 +7371,10 @@
           "YoutubeExplode": {
             "target": "Package",
             "version": "[6.3.11, )"
+          },
+          "YoutubeSearchApi.Net": {
+            "target": "Package",
+            "version": "[1.1.1, )"
           }
         },
         "imports": [

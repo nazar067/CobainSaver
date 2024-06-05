@@ -483,8 +483,16 @@ namespace CobainSaver.Downloader
                             audio: InputFile.FromStream(streamAudio),
                             performer: author,
                             thumbnail: InputFile.FromStream(streamThumbAudio),
-                            duration: Convert.ToInt32(duration)); 
-                        await addDB.AddBotCommands(chatId, "youtubeMusic", DateTime.Now.ToShortDateString());
+                            duration: Convert.ToInt32(duration));
+                        if (messageText.StartsWith("spotify "))
+                        {
+                            await addDB.AddBotCommands(chatId, "spotify", DateTime.Now.ToShortDateString());
+                        }
+                        else
+                        {
+                            await addDB.AddBotCommands(chatId, "youtubeMusic", DateTime.Now.ToShortDateString());
+                        }
+                        
                     }
                     else
                     {
@@ -496,7 +504,14 @@ namespace CobainSaver.Downloader
                             thumbnail: InputFile.FromStream(streamThumbAudio),
                             duration: Convert.ToInt32(duration),
                             replyToMessageId: update.Message.MessageId); ;
-                        await addDB.AddBotCommands(chatId, "youtubeMusic", DateTime.Now.ToShortDateString());
+                        if (messageText.StartsWith("spotify "))
+                        {
+                            await addDB.AddBotCommands(chatId, "spotify", DateTime.Now.ToShortDateString());
+                        }
+                        else
+                        {
+                            await addDB.AddBotCommands(chatId, "youtubeMusic", DateTime.Now.ToShortDateString());
+                        }
                     }
                 }
                 catch (Exception ex)

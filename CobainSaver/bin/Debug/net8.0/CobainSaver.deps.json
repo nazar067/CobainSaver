@@ -16,7 +16,8 @@
           "Telegram.Bot": "19.0.0",
           "VideoLibrary": "3.2.3",
           "YoutubeDLSharp": "1.0.0",
-          "YoutubeExplode": "6.3.11"
+          "YoutubeExplode": "6.3.11",
+          "YoutubeSearchApi.Net": "1.1.1"
         },
         "runtime": {
           "CobainSaver.dll": {}
@@ -390,6 +391,20 @@
           "lib/net8.0/Microsoft.Extensions.DependencyModel.dll": {
             "assemblyVersion": "8.0.0.0",
             "fileVersion": "8.0.23.53103"
+          }
+        }
+      },
+      "Microsoft.Extensions.Http/6.0.0": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
+          "Microsoft.Extensions.Logging": "8.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
+          "Microsoft.Extensions.Options": "8.0.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Microsoft.Extensions.Http.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
           }
         }
       },
@@ -1331,6 +1346,19 @@
             "fileVersion": "6.3.11.0"
           }
         }
+      },
+      "YoutubeSearchApi.Net/1.1.1": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "8.0.0",
+          "Microsoft.Extensions.Http": "6.0.0",
+          "Newtonsoft.Json": "13.0.3"
+        },
+        "runtime": {
+          "lib/net5.0/YoutubeSearchApi.Net.dll": {
+            "assemblyVersion": "1.1.1.0",
+            "fileVersion": "1.1.1.0"
+          }
+        }
       }
     }
   },
@@ -1479,6 +1507,13 @@
       "sha512": "sha512-NSmDw3K0ozNDgShSIpsZcbFIzBX4w28nDag+TfaQujkXGazBm+lid5onlWoCBy4VsLxqnnKjEBbGSJVWJMf43g==",
       "path": "microsoft.extensions.dependencymodel/8.0.0",
       "hashPath": "microsoft.extensions.dependencymodel.8.0.0.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Http/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-15+pa2G0bAMHbHewaQIdr/y6ag2H3yh4rd9hTXavtWDzQBkvpe2RMqFg8BxDpcQWssmjmBApGPcw93QRz6YcMg==",
+      "path": "microsoft.extensions.http/6.0.0",
+      "hashPath": "microsoft.extensions.http.6.0.0.nupkg.sha512"
     },
     "Microsoft.Extensions.Logging/8.0.0": {
       "type": "package",
@@ -2207,6 +2242,13 @@
       "sha512": "sha512-EL8NierKI3vi/pmTiAwhwxyFZeLqrn2fatCfYBA00uOdMsjqm4im9zRbxCfIsvJTrZoUkLAZbJUUJtWIjNPwdQ==",
       "path": "youtubeexplode/6.3.11",
       "hashPath": "youtubeexplode.6.3.11.nupkg.sha512"
+    },
+    "YoutubeSearchApi.Net/1.1.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-tKa8/ZxKXt4lm+EmVwD1doQ1mW8hoQfsLKg6iVRIbAK8RBYjMyPfIG4xIzDjPepnwevLkAUlWxooRMd7ZO9kPw==",
+      "path": "youtubesearchapi.net/1.1.1",
+      "hashPath": "youtubesearchapi.net.1.1.1.nupkg.sha512"
     }
   }
 }
