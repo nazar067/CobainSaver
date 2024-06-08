@@ -14,6 +14,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 using YoutubeExplode;
 using YoutubeExplode.Exceptions;
 using YoutubeExplode.Videos.Streams;
+using static System.Net.Mime.MediaTypeNames;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CobainSaver
@@ -166,6 +167,13 @@ namespace CobainSaver
                     await addDB.AddUserLinks(chat.Id, user.Id, "youtubeMusic", message.MessageId, DateTime.Now.ToShortDateString());
                     await ads.DeleteAds(chat.Id);
                 }
+                else if (message.Text.Contains("https://open.spotify.com/playlist") || message.Text.Contains("https://open.spotify.com/album"))
+                {
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVoice);
+                    await spotify.SpotifyGetAlbum(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient, 0, 0);
+                    await addDB.AddUserLinks(chat.Id, user.Id, "spotify", message.MessageId, DateTime.Now.ToShortDateString());
+                    await ads.DeleteAds(chat.Id);
+                }
                 else if (message.Text.Contains("https://open.spotify.com/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVoice);
@@ -197,7 +205,7 @@ namespace CobainSaver
                 else if (message.Text.Contains("https://www.instagram.com"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
-                    await insta.InstagramDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await insta.InstagramDownloaderReserveAPI(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "instagram", message.MessageId, DateTime.Now.ToShortDateString());
                     await ads.DeleteAds(chat.Id);
                 }
@@ -526,21 +534,21 @@ namespace CobainSaver
             try
             {
                 var callbackQuery = update.CallbackQuery;
-                if (callbackQuery.Data.Contains("uk"))
+                if (callbackQuery.Data == "uk")
                 {
                     string msg = "Мова змінена";
                     Language language = new Language(callbackQuery.Data, msg);
                     await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
                     await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                 }
-                if (callbackQuery.Data.Contains("en"))
+                if (callbackQuery.Data == "en")
                 {
                     string msg = "Language has been changed";
                     Language language = new Language(callbackQuery.Data, msg);
                     await language.ChangeLanguage(callbackQuery.Message.Chat.Id.ToString(), (TelegramBotClient)botClient);
                     await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                 }
-                if (callbackQuery.Data.Contains("ru"))
+                if (callbackQuery.Data == "ru")
                 {
                     string msg = "Язык изменен";
                     Language language = new Language(callbackQuery.Data, msg);
@@ -657,6 +665,90 @@ namespace CobainSaver
                     await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
                     await youTube.YoutubeMusicPlaylist(Convert.ToInt64(chatId), update, cancellationToken, url, (TelegramBotClient)botClient, page, msgId);
                     await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                }
+                if (callbackQuery.Data.StartsWith("SNA"))
+                {
+                    Spotify spotify = new Spotify();
+                    string data = callbackQuery.Data.ToString();
+                    string[] parts = data.Split(' ');
+                    string chatId = parts[1];
+                    string url = parts[2];
+                    url = "https://open.spotify.com/album/" + url;
+                    int page = Convert.ToInt32(parts[3]);
+                    page++;
+                    int msgId = Convert.ToInt32(parts[4]);
+                    await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
+                    await spotify.SpotifyGetAlbum(Convert.ToInt64(chatId), update, cancellationToken, url, (TelegramBotClient)botClient, page, msgId);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                }
+                else if (callbackQuery.Data.StartsWith("SPA"))
+                {
+                    Spotify spotify = new Spotify();
+                    string data = callbackQuery.Data.ToString();
+                    string[] parts = data.Split(' ');
+                    string chatId = parts[1];
+                    string url = parts[2];
+                    url = "https://open.spotify.com/album/" + url;
+                    int page = Convert.ToInt32(parts[3]);
+                    page--;
+                    if (page == 0)
+                    {
+                        page--;
+                    }
+                    int msgId = Convert.ToInt32(parts[4]);
+                    await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
+                    await spotify.SpotifyGetAlbum(Convert.ToInt64(chatId), update, cancellationToken, url, (TelegramBotClient)botClient, page, msgId);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                }
+                else if (callbackQuery.Data.StartsWith("SPP"))
+                {
+                    Spotify spotify = new Spotify();
+                    string data = callbackQuery.Data.ToString();
+                    string[] parts = data.Split(' ');
+                    string chatId = parts[1];
+                    string url = parts[2];
+                    url = "https://open.spotify.com/playlist/" + url;
+                    int page = Convert.ToInt32(parts[3]);
+                    page--;
+                    if (page == 0)
+                    {
+                        page--;
+                    }
+                    int msgId = Convert.ToInt32(parts[4]);
+                    await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
+                    await spotify.SpotifyGetPlaylist(Convert.ToInt64(chatId), update, cancellationToken, url, (TelegramBotClient)botClient, page, msgId);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                }
+                else if (callbackQuery.Data.StartsWith("SNP"))
+                {
+                    Spotify spotify = new Spotify();
+                    string data = callbackQuery.Data.ToString();
+                    string[] parts = data.Split(' ');
+                    string chatId = parts[1];
+                    string url = parts[2];
+                    url = "https://open.spotify.com/playlist/" + url;
+                    int page = Convert.ToInt32(parts[3]);
+                    page++;
+                    int msgId = Convert.ToInt32(parts[4]);
+                    await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
+                    await spotify.SpotifyGetPlaylist(Convert.ToInt64(chatId), update, cancellationToken, url, (TelegramBotClient)botClient, page, msgId);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                }
+                else if (callbackQuery.Data.StartsWith("S"))
+                {
+                    AddToDataBase addDB = new AddToDataBase();
+                    Spotify spotify = new Spotify();
+                    string data = callbackQuery.Data.ToString();
+                    string[] parts = data.Split(' ');
+                    string chatId = parts[1];
+                    string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\spotify";
+                    string filePath = Path.Combine(directory, parts[2]);
+                    string fileContent = System.IO.File.ReadAllText(filePath);
+                    string name = fileContent + " audio";
+                    await botClient.SendChatActionAsync(chatId, ChatAction.UploadVoice);
+                    await spotify.FindSongYTMusic(name, Convert.ToInt64(chatId), update, cancellationToken, botClient);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                    await addDB.AddUserLinks(Convert.ToInt64(chatId), Convert.ToInt64(chatId), "spotify", 0, DateTime.Now.ToShortDateString());
                 }
                 if (callbackQuery.Data.StartsWith("Ad"))
                 {

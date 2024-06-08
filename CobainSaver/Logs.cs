@@ -78,7 +78,7 @@ namespace CobainSaver
 
             string folderName = ChatId.ToString();
             string folderPath = Path.Combine(userFolderPath, folderName);
-            if(!Directory.Exists(folderPath)) 
+            if (!Directory.Exists(folderPath))
             {
                 Directory.CreateDirectory(folderPath);
             }
@@ -189,7 +189,7 @@ namespace CobainSaver
         }
         public async Task SendUserLogs(string year, string month, string date, string chatId, Update update, TelegramBotClient botClient, string chatToSend)
         {
-            if(date == null)
+            if (date == null)
             {
                 return;
             }
@@ -317,7 +317,7 @@ namespace CobainSaver
                 await using Stream stream = System.IO.File.OpenRead($"{filePath}");
                 await botClient.SendDocumentAsync(
                     chatId: chatToSend,
-                    document: InputFile.FromStream(stream: stream, fileName:$"logs {date}.txt")
+                    document: InputFile.FromStream(stream: stream, fileName: $"logs {date}.txt")
                     );
                 stream.Close();
             }
@@ -327,7 +327,7 @@ namespace CobainSaver
             string currentDirectory = Directory.GetCurrentDirectory() + "\\ServerLogs";
 
             string listPath = Path.Combine(currentDirectory, "list.txt");
-            if (!System.IO.File.Exists(listPath)) 
+            if (!System.IO.File.Exists(listPath))
             {
                 System.IO.File.WriteAllText(listPath, ChatId.ToString());
             }
@@ -364,7 +364,7 @@ namespace CobainSaver
 
                 JObject jsonObject = JObject.Parse(responseString);
                 string userName = null;
-                if(jsonObject["result"] != null)
+                if (jsonObject["result"] != null)
                 {
                     if (jsonObject["result"]?["username"] != null)
                     {
@@ -372,7 +372,7 @@ namespace CobainSaver
                     }
                     else
                     {
-                        if(jsonObject["result"]["title"] != null)
+                        if (jsonObject["result"]["title"] != null)
                             userName = jsonObject["result"]["title"].ToString();
                     }
                 }
@@ -390,7 +390,7 @@ namespace CobainSaver
         }
         public async Task SendAllYears(TelegramBotClient botClient, string chatId, int messageId, string chatToSend)
         {
-            if(messageId == 0)
+            if (messageId == 0)
             {
                 Message message = null;
                 string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\logs";
@@ -536,7 +536,7 @@ namespace CobainSaver
             foreach (string userDirectory in directories)
             {
                 string month = userDirectory.Split("\\").Last();
-                if(lang == "eng")
+                if (lang == "eng")
                 {
                     if (month == "1")
                     {
@@ -802,7 +802,7 @@ namespace CobainSaver
             if (lang == "eng")
             {
                 await botClient.EditMessageTextAsync(
-                    messageId: messageId, 
+                    messageId: messageId,
                     chatId: chatToSend,
                     replyMarkup: inlineKeyboard,
                     text: $"Selected year: {year}\n" +
@@ -873,7 +873,7 @@ namespace CobainSaver
 
             if (lang == "eng")
             {
-                if(month == "1")
+                if (month == "1")
                     monthName = "January";
                 if (month == "2")
                     monthName = "February";
@@ -989,6 +989,36 @@ namespace CobainSaver
             {
                 await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
                 await SendAllUsers(botClient, chatId);
+            }
+        }
+        public async Task WriteSpotifySongInfo(string info, string name)
+        {
+            string currentDirectory = Directory.GetCurrentDirectory();
+
+            string userFolderName = "UserLogs";
+            string userFolderPath = Path.Combine(currentDirectory, userFolderName);
+
+            string folderName = ChatId.ToString();
+            string folderPath = Path.Combine(userFolderPath, folderName);
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+            string lastFolderName = "spotify";
+            string lastFolderPath = Path.Combine(folderPath, lastFolderName);
+            if (!Directory.Exists(lastFolderPath))
+            {
+                Directory.CreateDirectory(lastFolderPath);
+            }
+            string file = name;
+            string filePath = Path.Combine(lastFolderPath, file);
+            if (!System.IO.File.Exists(filePath))
+            {
+                System.IO.File.WriteAllText(filePath, Msg);
+            }
+            else
+            {
+                System.IO.File.AppendAllText(filePath, Msg);
             }
         }
     }

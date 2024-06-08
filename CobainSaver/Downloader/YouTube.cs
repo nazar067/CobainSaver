@@ -767,6 +767,8 @@ namespace CobainSaver.Downloader
                         photo: InputFile.FromStream(streamThumb),
                         caption: $"Choose song in {allInfo.Title}, Page {currentPage} of {totalPages}"
                     );
+                    streamThumb.Close();
+                    System.IO.File.Delete(thumbnailPath);
                     // Добавляем кнопки "назад" и "вперед", если необходимо
                     if(totalPages > 1)
                     {
