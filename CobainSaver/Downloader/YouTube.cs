@@ -27,7 +27,123 @@ namespace CobainSaver.Downloader
 {
     internal class YouTube
     {
-        public async Task YoutubeDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        public async Task ChooseVideoQuality(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        {
+            Message message = null;
+
+            string normallMsg = await DeleteNotUrl(messageText);
+
+            var youtube = new YoutubeClient();
+
+            var allInfo = await youtube.Videos.GetAsync(normallMsg);
+
+            var videoUrl = normallMsg;
+            var streamManifest = await youtube.Videos.Streams.GetManifestAsync(videoUrl);
+
+            var muxedStreams = streamManifest.GetMuxedStreams();
+
+            Language language = new Language("rand", "rand");
+            string lang = await language.GetCurrentLanguage(chatId.ToString());
+            if (lang == "eng")
+            {
+                message = await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: "Choose quality",
+                    replyToMessageId: update.Message.MessageId
+                );
+            }
+            if (lang == "ukr")
+            {
+                message = await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: "Виберіть якість",
+                    replyToMessageId: update.Message.MessageId
+                );
+            }
+            if (lang == "rus")
+            {
+                message = await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: "Выберите качество",
+                    replyToMessageId: update.Message.MessageId
+                );
+            }
+
+            var buttonsList = new List<InlineKeyboardButton[]>();
+            InlineKeyboardMarkup inlineKeyboard;
+            // Выводим доступные качества для прогрессивной загрузки
+            foreach (var streams in muxedStreams)
+            {
+                if(streams.Size.MegaBytes < 50)
+                {
+                    buttonsList.Add(new[]
+                    {
+                            InlineKeyboardButton.WithCallbackData(text: streams.VideoQuality.Label + "(" + streams.Size + ")", callbackData: "Q" + " " + streams.VideoQuality.Label + " " + allInfo.Id + " " + chatId + " " + message.MessageId),
+                    });
+                }
+
+            }
+
+            inlineKeyboard = new InlineKeyboardMarkup(buttonsList);
+
+            if(inlineKeyboard.InlineKeyboard.Count() == 0)
+            {
+                if (lang == "eng")
+                {
+                    await botClient.EditMessageTextAsync(
+                        messageId: message.MessageId,
+                        chatId: chatId,
+                        text: "The video is too big (the size should not exceed 50mb)"
+                        );
+                }
+                if (lang == "ukr")
+                {
+                    await botClient.EditMessageTextAsync(
+                        messageId: message.MessageId,
+                        chatId: chatId,
+                        text: "Bідео занадто велике (розмір має не перевищувати 50мб)"
+                        );
+                }
+                if (lang == "eng")
+                {
+                    await botClient.EditMessageTextAsync(
+                        messageId: message.MessageId,
+                        chatId: chatId,
+                        text: "Bидео слишком большое(размер должен не превышать 50мб)"
+                        );
+                }
+                return;
+            }
+            if (lang == "eng")
+            {
+                await botClient.EditMessageTextAsync(
+                    messageId: message.MessageId,
+                    chatId: chatId,
+                    replyMarkup: inlineKeyboard,
+                    text: "Choose quality"
+                    );
+            }
+            if (lang == "ukr")
+            {
+                await botClient.EditMessageTextAsync(
+                    messageId: message.MessageId,
+                    chatId: chatId,
+                    replyMarkup: inlineKeyboard,
+                    text: "Виберіть якість"
+                    );
+            }
+            if (lang == "rus")
+            {
+                await botClient.EditMessageTextAsync(
+                    messageId: message.MessageId,
+                    chatId: chatId,
+                    replyMarkup: inlineKeyboard,
+                    text: "Выберите качество"
+                    );
+            }
+        }
+
+        public async Task YoutubeDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string quality)
         {
             string normallMsg = await DeleteNotUrl(messageText);
             Stream stream = null;
@@ -45,8 +161,13 @@ namespace CobainSaver.Downloader
                 var streamManifest = await youtube.Videos.Streams.GetManifestAsync(videoUrl);
 
                 var streamInfo = streamManifest.GetMuxedStreams().GetWithHighestVideoQuality();
-                string size = streamInfo.Size.MegaBytes.ToString();
-                if (Convert.ToDouble(size) >= 50)
+
+                var streamInfoQuality = streamManifest
+                    .GetMuxedStreams()
+                    .Where(s => s.Container == Container.Mp4) // Мы ищем только MP4 файлы
+                    .FirstOrDefault(s => s.VideoQuality.Label == quality);
+
+                if (Convert.ToDouble(streamInfoQuality.Size.MegaBytes) >= 50)
                 {
                     Language language = new Language("rand", "rand");
                     string lang = await language.GetCurrentLanguage(chatId.ToString());
@@ -54,22 +175,19 @@ namespace CobainSaver.Downloader
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            text: "Sorry, this video has a problem: the video is too big (the size should not exceed 50mb)",
-                            replyToMessageId: update.Message.MessageId);
+                            text: "Sorry, this video has a problem: the video is too big (the size should not exceed 50mb)");
                     }
                     if (lang == "ukr")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            text: "Вибачте, з цим відео виникла помилка: відео занадто велике (розмір має не перевищувати 50мб)",
-                            replyToMessageId: update.Message.MessageId);
+                            text: "Вибачте, з цим відео виникла помилка: відео занадто велике (розмір має не перевищувати 50мб)");
                     }
                     if (lang == "rus")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            text: "Извините, с этим видео возникли проблемы: видео слишком большое(размер должен не превышать 50мб)",
-                            replyToMessageId: update.Message.MessageId);
+                            text: "Извините, с этим видео возникли проблемы: видео слишком большое(размер должен не превышать 50мб)");
                     }
                     return;
                 }
@@ -87,13 +205,16 @@ namespace CobainSaver.Downloader
                 {
                     Directory.CreateDirectory(audioPath);
                 }
-                string videoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "video.MPEG4");
+                string videoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "video.mp4");
                 string thumbnailVideoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVideo.jpeg");
+
+
                 try
                 {
+                    //await youtube.Videos.Streams.DownloadAsync(streamInfoQuality, videoPath);
                     using (var client = new WebClient())
                     {
-                        client.DownloadFile(streamInfo.Url, videoPath);
+                        client.DownloadFile(streamInfoQuality.Url, videoPath);
                     }
                     using (var client = new WebClient())
                     {
@@ -124,36 +245,12 @@ namespace CobainSaver.Downloader
                         video: InputFile.FromStream(streamVideo),
                         thumbnail: InputFile.FromStream(streamThumbVideo),
                         duration: Convert.ToInt32(duration),
-                        parseMode: ParseMode.Html,
-                        replyToMessageId: update.Message.MessageId);
+                        parseMode: ParseMode.Html);
                     await addDB.AddBotCommands(chatId, "youtube", DateTime.Now.ToShortDateString());
                 }
                 catch(Exception ex)
                 {
-                    //await Console.Out.WriteLineAsync(ex.ToString());
-                    Language language = new Language("rand", "rand");
-                    string lang = await language.GetCurrentLanguage(chatId.ToString());
-                    if (lang == "eng")
-                    {
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "Sorry, this video has a problem: the video has an age restriction",
-                            replyToMessageId: update.Message.MessageId);
-                    }
-                    if (lang == "ukr")
-                    {
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "Вибачте, з цим відео виникла помилка: відео має вікові обмеження",
-                            replyToMessageId: update.Message.MessageId);
-                    }
-                    if (lang == "rus")
-                    {
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "Извините, с этим видео возникли проблемы: видео имеет возрастное ограничение",
-                            replyToMessageId: update.Message.MessageId);
-                    }
+                    await Console.Out.WriteLineAsync(ex.ToString());
                     try
                     {
                         var message = update.Message;
@@ -165,11 +262,13 @@ namespace CobainSaver.Downloader
                     catch (Exception e)
                     {
                     }
+                    await YoutubeDownloaderReserve(chatId, update, cancellationToken, messageText, (TelegramBotClient)botClient);
                 }
                 streamVideo.Close();
                 streamThumbVideo.Close();
                 System.IO.File.Delete(videoPath);
                 System.IO.File.Delete(thumbnailVideoPath);
+
             }
             catch (Exception ex)
             {
@@ -265,8 +364,7 @@ namespace CobainSaver.Downloader
                         caption: await ads.ShowAds() + title,
                         disableNotification: false,
                         duration: Convert.ToInt32(duration),
-                        parseMode: ParseMode.Html,
-                        replyToMessageId: update.Message.MessageId
+                        parseMode: ParseMode.Html
                     );
 
                     await addDB.AddBotCommands(chatId, "youtube", DateTime.Now.ToShortDateString());
@@ -286,22 +384,19 @@ namespace CobainSaver.Downloader
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            text: "Sorry, this video has a problem: the video is too big (the size should not exceed 50mb)",
-                            replyToMessageId: update.Message.MessageId);
+                            text: "Sorry, this video has a problem: the video is too big (the size should not exceed 50mb)");
                     }
                     if (lang == "ukr")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            text: "Вибачте, з цим відео виникла помилка: відео занадто велике (розмір має не перевищувати 50мб)",
-                            replyToMessageId: update.Message.MessageId);
+                            text: "Вибачте, з цим відео виникла помилка: відео занадто велике (розмір має не перевищувати 50мб)");
                     }
                     if (lang == "rus")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            text: "Извините, с этим видео возникли проблемы: видео слишком большое(размер должен не превышать 50мб)",
-                            replyToMessageId: update.Message.MessageId);
+                            text: "Извините, с этим видео возникли проблемы: видео слишком большое(размер должен не превышать 50мб)");
                     }
                     try
                     {
@@ -331,24 +426,22 @@ namespace CobainSaver.Downloader
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "Sorry, this video has a problem: the video has an age restriction\n" +
-                        "\nIf you're sure the content is public or the bot has previously submitted this, please email us about this bug - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        "\nIf you're sure the content is public or the bot has previously submitted this, please email us about this bug - t.me/cobainSaver");
                 }
                 if (lang == "ukr")
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "Sorry, this video has a problem: the video has an age restriction\n" +
-                        "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver");
                 }
                 if (lang == "rus")
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "Sorry, this video has a problem: the video has an age restriction\n" +
-                        "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver"
+                        );
                 }
                 try
                 {
@@ -440,6 +533,11 @@ namespace CobainSaver.Downloader
                 string thumbnail = "https://img.youtube.com/vi/" + allInfo.Id + "/maxresdefault.jpg";
                 string duration = allInfo.Duration.Value.TotalSeconds.ToString();
                 string author = allInfo.Author.ToString();
+                string toRemove = " - Topic";
+                if (author.EndsWith(toRemove))
+                {
+                    author = author.Substring(0, author.Length - toRemove.Length);
+                } 
 
                 string path = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
                 if (!Directory.Exists(path))

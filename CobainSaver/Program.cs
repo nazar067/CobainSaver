@@ -148,8 +148,8 @@ namespace CobainSaver
                     || message.Text.Contains("https://youtube.com") || message.Text.Contains("https://m.youtube.com") 
                     || message.Text.Contains("youtu.be/"))
                 {
-                    await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVideo);
-                    await youTube.YoutubeDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
+                    await youTube.ChooseVideoQuality(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "youtube", message.MessageId, DateTime.Now.ToShortDateString());
                     await ads.DeleteAds(chat.Id);
                 }
@@ -749,6 +749,23 @@ namespace CobainSaver
                     await spotify.FindSongYTMusic(name, Convert.ToInt64(chatId), update, cancellationToken, botClient);
                     await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                     await addDB.AddUserLinks(Convert.ToInt64(chatId), Convert.ToInt64(chatId), "spotify", 0, DateTime.Now.ToShortDateString());
+                }
+                if (callbackQuery.Data.StartsWith("Q"))
+                {
+                    YouTube youTube = new YouTube();
+                    string data = callbackQuery.Data.ToString();
+                    string[] parts = data.Split(' ');
+                    string videoQuality = parts[1];
+                    string videoUrl = "https://www.youtube.com/watch?v=" + parts[2];
+                    string chatId = parts[3];
+                    string msgId = parts[4];
+                    await botClient.DeleteMessageAsync(
+                        chatId: chatId,
+                        messageId: Convert.ToInt32(msgId)
+                    );
+                    await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
+                    await youTube.YoutubeDownloader(Convert.ToInt64(chatId), update, cancellationToken, videoUrl, botClient, videoQuality);
+                    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                 }
                 if (callbackQuery.Data.StartsWith("Ad"))
                 {

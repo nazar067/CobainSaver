@@ -16,21 +16,21 @@
           "Telegram.Bot": "19.0.0",
           "VideoLibrary": "3.2.3",
           "YoutubeDLSharp": "1.0.0",
-          "YoutubeExplode": "6.3.11",
+          "YoutubeExplode": "6.3.16",
           "YoutubeSearchApi.Net": "1.1.1"
         },
         "runtime": {
           "CobainSaver.dll": {}
         }
       },
-      "AngleSharp/1.0.7": {
+      "AngleSharp/1.1.2": {
         "dependencies": {
           "System.Text.Encoding.CodePages": "8.0.0"
         },
         "runtime": {
           "lib/net8.0/AngleSharp.dll": {
-            "assemblyVersion": "1.0.7.0",
-            "fileVersion": "1.0.7.0"
+            "assemblyVersion": "1.1.2.0",
+            "fileVersion": "1.1.2.0"
           }
         }
       },
@@ -385,7 +385,7 @@
       "Microsoft.Extensions.DependencyModel/8.0.0": {
         "dependencies": {
           "System.Text.Encodings.Web": "8.0.0",
-          "System.Text.Json": "8.0.0"
+          "System.Text.Json": "8.0.3"
         },
         "runtime": {
           "lib/net8.0/Microsoft.Extensions.DependencyModel.dll": {
@@ -566,7 +566,7 @@
       },
       "RestSharp/110.2.0": {
         "dependencies": {
-          "System.Text.Json": "8.0.0"
+          "System.Text.Json": "8.0.3"
         },
         "runtime": {
           "lib/net7.0/RestSharp.dll": {
@@ -1229,9 +1229,15 @@
         }
       },
       "System.Text.Encodings.Web/8.0.0": {},
-      "System.Text.Json/8.0.0": {
+      "System.Text.Json/8.0.3": {
         "dependencies": {
           "System.Text.Encodings.Web": "8.0.0"
+        },
+        "runtime": {
+          "lib/net8.0/System.Text.Json.dll": {
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.0.324.11423"
+          }
         }
       },
       "System.Text.RegularExpressions/4.3.0": {
@@ -1336,14 +1342,15 @@
           }
         }
       },
-      "YoutubeExplode/6.3.11": {
+      "YoutubeExplode/6.3.16": {
         "dependencies": {
-          "AngleSharp": "1.0.7"
+          "AngleSharp": "1.1.2",
+          "System.Text.Json": "8.0.3"
         },
         "runtime": {
-          "lib/net5.0/YoutubeExplode.dll": {
-            "assemblyVersion": "6.3.11.0",
-            "fileVersion": "6.3.11.0"
+          "lib/net8.0/YoutubeExplode.dll": {
+            "assemblyVersion": "6.3.16.0",
+            "fileVersion": "6.3.16.0"
           }
         }
       },
@@ -1368,12 +1375,12 @@
       "serviceable": false,
       "sha512": ""
     },
-    "AngleSharp/1.0.7": {
+    "AngleSharp/1.1.2": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-jZg7lDcrXRiIC8VBluuGKOCMR9mc4CIRX5vpQJ8fcgafs6T6plOzKHhAn3lJEwXorrltd9p1WtRxxhFpRBACbg==",
-      "path": "anglesharp/1.0.7",
-      "hashPath": "anglesharp.1.0.7.nupkg.sha512"
+      "sha512": "sha512-aRFpAqixbuj1Vmqy2hsWPF0PJygo1SfjvmpBvVWZv6i+/u+C/L4wDdwFIzyCGUbjqr61NsZdPNPqDE8wlmG2qA==",
+      "path": "anglesharp/1.1.2",
+      "hashPath": "anglesharp.1.1.2.nupkg.sha512"
     },
     "Humanizer.Core/2.14.1": {
       "type": "package",
@@ -2152,12 +2159,12 @@
       "path": "system.text.encodings.web/8.0.0",
       "hashPath": "system.text.encodings.web.8.0.0.nupkg.sha512"
     },
-    "System.Text.Json/8.0.0": {
+    "System.Text.Json/8.0.3": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-OdrZO2WjkiEG6ajEFRABTRCi/wuXQPxeV6g8xvUJqdxMvvuCCEk86zPla8UiIQJz3durtUEbNyY/3lIhS0yZvQ==",
-      "path": "system.text.json/8.0.0",
-      "hashPath": "system.text.json.8.0.0.nupkg.sha512"
+      "sha512": "sha512-hpagS9joOwv6efWfrMmV9MjQXpiXZH72PgN067Ysfr6AWMSD1/1hEcvh/U5mUpPLezEWsOJSuVrmqDIVD958iA==",
+      "path": "system.text.json/8.0.3",
+      "hashPath": "system.text.json.8.0.3.nupkg.sha512"
     },
     "System.Text.RegularExpressions/4.3.0": {
       "type": "package",
@@ -2236,12 +2243,12 @@
       "path": "youtubedlsharp/1.0.0",
       "hashPath": "youtubedlsharp.1.0.0.nupkg.sha512"
     },
-    "YoutubeExplode/6.3.11": {
+    "YoutubeExplode/6.3.16": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-EL8NierKI3vi/pmTiAwhwxyFZeLqrn2fatCfYBA00uOdMsjqm4im9zRbxCfIsvJTrZoUkLAZbJUUJtWIjNPwdQ==",
-      "path": "youtubeexplode/6.3.11",
-      "hashPath": "youtubeexplode.6.3.11.nupkg.sha512"
+      "sha512": "sha512-DalkDhIMiypnENMDaNhHgmnKENqVT76JNBX/Fu/3CbItudrNIYcgolE7rfPi2sUO4jfeiqn5ztduwm+awq9L3g==",
+      "path": "youtubeexplode/6.3.16",
+      "hashPath": "youtubeexplode.6.3.16.nupkg.sha512"
     },
     "YoutubeSearchApi.Net/1.1.1": {
       "type": "package",
