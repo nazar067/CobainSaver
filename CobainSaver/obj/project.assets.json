@@ -2109,7 +2109,7 @@
           }
         }
       },
-      "System.Text.Json/8.0.3": {
+      "System.Text.Json/8.0.0": {
         "type": "package",
         "dependencies": {
           "System.Text.Encodings.Web": "8.0.0"
@@ -2297,6 +2297,22 @@
           "lib/netstandard1.1/libvideo.dll": {}
         }
       },
+      "Xabe.FFmpeg/5.2.6": {
+        "type": "package",
+        "dependencies": {
+          "Newtonsoft.Json": "9.0.1"
+        },
+        "compile": {
+          "lib/netstandard2.0/Xabe.FFmpeg.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/Xabe.FFmpeg.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "YoutubeDLSharp/1.0.0": {
         "type": "package",
         "dependencies": {
@@ -2313,11 +2329,10 @@
           }
         }
       },
-      "YoutubeExplode/6.3.16": {
+      "YoutubeExplode/6.4.0": {
         "type": "package",
         "dependencies": {
-          "AngleSharp": "1.1.2",
-          "System.Text.Json": "8.0.3"
+          "AngleSharp": "1.1.2"
         },
         "compile": {
           "lib/net8.0/YoutubeExplode.dll": {
@@ -6656,10 +6671,10 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "System.Text.Json/8.0.3": {
-      "sha512": "hpagS9joOwv6efWfrMmV9MjQXpiXZH72PgN067Ysfr6AWMSD1/1hEcvh/U5mUpPLezEWsOJSuVrmqDIVD958iA==",
+    "System.Text.Json/8.0.0": {
+      "sha512": "OdrZO2WjkiEG6ajEFRABTRCi/wuXQPxeV6g8xvUJqdxMvvuCCEk86zPla8UiIQJz3durtUEbNyY/3lIhS0yZvQ==",
       "type": "package",
-      "path": "system.text.json/8.0.3",
+      "path": "system.text.json/8.0.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -6724,7 +6739,7 @@
         "lib/net8.0/System.Text.Json.xml",
         "lib/netstandard2.0/System.Text.Json.dll",
         "lib/netstandard2.0/System.Text.Json.xml",
-        "system.text.json.8.0.3.nupkg.sha512",
+        "system.text.json.8.0.0.nupkg.sha512",
         "system.text.json.nuspec",
         "useSharedDesignerContext.txt"
       ]
@@ -7226,6 +7241,19 @@
         "videolibrary.nuspec"
       ]
     },
+    "Xabe.FFmpeg/5.2.6": {
+      "sha512": "AFT06eHAZ4OV3s6H2dZWeRQ6kkdWkY1dGq76iFprlOG6quB7V7Nm8wWhEF63As1txsh/8kwAbybtffrgqfQ0dg==",
+      "type": "package",
+      "path": "xabe.ffmpeg/5.2.6",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/Xabe.FFmpeg.dll",
+        "lib/netstandard2.0/Xabe.FFmpeg.xml",
+        "xabe.ffmpeg.5.2.6.nupkg.sha512",
+        "xabe.ffmpeg.nuspec"
+      ]
+    },
     "YoutubeDLSharp/1.0.0": {
       "sha512": "WVqgPGWgcL2ZR6tGHDiwxkahSIkgEzw/PCYfdpT77ETgyHlPdVyIqwoOb8240JS9IxVmGWMkO6byO62UAZ4cog==",
       "type": "package",
@@ -7244,10 +7272,10 @@
         "youtubedlsharp.nuspec"
       ]
     },
-    "YoutubeExplode/6.3.16": {
-      "sha512": "DalkDhIMiypnENMDaNhHgmnKENqVT76JNBX/Fu/3CbItudrNIYcgolE7rfPi2sUO4jfeiqn5ztduwm+awq9L3g==",
+    "YoutubeExplode/6.4.0": {
+      "sha512": "jdjgUEQyTXG8CRtcadwjbymCNOQCis3fE1YQbjEZID+7foFcH+2gVqli4MpA+AFwDI2klZBG2aaFbOLDqYExzg==",
       "type": "package",
-      "path": "youtubeexplode/6.3.16",
+      "path": "youtubeexplode/6.4.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -7262,7 +7290,7 @@
         "lib/netstandard2.0/YoutubeExplode.xml",
         "lib/netstandard2.1/YoutubeExplode.dll",
         "lib/netstandard2.1/YoutubeExplode.xml",
-        "youtubeexplode.6.3.16.nupkg.sha512",
+        "youtubeexplode.6.4.0.nupkg.sha512",
         "youtubeexplode.nuspec"
       ]
     },
@@ -7291,8 +7319,9 @@
       "StackExchange.Redis >= 2.7.33",
       "Telegram.Bot >= 19.0.0",
       "VideoLibrary >= 3.2.3",
+      "Xabe.FFmpeg >= 5.2.6",
       "YoutubeDLSharp >= 1.0.0",
-      "YoutubeExplode >= 6.3.16",
+      "YoutubeExplode >= 6.4.0",
       "YoutubeSearchApi.Net >= 1.1.1"
     ]
   },
@@ -7365,13 +7394,17 @@
             "target": "Package",
             "version": "[3.2.3, )"
           },
+          "Xabe.FFmpeg": {
+            "target": "Package",
+            "version": "[5.2.6, )"
+          },
           "YoutubeDLSharp": {
             "target": "Package",
             "version": "[1.0.0, )"
           },
           "YoutubeExplode": {
             "target": "Package",
-            "version": "[6.3.16, )"
+            "version": "[6.4.0, )"
           },
           "YoutubeSearchApi.Net": {
             "target": "Package",

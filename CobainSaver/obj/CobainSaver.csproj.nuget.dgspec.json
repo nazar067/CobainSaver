@@ -70,13 +70,17 @@
               "target": "Package",
               "version": "[3.2.3, )"
             },
+            "Xabe.FFmpeg": {
+              "target": "Package",
+              "version": "[5.2.6, )"
+            },
             "YoutubeDLSharp": {
               "target": "Package",
               "version": "[1.0.0, )"
             },
             "YoutubeExplode": {
               "target": "Package",
-              "version": "[6.3.16, )"
+              "version": "[6.4.0, )"
             },
             "YoutubeSearchApi.Net": {
               "target": "Package",

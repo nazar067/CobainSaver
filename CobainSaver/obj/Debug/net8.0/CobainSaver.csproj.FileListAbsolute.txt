@@ -108,4 +108,4 @@ C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Debug\net8.0\Pipelines.S
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Debug\net8.0\StackExchange.Redis.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Debug\net8.0\Microsoft.Extensions.Http.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Debug\net8.0\YoutubeSearchApi.Net.dll
-C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Debug\net8.0\System.Text.Json.dll
+C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Debug\net8.0\Xabe.FFmpeg.dll

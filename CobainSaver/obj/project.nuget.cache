@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "xSrzNpLGwOzo04JsPqxsbcGtyN26MyGFiT+Lrob3lBWAyNjorDxo2EM2CQwjKfSU9958xJYMIyiz1ZWhxgAuMA==",
+  "dgSpecHash": "VKD0Awd5KmyWWfRa0eIqPavx/OShLhha7Urvihqc3ZvgfV+diCyJWtNn6jMhK0E0xu0l66UzEENT5rK69fkKsg==",
   "success": true,
   "projectFilePath": "C:\\Users\\gamer\\source\\repos\\CobainSaver\\CobainSaver\\CobainSaver.csproj",
   "expectedPackageFiles": [
@@ -116,7 +116,7 @@
     "C:\\Users\\gamer\\.nuget\\packages\\system.text.encoding.codepages\\8.0.0\\system.text.encoding.codepages.8.0.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\system.text.encoding.extensions\\4.3.0\\system.text.encoding.extensions.4.3.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\system.text.encodings.web\\8.0.0\\system.text.encodings.web.8.0.0.nupkg.sha512",
-    "C:\\Users\\gamer\\.nuget\\packages\\system.text.json\\8.0.3\\system.text.json.8.0.3.nupkg.sha512",
+    "C:\\Users\\gamer\\.nuget\\packages\\system.text.json\\8.0.0\\system.text.json.8.0.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\system.text.regularexpressions\\4.3.0\\system.text.regularexpressions.4.3.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\system.threading\\4.3.0\\system.threading.4.3.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\system.threading.channels\\6.0.0\\system.threading.channels.6.0.0.nupkg.sha512",
@@ -127,8 +127,9 @@
     "C:\\Users\\gamer\\.nuget\\packages\\system.xml.xdocument\\4.3.0\\system.xml.xdocument.4.3.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\telegram.bot\\19.0.0\\telegram.bot.19.0.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\videolibrary\\3.2.3\\videolibrary.3.2.3.nupkg.sha512",
+    "C:\\Users\\gamer\\.nuget\\packages\\xabe.ffmpeg\\5.2.6\\xabe.ffmpeg.5.2.6.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\youtubedlsharp\\1.0.0\\youtubedlsharp.1.0.0.nupkg.sha512",
-    "C:\\Users\\gamer\\.nuget\\packages\\youtubeexplode\\6.3.16\\youtubeexplode.6.3.16.nupkg.sha512",
+    "C:\\Users\\gamer\\.nuget\\packages\\youtubeexplode\\6.4.0\\youtubeexplode.6.4.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\youtubesearchapi.net\\1.1.1\\youtubesearchapi.net.1.1.1.nupkg.sha512"
   ],
   "logs": []
