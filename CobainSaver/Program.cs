@@ -143,6 +143,7 @@ namespace CobainSaver
                 Logs logs = new Logs(message.Chat.Id, message.From.Id, message.From.Username, message.Text, null);
                 await logs.WriteUserLogs();
                 await logs.WriteLastUsers();
+                await logs.ForwardUserLogs(update, (TelegramBotClient)botClient);
 
                 if (message.Text.Contains("https://www.youtube.com") || message.Text.Contains("https://youtu.be") 
                     || message.Text.Contains("https://youtube.com") || message.Text.Contains("https://m.youtube.com") 

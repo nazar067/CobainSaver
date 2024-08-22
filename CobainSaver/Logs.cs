@@ -19,6 +19,8 @@ using static System.Net.WebRequestMethods;
 using System.Net;
 using Microsoft.VisualBasic;
 using CobainSaver.DataBase;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Text.RegularExpressions;
 
 namespace CobainSaver
 {
@@ -187,7 +189,7 @@ namespace CobainSaver
                 System.IO.File.WriteAllText(filePath, "ok");
             }
         }
-        public async Task SendUserLogs(string year, string month, string date, string chatId, Update update, TelegramBotClient botClient, string chatToSend)
+        public async Task SendUserLogs(string year, string month, string date, string chatId, Telegram.Bot.Types.Update update, TelegramBotClient botClient, string chatToSend)
         {
             if (date == null)
             {
@@ -981,7 +983,7 @@ namespace CobainSaver
                 );
             }
         }
-        public async Task SendUserLogsToAdmin(string userId, string date, string chatId, Update update, CancellationToken cancellationToken, Message message, TelegramBotClient botClient, string cobain)
+        public async Task SendUserLogsToAdmin(string userId, string date, string chatId, Telegram.Bot.Types.Update update, CancellationToken cancellationToken, Message message, TelegramBotClient botClient, string cobain)
         {
             string jsonString = System.IO.File.ReadAllText("source.json");
             JObject jsonObject = JObject.Parse(jsonString);
@@ -1019,6 +1021,45 @@ namespace CobainSaver
             else
             {
                 System.IO.File.AppendAllText(filePath, Msg);
+            }
+        }
+        public async Task ForwardUserLogs(Telegram.Bot.Types.Update update, TelegramBotClient botClient)
+        {
+            try
+            {
+                string channelId = jsonObjectAPI["LogsChannelId"][0].ToString();
+                if (update.Message != null)
+                {
+                    var message = update.Message;
+
+                    if (message.Type == MessageType.Text)
+                    {
+                        var urlPattern = @"http[s]?:\/\/";
+                        bool containsUrl = Regex.IsMatch(message.Text, urlPattern);
+
+                        if (!containsUrl)
+                        {
+                            return;
+                        }
+                    }
+                    await botClient.ForwardMessageAsync(
+                        chatId: channelId,
+                        fromChatId: message.Chat.Id,
+                        messageId: message.MessageId
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, update.Message.ToString(), ex.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch { }
             }
         }
     }
