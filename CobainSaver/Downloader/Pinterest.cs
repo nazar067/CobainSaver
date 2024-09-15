@@ -33,7 +33,7 @@ namespace CobainSaver.Downloader
                 ytdl.YoutubeDLPath = jsonObjectAPI["ffmpegPath"][1].ToString();
                 ytdl.FFmpegPath = jsonObjectAPI["ffmpegPath"][0].ToString();
 
-                string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                string audioPath = Directory.GetCurrentDirectory() + "/UserLogs" + $"/{chatId}" + $"/audio";
                 if (!Directory.Exists(audioPath))
                 {
                     Directory.CreateDirectory(audioPath);
@@ -309,7 +309,7 @@ namespace CobainSaver.Downloader
                     imageUrl = "https://i.pinimg.com/" + imageUrl.Substring(startIndex, endIndex - startIndex + urlEndMarker.Length);
 
 
-                    string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio"; // Укажите путь к директории, где хотите сохранить изображение
+                    string directory = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio"); // Укажите путь к директории, где хотите сохранить изображение
 
                     // Проверяем существует ли указанная директория
                     if (!Directory.Exists(directory))

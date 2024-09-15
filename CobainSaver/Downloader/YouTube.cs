@@ -28,138 +28,153 @@ namespace CobainSaver.Downloader
 {
     internal class YouTube
     {
-        public async Task ChooseVideoQuality(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        public async Task YoutubeDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
+            string normallMsg = await DeleteNotUrl(messageText);
+            Stream stream = null;
+            //превью видео
             try
             {
-                Message message = null;
+                Ads ads = new Ads();
 
-                string normallMsg = await DeleteNotUrl(messageText);
+                AddToDataBase addDB = new AddToDataBase();
 
                 var youtube = new YoutubeClient();
-
                 var allInfo = await youtube.Videos.GetAsync(normallMsg);
 
                 var videoUrl = normallMsg;
                 var streamManifest = await youtube.Videos.Streams.GetManifestAsync(videoUrl);
 
-                var videoStreams = streamManifest.GetVideoOnlyStreams()
-                    .GroupBy(s => s.VideoQuality.Label)
-                    .Select(g => g.OrderByDescending(s => s.Bitrate).First())
-                    .ToList();
-
-                var audioStreams = streamManifest.GetAudioOnlyStreams()
-                    .OrderByDescending(s => s.Bitrate)
-                    .ToList();
-
-                Language language = new Language("rand", "rand");
-                string lang = await language.GetCurrentLanguage(chatId.ToString());
-                if (lang == "eng")
+                var streamInfo = streamManifest.GetMuxedStreams().GetWithHighestVideoQuality();
+                string size = streamInfo.Size.MegaBytes.ToString();
+                if (Convert.ToDouble(size) >= 50)
                 {
-                    message = await botClient.SendTextMessageAsync(
-                        chatId: chatId,
-                        text: "Choose quality",
-                        replyToMessageId: update.Message.MessageId
-                    );
-                }
-                else if (lang == "ukr")
-                {
-                    message = await botClient.SendTextMessageAsync(
-                        chatId: chatId,
-                        text: "Виберіть якість",
-                        replyToMessageId: update.Message.MessageId
-                    );
-                }
-                else if (lang == "rus")
-                {
-                    message = await botClient.SendTextMessageAsync(
-                        chatId: chatId,
-                        text: "Выберите качество",
-                        replyToMessageId: update.Message.MessageId
-                    );
-                }
-
-                var buttonsList = new List<InlineKeyboardButton[]>();
-                InlineKeyboardMarkup inlineKeyboard;
-
-                foreach (var videoStream in videoStreams)
-                {
-                    if (videoStream.Size.MegaBytes >= 50) continue;
-
-                    var audioStream = audioStreams.FirstOrDefault();
-                    var estimatedSize = videoStream.Size.MegaBytes + (audioStream?.Size.MegaBytes ?? 0);
-
-                    if (estimatedSize + 8 >= 50) continue;
-
-                    buttonsList.Add(new[]
+                    Language language = new Language("rand", "rand");
+                    string lang = await language.GetCurrentLanguage(chatId.ToString());
+                    if (lang == "eng")
                     {
-                    InlineKeyboardButton.WithCallbackData(
-                        text: $"{videoStream.VideoQuality.Label} ({Math.Round(estimatedSize, 2) + 8} MB)",
-                        callbackData: $"Q {videoStream.VideoQuality.Label} {allInfo.Id} {chatId} {message.MessageId}")
-                });
-                }
-
-                inlineKeyboard = new InlineKeyboardMarkup(buttonsList);
-
-                if (!buttonsList.Any())
-                {
-                    string errorMsg = lang switch
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Sorry, this video has a problem: the video is too big (the size should not exceed 50mb)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "ukr")
                     {
-                        "eng" => "The video is too big (the size should not exceed 50mb)",
-                        "ukr" => "Bідео занадто велике (розмір має не перевищувати 50мб)",
-                        "rus" => "Bидео слишком большое (размер должен не превышать 50мб)",
-                        _ => "The video is too big (the size should not exceed 50mb)"
-                    };
-
-                    await botClient.EditMessageTextAsync(
-                        messageId: message.MessageId,
-                        chatId: chatId,
-                        text: errorMsg
-                    );
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Вибачте, з цим відео виникла помилка: відео занадто велике (розмір має не перевищувати 50мб)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Извините, с этим видео возникли проблемы: видео слишком большое(размер должен не превышать 50мб)",
+                            replyToMessageId: update.Message.MessageId);
+                    }
                     return;
                 }
-
-                string responseText = lang switch
+                stream = await youtube.Videos.Streams.GetAsync(streamInfo);
+                string duration = allInfo.Duration.Value.TotalSeconds.ToString();
+                string title = allInfo.Title;
+                if (title.Contains("#"))
                 {
-                    "eng" => "Choose quality",
-                    "ukr" => "Виберіть якість",
-                    "rus" => "Выберите качество",
-                    _ => "Choose quality"
-                };
+                    title = Regex.Replace(title, @"#.*", "");
+                }
+                string thumbnail = "https://img.youtube.com/vi/" + allInfo.Id + "/maxresdefault.jpg";
 
-                await botClient.EditMessageTextAsync(
-                    messageId: message.MessageId,
-                    chatId: chatId,
-                    replyMarkup: inlineKeyboard,
-                    text: responseText
-                );
+                string audioPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
+                if (!Directory.Exists(audioPath))
+                {
+                    Directory.CreateDirectory(audioPath);
+                }
+                string videoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "video.MPEG4");
+                string thumbnailVideoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVideo.jpeg");
+                try
+                {
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile(streamInfo.Url, videoPath);
+                    }
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile(thumbnail, thumbnailVideoPath);
+                    }
+                }
+                catch (Exception e)
+                {
+                    //await Console.Out.WriteLineAsync(e.ToString());
+                }
+                if (!System.IO.File.Exists(thumbnailVideoPath))
+                {
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg", thumbnailVideoPath);
+                    }
+                }
+
+                await using Stream streamVideo = System.IO.File.OpenRead(videoPath);
+                await using Stream streamThumbVideo = System.IO.File.OpenRead(thumbnailVideoPath);
+
+                try
+                {
+                    // Отправляем видео обратно пользователю
+                    await botClient.SendVideoAsync(
+                        chatId: chatId,
+                        caption: await ads.ShowAds() + title,
+                        video: InputFile.FromStream(streamVideo),
+                        thumbnail: InputFile.FromStream(streamThumbVideo),
+                        duration: Convert.ToInt32(duration),
+                        parseMode: ParseMode.Html,
+                        replyToMessageId: update.Message.MessageId);
+                    await addDB.AddBotCommands(chatId, "youtube", DateTime.Now.ToShortDateString());
+                }
+                catch (Exception ex)
+                {
+                    //await Console.Out.WriteLineAsync(ex.ToString());
+                    Language language = new Language("rand", "rand");
+                    string lang = await language.GetCurrentLanguage(chatId.ToString());
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Sorry, this video has a problem: the video has an age restriction",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Вибачте, з цим відео виникла помилка: відео має вікові обмеження",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Извините, с этим видео возникли проблемы: видео имеет возрастное ограничение",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    try
+                    {
+                        var message = update.Message;
+                        var user = message.From;
+                        var chat = message.Chat;
+                        Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
+                        await logs.WriteServerLogs();
+                    }
+                    catch (Exception e)
+                    {
+                    }
+                }
+                streamVideo.Close();
+                streamThumbVideo.Close();
+                System.IO.File.Delete(videoPath);
+                System.IO.File.Delete(thumbnailVideoPath);
             }
-            catch ( Exception ex)
+            catch (Exception ex)
             {
-                Language language = new Language("rand", "rand");
-                string lang = await language.GetCurrentLanguage(chatId.ToString());
-                if (lang == "eng")
-                {
-                    await botClient.SendTextMessageAsync(
-                        chatId: chatId,
-                        text: "Sorry, this video has a problem: the video has an age restriction\n" +
-                        "\nIf you're sure the content is public or the bot has previously submitted this, please email us about this bug - t.me/cobainSaver");
-                }
-                if (lang == "ukr")
-                {
-                    await botClient.SendTextMessageAsync(
-                        chatId: chatId,
-                        text: "Вибачте, це відео має проблему: відео має вікові обмеження\n" +
-                        "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver");
-                }
-                if (lang == "rus")
-                {
-                    await botClient.SendTextMessageAsync(
-                        chatId: chatId,
-                        text: "Извините, с этим видео возникли проблемы: видео имеет возрастное ограничение\n" +
-                        "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver"
-                        );
-                }
+                //await Console.Out.WriteLineAsync(ex.ToString());
                 try
                 {
                     var message = update.Message;
@@ -170,151 +185,13 @@ namespace CobainSaver.Downloader
                 }
                 catch (Exception e)
                 {
-                    return;
                 }
+                await YoutubeDownloaderReserve(chatId, update, cancellationToken, messageText, (TelegramBotClient)botClient);
+                //throw;
             }
-        }
-
-
-        public async Task YoutubeDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient, string quality)
-        {
-            var FFmpegpath = @"C:\bin";
-            FFmpeg.SetExecutablesPath(FFmpegpath);
-
-            string normallMsg = await DeleteNotUrl(messageText);
-
-            try
+            finally
             {
-                Language language = new Language("rand", "rand");
-                string lang = await language.GetCurrentLanguage(chatId.ToString());
 
-                string warningMsg = lang switch
-                {
-                    "eng" => "Your video is being processed, wait, the higher the quality, the longer it will take us to upload it",
-                    "ukr" => "Ваше відео обробляється, почекайте, що вища якість, то більше часу нам знадобиться для завантаження",
-                    "rus" => "Ваше видео обрабатывается, подождите, чем выше качество, тем больше времени нам потребуется для загрузки",
-                    _ => "Your video is being processed, wait, the higher the quality, the longer it will take us to upload it"
-                };
-
-                await botClient.SendTextMessageAsync(
-                    chatId: chatId,
-                    text: warningMsg
-                );
-
-                var youtube = new YoutubeClient();
-                var allInfo = await youtube.Videos.GetAsync(normallMsg);
-
-                var videoUrl = normallMsg;
-                var streamManifest = await youtube.Videos.Streams.GetManifestAsync(videoUrl);
-
-                var videoStreamInfo = streamManifest
-                    .GetVideoOnlyStreams()
-                    .Where(s => s.Container == Container.Mp4)
-                    .GroupBy(s => s.VideoQuality.Label)
-                    .Select(g => g.OrderByDescending(s => s.Bitrate).First())
-                    .FirstOrDefault(s => s.VideoQuality.Label == quality);
-
-                var audioStreamInfo = streamManifest.GetAudioOnlyStreams()
-                    .OrderByDescending(s => s.Bitrate)
-                    .First();
-
-                if (videoStreamInfo == null)
-                {
-                    throw new Exception("Video quality not found");
-                }
-
-                if (Convert.ToDouble(videoStreamInfo.Size.MegaBytes) >= 50)
-                {
-                    string errorMsg = lang switch
-                    {
-                        "eng" => "Sorry, this video has a problem: the video is too big (the size should not exceed 50mb)",
-                        "ukr" => "Вибачте, з цим відео виникла помилка: відео занадто велике (розмір має не перевищувати 50мб)",
-                        "rus" => "Извините, с этим видео возникли проблемы: видео слишком большое (размер должен не превышать 50мб)",
-                        _ => "Sorry, this video has a problem: the video is too big (the size should not exceed 50mb)"
-                    };
-
-                    await botClient.SendTextMessageAsync(
-                        chatId: chatId,
-                        text: errorMsg
-                    );
-                    return;
-                }
-
-                var tempPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
-                var videoPath = Path.Combine(tempPath, DateTime.Now.Millisecond.ToString() + "video.mp4");
-                var audioPath = Path.Combine(tempPath, DateTime.Now.Millisecond.ToString() + "audio.mp4");
-
-                await youtube.Videos.Streams.DownloadAsync(videoStreamInfo, videoPath);
-                await youtube.Videos.Streams.DownloadAsync(audioStreamInfo, audioPath);
-
-                var videoStream = await FFmpeg.GetMediaInfo(videoPath);
-                var audioStream = await FFmpeg.GetMediaInfo(audioPath);
-
-                var outputFile = Path.Combine(tempPath, "output.mp4");
-
-                await FFmpeg.Conversions.New()
-                    .AddStream(videoStream.VideoStreams.First())
-                    .AddStream(audioStream.AudioStreams.First())
-                    .SetOutput(outputFile)
-                    .Start();
-
-                string title = allInfo.Title;
-                if (title.Contains("#"))
-                {
-                    title = Regex.Replace(title, @"#.*", "");
-                }
-
-                string thumbnail = "https://img.youtube.com/vi/" + allInfo.Id + "/maxresdefault.jpg";
-                string thumbnailVideoPath = Path.Combine(tempPath, "thumbVideo.jpeg");
-
-                using (var client = new WebClient())
-                {
-                    client.DownloadFile(thumbnail, thumbnailVideoPath);
-                }
-
-                if (!System.IO.File.Exists(thumbnailVideoPath))
-                {
-                    using (var client = new WebClient())
-                    {
-                        client.DownloadFile("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg", thumbnailVideoPath);
-                    }
-                }
-
-                await using Stream streamVideo = System.IO.File.OpenRead(outputFile);
-                await using Stream streamThumbVideo = System.IO.    File.OpenRead(thumbnailVideoPath);
-
-                string duration = allInfo.Duration.Value.TotalSeconds.ToString();
-                Ads ads = new Ads();
-                AddToDataBase addDB = new AddToDataBase();
-
-                await botClient.SendVideoAsync(
-                    chatId: chatId,
-                    caption: await ads.ShowAds() + title,
-                    video: InputFile.FromStream(streamVideo),
-                    thumbnail: InputFile.FromStream(streamThumbVideo),
-                    duration: Convert.ToInt32(duration),
-                    parseMode: ParseMode.Html
-                );
-
-                await addDB.AddBotCommands(chatId, "youtube", DateTime.Now.ToShortDateString());
-
-                streamVideo.Close();
-                streamThumbVideo.Close();
-                System.IO.File.Delete(videoPath);
-                System.IO.File.Delete(audioPath);
-                System.IO.File.Delete(outputFile);
-                System.IO.File.Delete(thumbnailVideoPath);
-            }
-            catch (Exception ex)
-            {
-                //Console.WriteLine(ex.ToString());
-                var message = update.Message;
-                var user = message.From;
-                var chat = message.Chat;
-                Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
-                await logs.WriteServerLogs();
-
-                await YoutubeDownloaderReserve(chatId, update, cancellationToken, messageText, botClient);
             }
         }
 
@@ -337,7 +214,7 @@ namespace CobainSaver.Downloader
                 ytdl.YoutubeDLPath = jsonObjectAPI["ffmpegPath"][1].ToString();
                 ytdl.FFmpegPath = jsonObjectAPI["ffmpegPath"][0].ToString();
 
-                string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                string audioPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
                 if (!Directory.Exists(audioPath))
                 {
                     Directory.CreateDirectory(audioPath);
@@ -566,7 +443,7 @@ namespace CobainSaver.Downloader
                     author = author.Substring(0, author.Length - toRemove.Length);
                 } 
 
-                string path = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);
@@ -859,7 +736,7 @@ namespace CobainSaver.Downloader
                 }
 
 
-                string path = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);

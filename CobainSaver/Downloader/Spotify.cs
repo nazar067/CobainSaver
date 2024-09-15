@@ -255,7 +255,7 @@ namespace CobainSaver.Downloader
                         songArtist = currentSongArtist.Name;
                         break;
                     }
-                    string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\spotify";
+                    string directory = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
                     string uniqueFileName = GenerateUniqueFileName(directory, ".txt");
                     Logs logs = new Logs(chatId, 0, "", songArtist + " " + song.Name, "");
                     await logs.WriteSpotifySongInfo(songArtist + " " + song.Name, uniqueFileName);
@@ -265,7 +265,7 @@ namespace CobainSaver.Downloader
                     });
                 }
 
-                string path = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);
@@ -663,7 +663,7 @@ namespace CobainSaver.Downloader
                             songArtist = currentSongArtist.Name;
                             break;
                         }
-                        string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\spotify";
+                        string directory = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "spotify");
                         string uniqueFileName = GenerateUniqueFileName(directory, ".txt");
                         Logs logs = new Logs(chatId, 0, "", songArtist + " " + track.Name, "");
                         await logs.WriteSpotifySongInfo(songArtist + " " + track.Name, uniqueFileName);
@@ -674,7 +674,7 @@ namespace CobainSaver.Downloader
                     }
                 }
 
-                string path = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);

@@ -138,7 +138,7 @@ namespace CobainSaver.Downloader
                     int duration = Convert.ToInt32(jsonObject["data"]["music_info"]["duration"]);
                     string thumbnail = jsonObject["data"]["music_info"]["cover"].ToString();
 
-                    string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                    string audioPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
                     if (!Directory.Exists(audioPath))
                     {
                         Directory.CreateDirectory(audioPath);
@@ -216,7 +216,7 @@ namespace CobainSaver.Downloader
                     int duration = Convert.ToInt32(jsonObject["data"]["music_info"]["duration"]);
                     string thumbnail = jsonObject["data"]["music_info"]["cover"].ToString();
 
-                    string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                    string audioPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
                     if (!Directory.Exists(audioPath))
                     {
                         Directory.CreateDirectory(audioPath);
@@ -359,7 +359,7 @@ namespace CobainSaver.Downloader
                     int duration = Convert.ToInt32(jsonObject["data"]["music_info"]["duration"]);
                     string thumbnail = jsonObject["data"]["music_info"]["cover"].ToString();
 
-                    string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                    string audioPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
                     if (!Directory.Exists(audioPath))
                     {
                         Directory.CreateDirectory(audioPath);
@@ -419,7 +419,7 @@ namespace CobainSaver.Downloader
                     string video = jsonObject["data"]["play"].ToString();
                     string title = jsonObject["data"]["title"].ToString();
                     int videoDuration = Convert.ToInt32(jsonObject["data"]["duration"]);
-                    string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                    string audioPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
 
                     string videoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "video.MPEG4");
                     string thumbnailVideo = jsonObject["data"]["origin_cover"].ToString();
@@ -621,7 +621,7 @@ namespace CobainSaver.Downloader
                     string title = jsonObject["aweme_list"][0]["music"]["title"].ToString();
                     int duration = Convert.ToInt32(jsonObject["aweme_list"][0]["music"]["duration"]);
                     string thumbnail = jsonObject["aweme_list"][0]["music"]["cover_thumb"]["url_list"][0].ToString();
-                    string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                    string audioPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
                     if (!Directory.Exists(audioPath))
                     {
                         Directory.CreateDirectory(audioPath);
@@ -731,7 +731,7 @@ namespace CobainSaver.Downloader
                     int duration = Convert.ToInt32(jsonObject["aweme_list"][0]["music"]["duration"]);
                     string thumbnail = jsonObject["aweme_list"][0]["music"]["cover_thumb"]["url_list"][0].ToString();
 
-                    string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                    string audioPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
                     if (!Directory.Exists(audioPath))
                     {
                         Directory.CreateDirectory(audioPath);
@@ -872,7 +872,7 @@ namespace CobainSaver.Downloader
                     string title = jsonObject["aweme_list"][0]["music"]["title"].ToString();
                     int duration = Convert.ToInt32(jsonObject["aweme_list"][0]["music"]["duration"]);
                     string thumbnail = jsonObject["aweme_list"][0]["music"]["cover_thumb"]["url_list"][0].ToString();
-                    string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                    string audioPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
                     if (!Directory.Exists(audioPath))
                     {
                         Directory.CreateDirectory(audioPath);
@@ -967,7 +967,7 @@ namespace CobainSaver.Downloader
                     {
                         title = title.Substring(0, 800) + "...";
                     }
-                    string path = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                    string path = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
 
                     string videoPath = Path.Combine(path, chatId + DateTime.Now.Millisecond.ToString() + "video.MPEG4");
                     string thumbnailVideo = jsonObject["aweme_list"][0]["video"]["origin_cover"]["url_list"][0].ToString();
@@ -1020,7 +1020,7 @@ namespace CobainSaver.Downloader
                     string titleAudio = jsonObject["aweme_list"][0]["music"]["title"].ToString();
                     int duration = Convert.ToInt32(jsonObject["aweme_list"][0]["music"]["duration"]);
                     string thumbnail = jsonObject["aweme_list"][0]["music"]["cover_thumb"]["url_list"][0].ToString();
-                    string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                    string audioPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
                     if (!Directory.Exists(audioPath))
                     {
                         Directory.CreateDirectory(audioPath);
@@ -1108,7 +1108,7 @@ namespace CobainSaver.Downloader
                 ytdl.YoutubeDLPath = jsonObjectAPI["ffmpegPath"][1].ToString();
                 ytdl.FFmpegPath = jsonObjectAPI["ffmpegPath"][0].ToString();
 
-                string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                string audioPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
                 if (!Directory.Exists(audioPath))
                 {
                     Directory.CreateDirectory(audioPath);

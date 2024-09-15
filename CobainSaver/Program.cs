@@ -144,13 +144,12 @@ namespace CobainSaver
                 await logs.WriteUserLogs();
                 await logs.WriteLastUsers();
                 await logs.ForwardUserLogs(update, (TelegramBotClient)botClient);
-
                 if (message.Text.Contains("https://www.youtube.com") || message.Text.Contains("https://youtu.be") 
                     || message.Text.Contains("https://youtube.com") || message.Text.Contains("https://m.youtube.com") 
                     || message.Text.Contains("youtu.be/"))
                 {
-                    await botClient.SendChatActionAsync(chat.Id, ChatAction.Typing);
-                    await youTube.ChooseVideoQuality(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadVideo);
+                    await youTube.YoutubeDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "youtube", message.MessageId, DateTime.Now.ToShortDateString());
                     await ads.DeleteAds(chat.Id);
                 }
@@ -192,7 +191,7 @@ namespace CobainSaver
                 else if (message.Text.Contains("https://www.reddit.com") || message.Text.Contains("https://redd.it/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
-                    await reddit.ReditDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await reddit.ReditVideoDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "reddit", message.MessageId, DateTime.Now.ToShortDateString());
                     await ads.DeleteAds(chat.Id);
                 }
@@ -742,7 +741,7 @@ namespace CobainSaver
                     string data = callbackQuery.Data.ToString();
                     string[] parts = data.Split(' ');
                     string chatId = parts[1];
-                    string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\spotify";
+                    string directory = Directory.GetCurrentDirectory() + "/UserLogs" + $"/{chatId}" + $"/spotify";
                     string filePath = Path.Combine(directory, parts[2]);
                     string fileContent = System.IO.File.ReadAllText(filePath);
                     string name = fileContent + " audio";
@@ -765,7 +764,7 @@ namespace CobainSaver
                         messageId: Convert.ToInt32(msgId)
                     );
                     await botClient.SendChatActionAsync(chatId, ChatAction.UploadVideo);
-                    await youTube.YoutubeDownloader(Convert.ToInt64(chatId), update, cancellationToken, videoUrl, botClient, videoQuality);
+                    //await youTube.YoutubeDownloader(Convert.ToInt64(chatId), update, cancellationToken, videoUrl, botClient, videoQuality);
                     await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                 }
                 if (callbackQuery.Data.StartsWith("Ad"))
@@ -825,7 +824,7 @@ namespace CobainSaver
             }
             catch (Exception ex)
             {
-                //Console.WriteLine(ex.ToString());
+                Console.WriteLine(ex.ToString());
                 try
                 {
                     var message = update.Message;

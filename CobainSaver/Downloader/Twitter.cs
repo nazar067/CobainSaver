@@ -144,7 +144,7 @@ namespace CobainSaver.Downloader
                         mediaId = normallMsg.Remove(normallMsg.LastIndexOf("/"));
                     }
                 }
-                string videoPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                string videoPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
                 if (!Directory.Exists(videoPath))
                 {
                     Directory.CreateDirectory(videoPath);

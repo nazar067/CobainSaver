@@ -41,7 +41,7 @@ namespace CobainSaver
             if (chatId == jsonObject["AdminId"][0].ToString())
             {
                 await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
-                string currentDirectory = Directory.GetCurrentDirectory() + "\\UserLogs";
+                string currentDirectory = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs");
 
                 string[] directories = Directory.GetDirectories(currentDirectory);
 
@@ -365,12 +365,12 @@ namespace CobainSaver
                 if (chatId == jsonObjectAPI["AdminId"][0].ToString())
                 {
                     await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
-                    string currentDirectory = Directory.GetCurrentDirectory() + "\\UserLogs";
+                    string currentDirectory = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs");
                     string[] directories = Directory.GetDirectories(currentDirectory);
 
                     foreach (string userDirectory in directories)
                     {
-                        string userId = userDirectory.Split("\\").Last();
+                        string userId = userDirectory.Split("/").Last();
                         Logs logs = new Logs(Convert.ToInt64(userId), 21312312, ":", "", "");
 
                         Language language = new Language("rand", "rand");
@@ -499,7 +499,7 @@ namespace CobainSaver
             {
                 await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
                 int count = 0;
-                string currentDirectory = Directory.GetCurrentDirectory() + "\\ServerLogs";
+                string currentDirectory = Path.Combine(Directory.GetCurrentDirectory(), "ServerLogs");
 
                 string[] userIds = System.IO.File.ReadAllLines(Path.Combine(currentDirectory, "list.txt"));
                 var buttonsList = new List<InlineKeyboardButton[]>();
@@ -615,7 +615,7 @@ namespace CobainSaver
             if (chatId == jsonObject["AdminId"][0].ToString())
             {
                 await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
-                string currentDirectory = Directory.GetCurrentDirectory() + "\\ServerLogs";
+                string currentDirectory = Path.Combine(Directory.GetCurrentDirectory(), "ServerLogs");
 
                 if (!Directory.Exists(currentDirectory))
                 {

@@ -195,7 +195,7 @@ namespace CobainSaver
             {
                 return;
             }
-            string currentDirectory = Directory.GetCurrentDirectory() + "\\UserLogs";
+            string currentDirectory = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs");
 
             string folderName = chatId;
 
@@ -326,7 +326,7 @@ namespace CobainSaver
         }
         public async Task WriteLastUsers()
         {
-            string currentDirectory = Directory.GetCurrentDirectory() + "\\ServerLogs";
+            string currentDirectory = Path.Combine(Directory.GetCurrentDirectory(), "ServerLogs");
 
             string listPath = Path.Combine(currentDirectory, "list.txt");
             if (!System.IO.File.Exists(listPath))
@@ -352,14 +352,14 @@ namespace CobainSaver
         {
             string jsonString = System.IO.File.ReadAllText("source.json");
             JObject jsonObjectAPI = JObject.Parse(jsonString);
-            string currentDirectory = Directory.GetCurrentDirectory() + "\\UserLogs";
+            string currentDirectory = Directory.GetCurrentDirectory() + "/UserLogs";
 
             string[] directories = Directory.GetDirectories(currentDirectory);
             var buttonsList = new List<InlineKeyboardButton[]>();
             InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(buttonsList);
             foreach (string userDirectory in directories)
             {
-                string userId = userDirectory.Split("\\").Last();
+                string userId = userDirectory.Split("/").Last();
                 var url = "https://api.telegram.org/bot" + jsonObjectAPI["BotAPI"][0].ToString() + "/getChat?chat_id=" + userId;
                 var response = await client.GetAsync(url);
                 var responseString = await response.Content.ReadAsStringAsync();
@@ -395,7 +395,7 @@ namespace CobainSaver
             if (messageId == 0)
             {
                 Message message = null;
-                string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\logs";
+                string directory = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", $"{chatId}", $"logs");
                 string[] directories = Directory.GetDirectories(directory);
                 var buttonsList = new List<InlineKeyboardButton[]>();
                 InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(buttonsList);
@@ -425,7 +425,7 @@ namespace CobainSaver
 
                 foreach (string userDirectory in directories)
                 {
-                    string year = userDirectory.Split("\\").Last();
+                    string year = userDirectory.Split("/").Last();
                     buttonsList.Add(new[]
                     {
                         InlineKeyboardButton.WithCallbackData(text: year, callbackData: "Year" + " " + year + " " + chatId + " " + message.MessageId + " " + chatToSend),
@@ -462,7 +462,7 @@ namespace CobainSaver
             }
             else
             {
-                string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\logs";
+                string directory = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", $"{chatId}", $"logs");
                 string[] directories = Directory.GetDirectories(directory);
                 var buttonsList = new List<InlineKeyboardButton[]>();
                 InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(buttonsList);
@@ -470,7 +470,7 @@ namespace CobainSaver
                 string lang = await language.GetCurrentLanguage(chatId.ToString());
                 foreach (string userDirectory in directories)
                 {
-                    string year = userDirectory.Split("\\").Last();
+                    string year = userDirectory.Split("/").Last();
                     buttonsList.Add(new[]
                     {
                         InlineKeyboardButton.WithCallbackData(text: year, callbackData: "Year" + " " + year + " " + chatId + " " + messageId + " " + chatToSend),
@@ -511,7 +511,7 @@ namespace CobainSaver
             Language language = new Language("rand", "rand");
             string lang = await language.GetCurrentLanguage(chatId.ToString());
 
-            string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\logs" + $"\\{year}";
+            string directory = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", $"{chatId}", $"logs", $"{year}");
             string[] directories = Directory.GetDirectories(directory);
             var buttonsList = new List<InlineKeyboardButton[]>();
             if (lang == "eng")
@@ -537,7 +537,7 @@ namespace CobainSaver
             }
             foreach (string userDirectory in directories)
             {
-                string month = userDirectory.Split("\\").Last();
+                string month = userDirectory.Split("/").Last();
                 if (lang == "eng")
                 {
                     if (month == "1")
@@ -837,7 +837,7 @@ namespace CobainSaver
             Language language = new Language("rand", "rand");
             string lang = await language.GetCurrentLanguage(chatId.ToString());
 
-            string directory = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\logs" + $"\\{year}" + $"\\{month}";
+            string directory = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", $"{chatId}", $"logs", $"{year}", $"{month}");
             string[] files = Directory.GetFiles(directory);
             var buttonsList = new List<InlineKeyboardButton[]>();
             if (lang == "eng")
@@ -863,7 +863,7 @@ namespace CobainSaver
             }
             foreach (string userFiles in files)
             {
-                string dates = userFiles.Split("\\").Last();
+                string dates = userFiles.Split("/").Last();
                 buttonsList.Add(new[]
                 {
                         InlineKeyboardButton.WithCallbackData(text: dates, callbackData: "Date" + " " + chatId + " " + month + " " + dates + " " + year + " " + chatToSend),

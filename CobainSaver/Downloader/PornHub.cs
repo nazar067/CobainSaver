@@ -91,7 +91,7 @@ namespace CobainSaver.Downloader
                         replyToMessageId: update.Message.MessageId);
                 }
 
-                string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                string audioPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", $"{chatId}", $"audio");
                 if (!Directory.Exists(audioPath))
                 {
                     Directory.CreateDirectory(audioPath);

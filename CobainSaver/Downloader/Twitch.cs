@@ -37,7 +37,7 @@ namespace CobainSaver.Downloader
                 ytdl.YoutubeDLPath = jsonObjectAPI["ffmpegPath"][1].ToString();
                 ytdl.FFmpegPath = jsonObjectAPI["ffmpegPath"][0].ToString();
 
-                string audioPath = Directory.GetCurrentDirectory() + "\\UserLogs" + $"\\{chatId}" + $"\\audio";
+                string audioPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
                 if (!Directory.Exists(audioPath))
                 {
                     Directory.CreateDirectory(audioPath);
