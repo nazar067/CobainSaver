@@ -448,7 +448,8 @@ namespace CobainSaver.Downloader
                 {
                     Directory.CreateDirectory(path);
                 }
-                string audioPath = Path.Combine(path, chatId + DateTime.Now.Millisecond.ToString() + "audio.m4a");
+                string cleanTitle = MakeValidFileName(title);
+                string audioPath = Path.Combine(path, DateTime.Now.Millisecond.ToString() + $"{cleanTitle}" + ".m4a");
                 string thumbnailAudioPath = Path.Combine(path, chatId + DateTime.Now.Millisecond.ToString() + "thumbVideo.jpeg");
                 try
                 {
@@ -482,7 +483,7 @@ namespace CobainSaver.Downloader
                         await botClient.SendAudioAsync(
                             chatId: chatId,
                             title: title,
-                            audio: InputFile.FromStream(streamAudio),
+                            audio: InputFile.FromStream(streamAudio, Path.GetFileName(audioPath)),
                             performer: author,
                             thumbnail: InputFile.FromStream(streamThumbAudio),
                             duration: Convert.ToInt32(duration));
@@ -501,7 +502,7 @@ namespace CobainSaver.Downloader
                         await botClient.SendAudioAsync(
                             chatId: chatId,
                             title: title,
-                            audio: InputFile.FromStream(streamAudio),
+                            audio: InputFile.FromStream(streamAudio, Path.GetFileName(audioPath)),
                             performer: author,
                             thumbnail: InputFile.FromStream(streamThumbAudio),
                             duration: Convert.ToInt32(duration),
@@ -1062,6 +1063,14 @@ namespace CobainSaver.Downloader
             }
 
             return input;
+        }
+        static string MakeValidFileName(string name)
+        {
+            // Список недопустимых символов для имени файла
+            char[] invalidChars = Path.GetInvalidFileNameChars();
+
+            // Удаляем или заменяем недопустимые символы
+            return string.Concat(name.Select(c => invalidChars.Contains(c) ? '_' : c));
         }
     }
 }

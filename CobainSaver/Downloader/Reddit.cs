@@ -186,7 +186,7 @@ namespace CobainSaver.Downloader
                         replyToMessageId: update.Message.MessageId
                     );
 
-                    await addDB.AddBotCommands(chatId, "twitch", DateTime.Now.ToShortDateString());
+                    await addDB.AddBotCommands(chatId, "reddit", DateTime.Now.ToShortDateString());
                 }
                 catch (Exception ex)
                 {
@@ -243,7 +243,7 @@ namespace CobainSaver.Downloader
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Sorry, clip not found or content is private\n" +
+                        text: "Sorry, video not found or content is private\n" +
                         "\nIf you're sure the content is public or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
@@ -251,7 +251,7 @@ namespace CobainSaver.Downloader
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Вибачте, кліп не знайдено або контент є приватним\n" +
+                        text: "Вибачте, відеo не знайдено або контент є приватним\n" +
                         "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
@@ -259,7 +259,7 @@ namespace CobainSaver.Downloader
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Извините, клип не найдена или контент является приватным\n" +
+                        text: "Извините, видео не найдена или контент является приватным\n" +
                         "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
                         replyToMessageId: update.Message.MessageId);
                 }
@@ -280,37 +280,81 @@ namespace CobainSaver.Downloader
         }
         public async Task ReditPhotoDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
-            AddToDataBase addDB = new AddToDataBase();
+            try
+            {
+                AddToDataBase addDB = new AddToDataBase();
 
-            string normallMsg = await DeleteNotUrl(messageText);
-            string postId = await GetPostId(normallMsg);
-            if (postId == null)
-            {
-                await Console.Out.WriteLineAsync("null");
-                return;
-            }
-            string url = jsonObjectAPI["RedditAPI"][0] + postId;
+                string normallMsg = await DeleteNotUrl(messageText);
+                string postId = await GetPostId(normallMsg);
+                if (postId == null)
+                {
+                    await Console.Out.WriteLineAsync("null");
+                    return;
+                }
+                string url = jsonObjectAPI["RedditAPI"][0] + postId;
 
-            var response = await redditClient.GetAsync(url);
-            var responseString = await response.Content.ReadAsStringAsync();
-            JObject jsonObject = JObject.Parse(responseString);
-            if (!jsonObject["data"]["children"].Any())
-            {
-                await Console.Out.WriteLineAsync("json null");
-                return;
+                var response = await redditClient.GetAsync(url);
+                var responseString = await response.Content.ReadAsStringAsync();
+                JObject jsonObject = JObject.Parse(responseString);
+                if (!jsonObject["data"]["children"].Any())
+                {
+                    await Console.Out.WriteLineAsync("json null");
+                    return;
+                }
+                if (!jsonObject["data"]["children"][0]["data"]["media"].Any())
+                {
+                    string photoUrl = jsonObject["data"]["children"][0]["data"]["url"].ToString();
+                    string caption = jsonObject["data"]["children"][0]["data"]["title"].ToString();
+                    await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
+                    await botClient.SendPhotoAsync(
+                        chatId: chatId,
+                        photo: InputFile.FromUri(photoUrl),
+                        caption: caption,
+                        replyToMessageId: update.Message.MessageId
+                        );
+                    await addDB.AddBotCommands(chatId, "reddit", DateTime.Now.ToShortDateString());
+                }
             }
-            if (!jsonObject["data"]["children"][0]["data"]["media"].Any())
+            catch (Exception ex)
             {
-                string photoUrl = jsonObject["data"]["children"][0]["data"]["url"].ToString();
-                string caption = jsonObject["data"]["children"][0]["data"]["title"].ToString();
-                await botClient.SendChatActionAsync(chatId, ChatAction.UploadPhoto);
-                await botClient.SendPhotoAsync(
-                    chatId: chatId,
-                    photo: InputFile.FromUri(photoUrl),
-                    caption: caption,
-                    replyToMessageId: update.Message.MessageId
-                    );
-                await addDB.AddBotCommands(chatId, "reddit", DateTime.Now.ToShortDateString());
+                Language language = new Language("rand", "rand");
+                string lang = await language.GetCurrentLanguage(chatId.ToString());
+                if (lang == "eng")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Sorry, photo not found or content is private\n" +
+                        "\nIf you're sure the content is public or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "ukr")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Вибачте, фото не знайдено або контент є приватним\n" +
+                        "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                if (lang == "rus")
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Извините, фото не найдена или контент является приватным\n" +
+                        "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
+                        replyToMessageId: update.Message.MessageId);
+                }
+                try
+                {
+                    var message = update.Message;
+                    var user = message.From;
+                    var chat = message.Chat;
+                    Logs logs = new Logs(chat.Id, user.Id, user.Username, messageText, ex.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception e)
+                {
+                    return;
+                }
             }
         }
         public async Task<string> GetPostId(string postUrl)

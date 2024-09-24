@@ -143,7 +143,8 @@ namespace CobainSaver.Downloader
                     {
                         Directory.CreateDirectory(audioPath);
                     }
-                    string filePath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "audio.M4A");
+                    string cleanTitle = MakeValidFileName(title);
+                    string filePath = Path.Combine(audioPath, DateTime.Now.Millisecond.ToString() + $"{cleanTitle}" + ".M4A");
                     string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumb.jpeg");
                     using (var client = new WebClient())
                     {
@@ -171,7 +172,7 @@ namespace CobainSaver.Downloader
                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
                     await botClient.SendAudioAsync(
                         chatId: chatId,
-                        audio: InputFile.FromStream(stream),
+                        audio: InputFile.FromStream(stream, Path.GetFileName(filePath)),
                         performer: perfomer,
                         title: title,
                         duration: duration,
@@ -221,7 +222,8 @@ namespace CobainSaver.Downloader
                     {
                         Directory.CreateDirectory(audioPath);
                     }
-                    string filePath = Path.Combine(audioPath, DateTime.Now.Millisecond.ToString() + "audio.M4A");
+                    string cleanTitle = MakeValidFileName(title);
+                    string filePath = Path.Combine(audioPath, DateTime.Now.Millisecond.ToString() + $"{cleanTitle}" + ".M4A");
                     string thumbnailPath = Path.Combine(audioPath, DateTime.Now.Millisecond.ToString() + "thumb.jpeg");
                     using (var client = new WebClient())
                     {
@@ -249,7 +251,7 @@ namespace CobainSaver.Downloader
                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
                     await botClient.SendAudioAsync(
                         chatId: chatId,
-                        audio: InputFile.FromStream(stream),
+                        audio: InputFile.FromStream(stream, Path.GetFileName(filePath)),
                         performer: perfomer,
                         title: musicTitle,
                         duration: duration,
@@ -364,7 +366,8 @@ namespace CobainSaver.Downloader
                     {
                         Directory.CreateDirectory(audioPath);
                     }
-                    string filePath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "audio.M4A");
+                    string cleanTitle = MakeValidFileName(title);
+                    string filePath = Path.Combine(audioPath, DateTime.Now.Millisecond.ToString() + $"{cleanTitle}" + ".M4A");
                     string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumb.jpeg");
                     using (var client = new WebClient())
                     {
@@ -392,7 +395,7 @@ namespace CobainSaver.Downloader
                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
                     await botClient.SendAudioAsync(
                         chatId: chatId,
-                        audio: InputFile.FromStream(stream),
+                        audio: InputFile.FromStream(stream, Path.GetFileName(filePath)),
                         performer: perfomer,
                         title: title,
                         duration: duration,
@@ -484,7 +487,8 @@ namespace CobainSaver.Downloader
                     {
                         Directory.CreateDirectory(audioPath);
                     }
-                    string filePath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "audio.M4A");
+                    string cleanTitle = MakeValidFileName(title);
+                    string filePath = Path.Combine(audioPath, DateTime.Now.Millisecond.ToString() + $"{cleanTitle}" + ".M4A");
                     string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumb.jpeg");
                     using (var client = new WebClient())
                     {
@@ -512,7 +516,7 @@ namespace CobainSaver.Downloader
                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
                     await botClient.SendAudioAsync(
                         chatId: chatId,
-                        audio: InputFile.FromStream(stream),
+                        audio: InputFile.FromStream(stream, Path.GetFileName(filePath)),
                         performer: perfomer,
                         title: musicTitle,
                         duration: duration,
@@ -626,7 +630,8 @@ namespace CobainSaver.Downloader
                     {
                         Directory.CreateDirectory(audioPath);
                     }
-                    string filePath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "audio.M4A");
+                    string cleanTitle = MakeValidFileName(title);
+                    string filePath = Path.Combine(audioPath, DateTime.Now.Millisecond.ToString() + $"{cleanTitle}" + ".M4A");
                     string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumb.jpeg");
                     using (var client = new WebClient())
                     {
@@ -655,7 +660,7 @@ namespace CobainSaver.Downloader
                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
                     await botClient.SendAudioAsync(
                         chatId: chatId,
-                        audio: InputFile.FromStream(stream),
+                        audio: InputFile.FromStream(stream, Path.GetFileName(filePath)),
                         performer: perfomer,
                         title: title,
                         duration: duration,
@@ -736,7 +741,8 @@ namespace CobainSaver.Downloader
                     {
                         Directory.CreateDirectory(audioPath);
                     }
-                    string filePath = Path.Combine(audioPath, DateTime.Now.Millisecond.ToString() + "audio.M4A");
+                    string cleanTitle = MakeValidFileName(title);
+                    string filePath = Path.Combine(audioPath, DateTime.Now.Millisecond.ToString() + $"{cleanTitle}" + ".M4A");
                     string thumbnailPath = Path.Combine(audioPath, DateTime.Now.Millisecond.ToString() + "thumb.jpeg");
                     using (var client = new WebClient())
                     {
@@ -764,7 +770,7 @@ namespace CobainSaver.Downloader
                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
                     await botClient.SendAudioAsync(
                         chatId: chatId,
-                        audio: InputFile.FromStream(stream),
+                        audio: InputFile.FromStream(stream, Path.GetFileName(filePath)),
                         performer: perfomer,
                         title: titleMusic,
                         duration: duration,
@@ -877,7 +883,8 @@ namespace CobainSaver.Downloader
                     {
                         Directory.CreateDirectory(audioPath);
                     }
-                    string filePath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "audio.M4A");
+                    string cleanTitle = MakeValidFileName(title);
+                    string filePath = Path.Combine(audioPath, DateTime.Now.Millisecond.ToString() + $"{cleanTitle}" + ".M4A");
                     string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumb.jpeg");
                     using (var client = new WebClient())
                     {
@@ -906,7 +913,7 @@ namespace CobainSaver.Downloader
                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
                     await botClient.SendAudioAsync(
                         chatId: chatId,
-                        audio: InputFile.FromStream(stream),
+                        audio: InputFile.FromStream(stream, Path.GetFileName(filePath)),
                         performer: perfomer,
                         title: title,
                         duration: duration,
@@ -1025,7 +1032,8 @@ namespace CobainSaver.Downloader
                     {
                         Directory.CreateDirectory(audioPath);
                     }
-                    string filePath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "audio.M4A");
+                    string cleanTitle = MakeValidFileName(title);
+                    string filePath = Path.Combine(audioPath, DateTime.Now.Millisecond.ToString() + $"{cleanTitle}" + ".M4A");
                     string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumb.jpeg");
                     using (var client = new WebClient())
                     {
@@ -1054,7 +1062,7 @@ namespace CobainSaver.Downloader
                     await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
                     await botClient.SendAudioAsync(
                         chatId: chatId,
-                        audio: InputFile.FromStream(stream),
+                        audio: InputFile.FromStream(stream, Path.GetFileName(filePath)),
                         performer: perfomer,
                         title: titleAudio,
                         duration: duration,
@@ -1329,6 +1337,14 @@ namespace CobainSaver.Downloader
                 result.Add(arr.GetRange(i, Math.Min(rowSize, arr.Count - i)));
             }
             return result;
+        }
+        static string MakeValidFileName(string name)
+        {
+            // Список недопустимых символов для имени файла
+            char[] invalidChars = Path.GetInvalidFileNameChars();
+
+            // Удаляем или заменяем недопустимые символы
+            return string.Concat(name.Select(c => invalidChars.Contains(c) ? '_' : c));
         }
     }
 }
