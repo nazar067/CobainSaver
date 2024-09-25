@@ -520,7 +520,7 @@ namespace CobainSaver
                         var user = message.From;
                         var chat = message.Chat;
                         Logs logs = new Logs(chat.Id, user.Id, user.Username, null, ex.ToString());
-                        await logs.WriteServerLogs();
+                        //await logs.WriteServerLogs();
                     }
                 }
                 catch (Exception e)

@@ -72,7 +72,7 @@
             },
             "VideoLibrary": {
               "target": "Package",
-              "version": "[3.2.3, )"
+              "version": "[3.2.5, )"
             },
             "Xabe.FFmpeg": {
               "target": "Package",
@@ -84,7 +84,7 @@
             },
             "YoutubeExplode": {
               "target": "Package",
-              "version": "[6.4.0, )"
+              "version": "[6.4.1, )"
             },
             "YoutubeSearchApi.Net": {
               "target": "Package",

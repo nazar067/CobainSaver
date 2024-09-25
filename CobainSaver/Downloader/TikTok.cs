@@ -1338,13 +1338,21 @@ namespace CobainSaver.Downloader
             }
             return result;
         }
-        static string MakeValidFileName(string name)
+        private static string MakeValidFileName(string name)
         {
-            // Список недопустимых символов для имени файла
-            char[] invalidChars = Path.GetInvalidFileNameChars();
+            // Список допустимых символов: буквы латиницы, цифры, пробел, дефис, подчеркивание, точка
+            string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_ .";
 
-            // Удаляем или заменяем недопустимые символы
-            return string.Concat(name.Select(c => invalidChars.Contains(c) ? '_' : c));
+            // Фильтруем строку, оставляя только допустимые символы
+            var cleanName = new string(name.Where(c => validChars.Contains(c)).ToArray());
+
+            // Если после фильтрации имя пустое или слишком короткое, присваиваем стандартное имя
+            if (string.IsNullOrWhiteSpace(cleanName))
+            {
+                cleanName = DateTime.Now.Millisecond.ToString() + "audio"; // Стандартное имя файла
+            }
+
+            return cleanName;
         }
     }
 }

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "c1RfaV8SwAOj260f6hc+T8Sz8qhDwuaVYkp6SrBx1bV52lMVoqZy4Dgj6hlwb4kk0G2CWtgDnMzpCArcNzlqxA==",
+  "dgSpecHash": "qhn88kvawqgDQWmmLR/nUwNEdGfH2NeiZ1Gdyv7HCf5c0v43R2KTmjDz7PDpCXhvGNs/kYD2zQNrj2Sz3cvPng==",
   "success": true,
   "projectFilePath": "C:\\Users\\gamer\\source\\repos\\CobainSaver\\CobainSaver\\CobainSaver.csproj",
   "expectedPackageFiles": [
@@ -64,10 +64,10 @@
     "C:\\Users\\gamer\\.nuget\\packages\\system.text.json\\8.0.0\\system.text.json.8.0.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\system.threading.channels\\6.0.0\\system.threading.channels.6.0.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\telegram.bot\\19.0.0\\telegram.bot.19.0.0.nupkg.sha512",
-    "C:\\Users\\gamer\\.nuget\\packages\\videolibrary\\3.2.3\\videolibrary.3.2.3.nupkg.sha512",
+    "C:\\Users\\gamer\\.nuget\\packages\\videolibrary\\3.2.5\\videolibrary.3.2.5.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\xabe.ffmpeg\\5.2.6\\xabe.ffmpeg.5.2.6.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\youtubedlsharp\\1.0.0\\youtubedlsharp.1.0.0.nupkg.sha512",
-    "C:\\Users\\gamer\\.nuget\\packages\\youtubeexplode\\6.4.0\\youtubeexplode.6.4.0.nupkg.sha512",
+    "C:\\Users\\gamer\\.nuget\\packages\\youtubeexplode\\6.4.1\\youtubeexplode.6.4.1.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\youtubesearchapi.net\\1.1.1\\youtubesearchapi.net.1.1.1.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\microsoft.netcore.app.runtime.linux-x64\\8.0.0\\microsoft.netcore.app.runtime.linux-x64.8.0.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.linux-x64\\8.0.0\\microsoft.aspnetcore.app.runtime.linux-x64.8.0.0.nupkg.sha512",

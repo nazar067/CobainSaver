@@ -1442,7 +1442,7 @@
           }
         }
       },
-      "VideoLibrary/3.2.3": {
+      "VideoLibrary/3.2.5": {
         "type": "package",
         "dependencies": {
           "NETStandard.Library": "1.6.1",
@@ -1487,7 +1487,7 @@
           }
         }
       },
-      "YoutubeExplode/6.4.0": {
+      "YoutubeExplode/6.4.1": {
         "type": "package",
         "dependencies": {
           "AngleSharp": "1.1.2"
@@ -3472,7 +3472,7 @@
           }
         }
       },
-      "VideoLibrary/3.2.3": {
+      "VideoLibrary/3.2.5": {
         "type": "package",
         "dependencies": {
           "NETStandard.Library": "1.6.1",
@@ -3517,7 +3517,7 @@
           }
         }
       },
-      "YoutubeExplode/6.4.0": {
+      "YoutubeExplode/6.4.1": {
         "type": "package",
         "dependencies": {
           "AngleSharp": "1.1.2"
@@ -6008,10 +6008,10 @@
         "telegram.bot.nuspec"
       ]
     },
-    "VideoLibrary/3.2.3": {
-      "sha512": "RU0cc2A2xy1ggqN/UE0+nF9UNpKS3Tn+HTt2le25Gy9zAcbCqAKd8AVhXuaShD88gMvVSyNXfiX4aj6XajLRAQ==",
+    "VideoLibrary/3.2.5": {
+      "sha512": "OcnzfWEj8v3liOTbesM71arXuMDgMKlS4vWsBAuIag8k2C6TRgz4ieU9oEPkQ0xYTvQWjLYuvdI2jDL9FcMeLQ==",
       "type": "package",
-      "path": "videolibrary/3.2.3",
+      "path": "videolibrary/3.2.5",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -6019,7 +6019,7 @@
         "README.md",
         "icon_586.png",
         "lib/netstandard1.1/libvideo.dll",
-        "videolibrary.3.2.3.nupkg.sha512",
+        "videolibrary.3.2.5.nupkg.sha512",
         "videolibrary.nuspec"
       ]
     },
@@ -6054,10 +6054,10 @@
         "youtubedlsharp.nuspec"
       ]
     },
-    "YoutubeExplode/6.4.0": {
-      "sha512": "jdjgUEQyTXG8CRtcadwjbymCNOQCis3fE1YQbjEZID+7foFcH+2gVqli4MpA+AFwDI2klZBG2aaFbOLDqYExzg==",
+    "YoutubeExplode/6.4.1": {
+      "sha512": "9D9NNCZI2npIRNTrUATcAUPNJWPF6RABT2kA2j5zLu2b87VLHqcwp8SJHDHFL7gcM5dyXdcNbMI1I5ImKkX0Cw==",
       "type": "package",
-      "path": "youtubeexplode/6.4.0",
+      "path": "youtubeexplode/6.4.1",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -6072,7 +6072,7 @@
         "lib/netstandard2.0/YoutubeExplode.xml",
         "lib/netstandard2.1/YoutubeExplode.dll",
         "lib/netstandard2.1/YoutubeExplode.xml",
-        "youtubeexplode.6.4.0.nupkg.sha512",
+        "youtubeexplode.6.4.1.nupkg.sha512",
         "youtubeexplode.nuspec"
       ]
     },
@@ -6101,10 +6101,10 @@
       "SpotifyAPI.Web >= 7.1.1",
       "StackExchange.Redis >= 2.7.33",
       "Telegram.Bot >= 19.0.0",
-      "VideoLibrary >= 3.2.3",
+      "VideoLibrary >= 3.2.5",
       "Xabe.FFmpeg >= 5.2.6",
       "YoutubeDLSharp >= 1.0.0",
-      "YoutubeExplode >= 6.4.0",
+      "YoutubeExplode >= 6.4.1",
       "YoutubeSearchApi.Net >= 1.1.1"
     ]
   },
@@ -6179,7 +6179,7 @@
           },
           "VideoLibrary": {
             "target": "Package",
-            "version": "[3.2.3, )"
+            "version": "[3.2.5, )"
           },
           "Xabe.FFmpeg": {
             "target": "Package",
@@ -6191,7 +6191,7 @@
           },
           "YoutubeExplode": {
             "target": "Package",
-            "version": "[6.4.0, )"
+            "version": "[6.4.1, )"
           },
           "YoutubeSearchApi.Net": {
             "target": "Package",

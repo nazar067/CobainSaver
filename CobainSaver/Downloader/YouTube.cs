@@ -9,6 +9,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -43,6 +44,8 @@ namespace CobainSaver.Downloader
                 var allInfo = await youtube.Videos.GetAsync(normallMsg);
 
                 var videoUrl = normallMsg;
+
+
                 var streamManifest = await youtube.Videos.Streams.GetManifestAsync(videoUrl);
 
                 var streamInfo = streamManifest.GetMuxedStreams().GetWithHighestVideoQuality();
@@ -214,13 +217,14 @@ namespace CobainSaver.Downloader
                 ytdl.YoutubeDLPath = jsonObjectAPI["ffmpegPath"][1].ToString();
                 ytdl.FFmpegPath = jsonObjectAPI["ffmpegPath"][0].ToString();
 
-                string audioPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
-                if (!Directory.Exists(audioPath))
+                string tempPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
+                if (!Directory.Exists(tempPath))
                 {
-                    Directory.CreateDirectory(audioPath);
+                    Directory.CreateDirectory(tempPath);
                 }
-                string pornPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "VIDEO.webm");
-                string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVIDEO.jpeg");
+                string uniqueId = chatId.ToString() + DateTime.Now.Millisecond.ToString();
+                string pornPath = Path.Combine(tempPath, uniqueId + "VIDEO.MPEG4");
+                string thumbnailPath = Path.Combine(tempPath, uniqueId + "thumbVIDEO.jpeg");
 
 
                 ytdl.OutputFileTemplate = pornPath;
@@ -256,7 +260,38 @@ namespace CobainSaver.Downloader
                         client.DownloadFile("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg", thumbnailPath);
                     }
                 }
-                await using Stream streamVideo = System.IO.File.OpenRead(pornPath);
+                string[] files = Directory.GetFiles(tempPath);
+
+                string audioPath = null;
+
+                foreach (string file in files)
+                {
+                    string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(file);
+
+                    // Если файл содержит уникальный идентификатор и заканчивается на .mp4
+                    if (fileNameWithoutExtension.Contains(uniqueId) && file.EndsWith(".mp4"))
+                    {
+                        pornPath = file; // присваиваем путь для видео
+                    }
+                    // Если файл содержит уникальный идентификатор и заканчивается на .m4a
+                    else if (fileNameWithoutExtension.Contains(uniqueId) && file.EndsWith(".m4a"))
+                    {
+                        audioPath = file; // присваиваем путь для аудио
+                    }
+                }
+
+                var videoStream = await FFmpeg.GetMediaInfo(pornPath);
+                var audioStream = await FFmpeg.GetMediaInfo(audioPath);
+
+                var outputFile = Path.Combine(tempPath, $"{uniqueId}output.mp4");
+
+                await FFmpeg.Conversions.New()
+                    .AddStream(videoStream.VideoStreams.First())
+                    .AddStream(audioStream.AudioStreams.First())
+                    .SetOutput(outputFile)
+                    .Start();
+
+                await using Stream streamVideo = System.IO.File.OpenRead(outputFile);
                 await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
 
                 try
@@ -319,6 +354,8 @@ namespace CobainSaver.Downloader
 
                 System.IO.File.Delete(pornPath);
                 System.IO.File.Delete(thumbnailPath);
+                System.IO.File.Delete(outputFile);
+                System.IO.File.Delete(audioPath);
             }
             catch (Exception ex)
             {
@@ -1064,13 +1101,21 @@ namespace CobainSaver.Downloader
 
             return input;
         }
-        static string MakeValidFileName(string name)
+        private static string MakeValidFileName(string name)
         {
-            // Список недопустимых символов для имени файла
-            char[] invalidChars = Path.GetInvalidFileNameChars();
+            // Список допустимых символов: буквы латиницы, цифры, пробел, дефис, подчеркивание, точка
+            string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_ .";
 
-            // Удаляем или заменяем недопустимые символы
-            return string.Concat(name.Select(c => invalidChars.Contains(c) ? '_' : c));
+            // Фильтруем строку, оставляя только допустимые символы
+            var cleanName = new string(name.Where(c => validChars.Contains(c)).ToArray());
+
+            // Если после фильтрации имя пустое или слишком короткое, присваиваем стандартное имя
+            if (string.IsNullOrWhiteSpace(cleanName))
+            {
+                cleanName = DateTime.Now.Millisecond.ToString() + "audio"; // Стандартное имя файла
+            }
+
+            return cleanName;
         }
     }
 }
