@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "qhn88kvawqgDQWmmLR/nUwNEdGfH2NeiZ1Gdyv7HCf5c0v43R2KTmjDz7PDpCXhvGNs/kYD2zQNrj2Sz3cvPng==",
+  "dgSpecHash": "0QwE2USOiF5K/QJBDfDTxS9xEMAVUTlUEhWiQXwjDGFk+iTc2opCsXavaNMSH7uIUozjXSeI9xXQYjEXKNwoeg==",
   "success": true,
   "projectFilePath": "C:\\Users\\gamer\\source\\repos\\CobainSaver\\CobainSaver\\CobainSaver.csproj",
   "expectedPackageFiles": [
@@ -67,7 +67,7 @@
     "C:\\Users\\gamer\\.nuget\\packages\\videolibrary\\3.2.5\\videolibrary.3.2.5.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\xabe.ffmpeg\\5.2.6\\xabe.ffmpeg.5.2.6.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\youtubedlsharp\\1.0.0\\youtubedlsharp.1.0.0.nupkg.sha512",
-    "C:\\Users\\gamer\\.nuget\\packages\\youtubeexplode\\6.4.1\\youtubeexplode.6.4.1.nupkg.sha512",
+    "C:\\Users\\gamer\\.nuget\\packages\\youtubeexplode\\6.4.2\\youtubeexplode.6.4.2.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\youtubesearchapi.net\\1.1.1\\youtubesearchapi.net.1.1.1.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\microsoft.netcore.app.runtime.linux-x64\\8.0.0\\microsoft.netcore.app.runtime.linux-x64.8.0.0.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.linux-x64\\8.0.0\\microsoft.aspnetcore.app.runtime.linux-x64.8.0.0.nupkg.sha512",

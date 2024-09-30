@@ -84,7 +84,7 @@
             },
             "YoutubeExplode": {
               "target": "Package",
-              "version": "[6.4.1, )"
+              "version": "[6.4.2, )"
             },
             "YoutubeSearchApi.Net": {
               "target": "Package",

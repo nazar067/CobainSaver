@@ -18,7 +18,7 @@
           "VideoLibrary": "3.2.5",
           "Xabe.FFmpeg": "5.2.6",
           "YoutubeDLSharp": "1.0.0",
-          "YoutubeExplode": "6.4.1",
+          "YoutubeExplode": "6.4.2",
           "YoutubeSearchApi.Net": "1.1.1"
         },
         "runtime": {
@@ -709,14 +709,14 @@
           }
         }
       },
-      "YoutubeExplode/6.4.1": {
+      "YoutubeExplode/6.4.2": {
         "dependencies": {
           "AngleSharp": "1.1.2"
         },
         "runtime": {
           "lib/net8.0/YoutubeExplode.dll": {
-            "assemblyVersion": "6.4.1.0",
-            "fileVersion": "6.4.1.0"
+            "assemblyVersion": "6.4.2.0",
+            "fileVersion": "6.4.2.0"
           }
         }
       },
@@ -1154,12 +1154,12 @@
       "path": "youtubedlsharp/1.0.0",
       "hashPath": "youtubedlsharp.1.0.0.nupkg.sha512"
     },
-    "YoutubeExplode/6.4.1": {
+    "YoutubeExplode/6.4.2": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-9D9NNCZI2npIRNTrUATcAUPNJWPF6RABT2kA2j5zLu2b87VLHqcwp8SJHDHFL7gcM5dyXdcNbMI1I5ImKkX0Cw==",
-      "path": "youtubeexplode/6.4.1",
-      "hashPath": "youtubeexplode.6.4.1.nupkg.sha512"
+      "sha512": "sha512-2u9enfXwg462DmIW5RwXCEqfEd+CJpFoASLDV18UxB6arHMGdX2MxKr+lhejOzJq+RKHoTDOr1P9DpPcbdRoog==",
+      "path": "youtubeexplode/6.4.2",
+      "hashPath": "youtubeexplode.6.4.2.nupkg.sha512"
     },
     "YoutubeSearchApi.Net/1.1.1": {
       "type": "package",

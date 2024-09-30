@@ -42,15 +42,47 @@ namespace CobainSaver.Downloader
 
                 var youtube = new YoutubeClient();
                 var allInfo = await youtube.Videos.GetAsync(normallMsg);
+                var streamManifest = await youtube.Videos.Streams.GetManifestAsync(normallMsg);
 
-                var videoUrl = normallMsg;
+                // Получаем видео и аудио потоки отдельно
 
+                var videoStreams = streamManifest.GetVideoOnlyStreams();
 
-                var streamManifest = await youtube.Videos.Streams.GetManifestAsync(videoUrl);
+                VideoOnlyStreamInfo videoStreamInfo = null;
 
-                var streamInfo = streamManifest.GetMuxedStreams().GetWithHighestVideoQuality();
-                string size = streamInfo.Size.MegaBytes.ToString();
-                if (Convert.ToDouble(size) >= 50)
+                foreach (var video in videoStreams)
+                {
+                    if (video.VideoQuality.Label == "480p" && video.Size.MegaBytes < 50)
+                    {
+                        videoStreamInfo = streamManifest.GetVideoOnlyStreams()
+                                             .FirstOrDefault(s => s.VideoQuality.Label == "480p");
+                        break;
+                    }
+                    if (video.VideoQuality.Label == "360p" && video.Size.MegaBytes < 50)
+                    {
+                        videoStreamInfo = streamManifest.GetVideoOnlyStreams()
+                                             .FirstOrDefault(s => s.VideoQuality.Label == "360p");
+                        break;
+                    }
+                    if (video.VideoQuality.Label == "240p" && video.Size.MegaBytes < 50)
+                    {
+                        videoStreamInfo = streamManifest.GetVideoOnlyStreams()
+                                             .FirstOrDefault(s => s.VideoQuality.Label == "240p");
+                        break;
+                    }
+                    if (video.VideoQuality.Label == "144p" && video.Size.MegaBytes < 50)
+                    {
+                        videoStreamInfo = streamManifest.GetVideoOnlyStreams()
+                                             .FirstOrDefault(s => s.VideoQuality.Label == "144p");
+                        break;
+                    }
+                }
+
+                var audioStreamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
+
+                string sizeVideo = videoStreamInfo.Size.MegaBytes.ToString();
+                string sizeAudio = audioStreamInfo.Size.MegaBytes.ToString();
+                if (Convert.ToDouble(sizeVideo) + Convert.ToDouble(sizeAudio) >= 50)
                 {
                     Language language = new Language("rand", "rand");
                     string lang = await language.GetCurrentLanguage(chatId.ToString());
@@ -77,7 +109,7 @@ namespace CobainSaver.Downloader
                     }
                     return;
                 }
-                stream = await youtube.Videos.Streams.GetAsync(streamInfo);
+                //stream = await youtube.Videos.Streams.GetAsync(streamInfo);
                 string duration = allInfo.Duration.Value.TotalSeconds.ToString();
                 string title = allInfo.Title;
                 if (title.Contains("#"))
@@ -86,19 +118,18 @@ namespace CobainSaver.Downloader
                 }
                 string thumbnail = "https://img.youtube.com/vi/" + allInfo.Id + "/maxresdefault.jpg";
 
-                string audioPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
-                if (!Directory.Exists(audioPath))
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
+                if (!Directory.Exists(path))
                 {
-                    Directory.CreateDirectory(audioPath);
+                    Directory.CreateDirectory(path);
                 }
-                string videoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "video.MPEG4");
-                string thumbnailVideoPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVideo.jpeg");
+
+                string videoPath = Path.Combine(path, DateTime.Now.Millisecond.ToString() + $"_video.mp4");
+                string audioPath = Path.Combine(path, DateTime.Now.Millisecond.ToString() + $"_audio.m4a");
+                string outputPath = Path.Combine(path, DateTime.Now.Millisecond.ToString() + $"_final.mp4");
+                string thumbnailVideoPath = Path.Combine(path, chatId + DateTime.Now.Millisecond.ToString() + "thumbVideo.jpeg");
                 try
                 {
-                    using (var client = new WebClient())
-                    {
-                        client.DownloadFile(streamInfo.Url, videoPath);
-                    }
                     using (var client = new WebClient())
                     {
                         client.DownloadFile(thumbnail, thumbnailVideoPath);
@@ -116,7 +147,19 @@ namespace CobainSaver.Downloader
                     }
                 }
 
-                await using Stream streamVideo = System.IO.File.OpenRead(videoPath);
+                await youtube.Videos.Streams.DownloadAsync(videoStreamInfo, videoPath);
+                await youtube.Videos.Streams.DownloadAsync(audioStreamInfo, audioPath);
+
+                var videoStream = await FFmpeg.GetMediaInfo(videoPath);
+                var audioStream = await FFmpeg.GetMediaInfo(audioPath);
+
+                await FFmpeg.Conversions.New()
+                    .AddStream(videoStream.VideoStreams.First())
+                    .AddStream(audioStream.AudioStreams.First())
+                    .SetOutput(outputPath)
+                    .Start();
+
+                await using Stream streamVideo = System.IO.File.OpenRead(outputPath);
                 await using Stream streamThumbVideo = System.IO.File.OpenRead(thumbnailVideoPath);
 
                 try
@@ -173,6 +216,8 @@ namespace CobainSaver.Downloader
                 streamVideo.Close();
                 streamThumbVideo.Close();
                 System.IO.File.Delete(videoPath);
+                System.IO.File.Delete(audioPath);
+                System.IO.File.Delete(outputPath);
                 System.IO.File.Delete(thumbnailVideoPath);
             }
             catch (Exception ex)
@@ -223,7 +268,7 @@ namespace CobainSaver.Downloader
                     Directory.CreateDirectory(tempPath);
                 }
                 string uniqueId = chatId.ToString() + DateTime.Now.Millisecond.ToString();
-                string pornPath = Path.Combine(tempPath, uniqueId + "VIDEO.MPEG4");
+                string pornPath = Path.Combine(tempPath, uniqueId + "VIDEO.mp4");
                 string thumbnailPath = Path.Combine(tempPath, uniqueId + "thumbVIDEO.jpeg");
 
 
@@ -412,8 +457,36 @@ namespace CobainSaver.Downloader
                 var videoUrl = normallMsg;
                 var streamManifest = await youtube.Videos.Streams.GetManifestAsync(videoUrl);
 
-                var streamInfo = streamManifest.GetMuxedStreams().GetWithHighestVideoQuality();
-                string size = streamInfo.Size.MegaBytes.ToString();
+                var audioStreamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
+                if (audioStreamInfo == null)
+                {
+                    // Если не найдено подходящих потоков
+                    Language language = new Language("rand", "rand");
+                    string lang = await language.GetCurrentLanguage(chatId.ToString());
+                    if (lang == "eng")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Sorry, this type of audio is not supported, only send me public content",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "ukr")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Вибачте, цей тип аудіо не підтримується, надсилайте мені тільки публічний контент",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    if (lang == "rus")
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Извините, этот тип аудио не поддерживается, отправляйте мне только публичный контент",
+                            replyToMessageId: update.Message.MessageId);
+                    }
+                    return;
+                }
+                string size = audioStreamInfo.Size.MegaBytes.ToString();
                 if (Convert.ToDouble(size) >= 50)
                 {
                     Language language = new Language("rand", "rand");
@@ -468,7 +541,7 @@ namespace CobainSaver.Downloader
                     }
                     return;
                 }
-                stream = await youtube.Videos.Streams.GetAsync(streamInfo);
+                stream = await youtube.Videos.Streams.GetAsync(audioStreamInfo);
 
                 string title = allInfo.Title;
                 string thumbnail = "https://img.youtube.com/vi/" + allInfo.Id + "/maxresdefault.jpg";
@@ -488,12 +561,9 @@ namespace CobainSaver.Downloader
                 string cleanTitle = MakeValidFileName(title);
                 string audioPath = Path.Combine(path, DateTime.Now.Millisecond.ToString() + $"{cleanTitle}" + ".m4a");
                 string thumbnailAudioPath = Path.Combine(path, chatId + DateTime.Now.Millisecond.ToString() + "thumbVideo.jpeg");
+                await youtube.Videos.Streams.DownloadAsync(audioStreamInfo, audioPath);
                 try
                 {
-                    using (var client = new WebClient())
-                    {
-                        client.DownloadFile(streamInfo.Url, audioPath);
-                    }
                     using (var client = new WebClient())
                     {
                         client.DownloadFile(thumbnail, thumbnailAudioPath);
@@ -1117,5 +1187,6 @@ namespace CobainSaver.Downloader
 
             return cleanName;
         }
+
     }
 }
