@@ -191,7 +191,7 @@ namespace CobainSaver
                 else if (message.Text.Contains("https://www.reddit.com") || message.Text.Contains("https://redd.it/"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
-                    await reddit.ReditVideoDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
+                    await reddit.RedditVideoDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
                     await addDB.AddUserLinks(chat.Id, user.Id, "reddit", message.MessageId, DateTime.Now.ToShortDateString());
                     await ads.DeleteAds(chat.Id);
                 }

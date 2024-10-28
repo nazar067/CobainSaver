@@ -422,7 +422,7 @@ namespace CobainSaver
                         text: "Выберите год"
                     );
                 }
-
+                directories = directories.OrderBy(f => f).ToArray();
                 foreach (string userDirectory in directories)
                 {
                     string year = userDirectory.Split("/").Last();
@@ -535,6 +535,7 @@ namespace CobainSaver
                     InlineKeyboardButton.WithCallbackData(text: "Назад", callbackData: "BackToYear" + " " + chatId + " " + messageId + " " + chatToSend),
                 });
             }
+            directories = directories.OrderBy(d => int.Parse(d.Split("/").Last())).ToArray();
             foreach (string userDirectory in directories)
             {
                 string month = userDirectory.Split("/").Last();
@@ -861,6 +862,7 @@ namespace CobainSaver
                     InlineKeyboardButton.WithCallbackData(text: "Назад", callbackData: "BackToMonth" + " " + chatId + " " + year + " " + messageId + " " + chatToSend),
                 });
             }
+            files = files.OrderBy(f => f).ToArray();
             foreach (string userFiles in files)
             {
                 string dates = userFiles.Split("/").Last();

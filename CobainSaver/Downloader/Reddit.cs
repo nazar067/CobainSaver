@@ -40,7 +40,7 @@ namespace CobainSaver.Downloader
         {
             redditClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0");
         }
-        public async Task ReditVideoDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        public async Task RedditVideoDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
             try
             {
@@ -80,7 +80,7 @@ namespace CobainSaver.Downloader
                 }
                 catch
                 {
-                    await ReditPhotoDownloader(chatId, update, cancellationToken, messageText, botClient);
+                    await RedditPhotoDownloader(chatId, update, cancellationToken, messageText, botClient);
                     return;
                 }
                 if (title.Contains("#"))
@@ -278,7 +278,7 @@ namespace CobainSaver.Downloader
             }
 
         }
-        public async Task ReditPhotoDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
+        public async Task RedditPhotoDownloader(long chatId, Update update, CancellationToken cancellationToken, string messageText, TelegramBotClient botClient)
         {
             try
             {
@@ -296,6 +296,34 @@ namespace CobainSaver.Downloader
                 var response = await redditClient.GetAsync(url);
                 var responseString = await response.Content.ReadAsStringAsync();
                 JObject jsonObject = JObject.Parse(responseString);
+/*                List<string> imageUrls = new List<string>();
+
+                // Получаем медиа-данные из JSON
+                var mediaMetadata = jsonObject["data"]["children"][0]["data"]["media_metadata"];
+
+                if (mediaMetadata != null)
+                {
+                    foreach (var media in mediaMetadata)
+                    {
+                        var images = media.First["s"];
+                        if (images != null)
+                        {
+                            string imageUrl = images["u"].ToString();
+                            imageUrls.Add(imageUrl);
+                        }
+                    }
+                }
+
+                // Выводим ссылки на фотографии
+                foreach (var imgUrl in imageUrls)
+                {
+                    Console.WriteLine(imgUrl);
+                    await botClient.SendPhotoAsync(
+                        chatId: chatId,
+                        photo: InputFile.FromUri(imgUrl),
+                        replyToMessageId: update.Message.MessageId
+                    );
+                }*/
                 if (!jsonObject["data"]["children"].Any())
                 {
                     await Console.Out.WriteLineAsync("json null");

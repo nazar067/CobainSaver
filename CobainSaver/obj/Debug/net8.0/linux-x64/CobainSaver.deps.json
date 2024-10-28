@@ -16,10 +16,10 @@
           "SpotifyAPI.Web": "7.1.1",
           "StackExchange.Redis": "2.7.33",
           "Telegram.Bot": "19.0.0",
-          "VideoLibrary": "3.2.3",
+          "VideoLibrary": "3.2.5",
           "Xabe.FFmpeg": "5.2.6",
           "YoutubeDLSharp": "1.0.0",
-          "YoutubeExplode": "6.4.0",
+          "YoutubeExplode": "6.4.2",
           "YoutubeSearchApi.Net": "1.1.1",
           "runtimepack.Microsoft.NETCore.App.Runtime.linux-x64": "8.0.0"
         },
@@ -1221,15 +1221,15 @@
           }
         }
       },
-      "VideoLibrary/3.2.3": {
+      "VideoLibrary/3.2.5": {
         "dependencies": {
           "NETStandard.Library": "2.0.3",
           "Newtonsoft.Json": "13.0.3"
         },
         "runtime": {
           "lib/netstandard1.1/libvideo.dll": {
-            "assemblyVersion": "3.2.3.0",
-            "fileVersion": "3.2.3.0"
+            "assemblyVersion": "3.2.5.0",
+            "fileVersion": "3.2.5.0"
           }
         }
       },
@@ -1255,14 +1255,14 @@
           }
         }
       },
-      "YoutubeExplode/6.4.0": {
+      "YoutubeExplode/6.4.2": {
         "dependencies": {
           "AngleSharp": "1.1.2"
         },
         "runtime": {
           "lib/net8.0/YoutubeExplode.dll": {
-            "assemblyVersion": "6.4.0.0",
-            "fileVersion": "6.4.0.0"
+            "assemblyVersion": "6.4.2.0",
+            "fileVersion": "6.4.2.0"
           }
         }
       },
@@ -1712,12 +1712,12 @@
       "path": "telegram.bot/19.0.0",
       "hashPath": "telegram.bot.19.0.0.nupkg.sha512"
     },
-    "VideoLibrary/3.2.3": {
+    "VideoLibrary/3.2.5": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-RU0cc2A2xy1ggqN/UE0+nF9UNpKS3Tn+HTt2le25Gy9zAcbCqAKd8AVhXuaShD88gMvVSyNXfiX4aj6XajLRAQ==",
-      "path": "videolibrary/3.2.3",
-      "hashPath": "videolibrary.3.2.3.nupkg.sha512"
+      "sha512": "sha512-OcnzfWEj8v3liOTbesM71arXuMDgMKlS4vWsBAuIag8k2C6TRgz4ieU9oEPkQ0xYTvQWjLYuvdI2jDL9FcMeLQ==",
+      "path": "videolibrary/3.2.5",
+      "hashPath": "videolibrary.3.2.5.nupkg.sha512"
     },
     "Xabe.FFmpeg/5.2.6": {
       "type": "package",
@@ -1733,12 +1733,12 @@
       "path": "youtubedlsharp/1.0.0",
       "hashPath": "youtubedlsharp.1.0.0.nupkg.sha512"
     },
-    "YoutubeExplode/6.4.0": {
+    "YoutubeExplode/6.4.2": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-jdjgUEQyTXG8CRtcadwjbymCNOQCis3fE1YQbjEZID+7foFcH+2gVqli4MpA+AFwDI2klZBG2aaFbOLDqYExzg==",
-      "path": "youtubeexplode/6.4.0",
-      "hashPath": "youtubeexplode.6.4.0.nupkg.sha512"
+      "sha512": "sha512-2u9enfXwg462DmIW5RwXCEqfEd+CJpFoASLDV18UxB6arHMGdX2MxKr+lhejOzJq+RKHoTDOr1P9DpPcbdRoog==",
+      "path": "youtubeexplode/6.4.2",
+      "hashPath": "youtubeexplode.6.4.2.nupkg.sha512"
     },
     "YoutubeSearchApi.Net/1.1.1": {
       "type": "package",

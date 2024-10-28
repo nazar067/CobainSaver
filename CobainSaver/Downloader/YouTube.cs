@@ -52,25 +52,25 @@ namespace CobainSaver.Downloader
 
                 foreach (var video in videoStreams)
                 {
-                    if (video.VideoQuality.Label == "480p" && video.Size.MegaBytes < 50)
+                    if (video.VideoQuality.Label == "480p" && video.Size.MegaBytes < 35)
                     {
                         videoStreamInfo = streamManifest.GetVideoOnlyStreams()
                                              .FirstOrDefault(s => s.VideoQuality.Label == "480p");
                         break;
                     }
-                    if (video.VideoQuality.Label == "360p" && video.Size.MegaBytes < 50)
+                    if (video.VideoQuality.Label == "360p" && video.Size.MegaBytes < 35)
                     {
                         videoStreamInfo = streamManifest.GetVideoOnlyStreams()
                                              .FirstOrDefault(s => s.VideoQuality.Label == "360p");
                         break;
                     }
-                    if (video.VideoQuality.Label == "240p" && video.Size.MegaBytes < 50)
+                    if (video.VideoQuality.Label == "240p" && video.Size.MegaBytes < 35)
                     {
                         videoStreamInfo = streamManifest.GetVideoOnlyStreams()
                                              .FirstOrDefault(s => s.VideoQuality.Label == "240p");
                         break;
                     }
-                    if (video.VideoQuality.Label == "144p" && video.Size.MegaBytes < 50)
+                    if (video.VideoQuality.Label == "144p" && video.Size.MegaBytes < 35)
                     {
                         videoStreamInfo = streamManifest.GetVideoOnlyStreams()
                                              .FirstOrDefault(s => s.VideoQuality.Label == "144p");
@@ -143,7 +143,7 @@ namespace CobainSaver.Downloader
                 {
                     using (var client = new WebClient())
                     {
-                        client.DownloadFile("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg", thumbnailVideoPath);
+                        client.DownloadFile("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg", thumbnailVideoPath);  
                     }
                 }
 
