@@ -11,6 +11,9 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types;
 using Telegram.Bot;
 using YoutubeDLSharp;
+using System.Xml;
+using Xabe.FFmpeg;
+using YoutubeDLSharp.Metadata;
 
 namespace CobainSaver.Downloader
 {
@@ -33,13 +36,16 @@ namespace CobainSaver.Downloader
                 ytdl.YoutubeDLPath = jsonObjectAPI["ffmpegPath"][1].ToString();
                 ytdl.FFmpegPath = jsonObjectAPI["ffmpegPath"][0].ToString();
 
-                string audioPath = Directory.GetCurrentDirectory() + "/UserLogs" + $"/{chatId}" + $"/audio";
-                if (!Directory.Exists(audioPath))
+                string tempPath = Path.Combine(Directory.GetCurrentDirectory(), "UserLogs", chatId.ToString(), "audio");
+                if (!Directory.Exists(tempPath))
                 {
-                    Directory.CreateDirectory(audioPath);
+                    Directory.CreateDirectory(tempPath);
                 }
-                string pornPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "VIDEO.mp4");
-                string thumbnailPath = Path.Combine(audioPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVIDEO.jpeg");
+
+                string uniqueId = chatId.ToString() + DateTime.Now.Millisecond.ToString();
+
+                string pornPath = Path.Combine(tempPath, chatId + DateTime.Now.Millisecond.ToString() + "VIDEO.mp4");
+                string thumbnailPath = Path.Combine(tempPath, chatId + DateTime.Now.Millisecond.ToString() + "thumbVIDEO.jpeg");
 
 
                 ytdl.OutputFileTemplate = pornPath;
@@ -108,7 +114,44 @@ namespace CobainSaver.Downloader
                         client.DownloadFile("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg", thumbnailPath);
                     }
                 }
-                await using Stream streamVideo = System.IO.File.OpenRead(pornPath);
+                string[] files = Directory.GetFiles(tempPath);
+
+                string audioPath = null;
+
+                foreach (string file in files)
+                {
+                    string fileName = Path.GetFileName(file); // Получаем полное имя файла с расширением
+                    string extension = Path.GetExtension(file); // Получаем расширение файла
+
+                    // Проверяем, является ли это аудиофайлом по уникальному идентификатору и наличию "audio" в названии
+                    if (fileName.Contains(uniqueId) && fileName.Contains("audio") && extension.Equals(".mp4", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Заменяем расширение .mp4 на .m4a
+                        string newAudioPath = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + ".m4a");
+                        System.IO.File.Move(file, newAudioPath);
+
+                        // Обновляем путь к файлу с новым расширением
+                        audioPath = newAudioPath;
+                    }
+                    // Если это видеофайл (по уникальному идентификатору и расширению .mp4)
+                    else if (fileName.Contains(uniqueId) && extension.Equals(".mp4", StringComparison.OrdinalIgnoreCase))
+                    {
+                        pornPath = file; // Сохраняем путь к видеофайлу
+                    }
+                }
+
+                var videoStream = await FFmpeg.GetMediaInfo(pornPath);
+                var audioStream = await FFmpeg.GetMediaInfo(audioPath);
+
+                var outputFile = Path.Combine(tempPath, $"{uniqueId}output.mp4");
+
+                await FFmpeg.Conversions.New()
+                    .AddStream(videoStream.VideoStreams.First())
+                    .AddStream(audioStream.AudioStreams.First())
+                    .SetOutput(outputFile)
+                    .Start();
+
+                await using Stream streamVideo = System.IO.File.OpenRead(outputFile);
                 await using Stream streamThumb = System.IO.File.OpenRead(thumbnailPath);
 
                 try
@@ -169,6 +212,8 @@ namespace CobainSaver.Downloader
 
                 System.IO.File.Delete(pornPath);
                 System.IO.File.Delete(thumbnailPath);
+                System.IO.File.Delete(outputFile);
+                System.IO.File.Delete(audioPath);
             }
             catch (Exception ex)
             {
