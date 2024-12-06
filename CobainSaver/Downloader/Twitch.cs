@@ -67,21 +67,21 @@ namespace CobainSaver.Downloader
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Sorry, this clip has a problem: the clip is too big (the size should not exceed 50mb)",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "ukr")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Вибачте, з цим кліпом виникла помилка: кліп занадто велике (розмір має не перевищувати 50мб)",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "rus")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Извините, с этим клипом возникли проблемы: клип слишком большое(размер должен не превышать 50мб)",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     return;
                 }
@@ -120,7 +120,7 @@ namespace CobainSaver.Downloader
                         disableNotification: false,
                         duration: duration,
                         parseMode: ParseMode.Html,
-                        replyToMessageId: update.Message.MessageId
+                        replyParameters: update.Message.MessageId
                     );
 
                     await addDB.AddBotCommands(chatId, "twitch", DateTime.Now.ToShortDateString());
@@ -135,21 +135,21 @@ namespace CobainSaver.Downloader
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Sorry, this clip has a problem: the clip is too big (the size should not exceed 50mb)",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "ukr")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Вибачте, з цим кліпом виникла помилка: кліп занадто велике (розмір має не перевищувати 50мб)",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "rus")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Извините, с этим клипом возникли проблемы: клип слишком большое(размер должен не превышать 50мб)",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     try
                     {
@@ -180,7 +180,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Sorry, clip not found or content is private\n" +
                         "\nIf you're sure the content is public or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 if (lang == "ukr")
                 {
@@ -188,7 +188,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Вибачте, кліп не знайдено або контент є приватним\n" +
                         "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 if (lang == "rus")
                 {
@@ -196,7 +196,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Извините, клип не найдена или контент является приватным\n" +
                         "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 try
                 {

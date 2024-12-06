@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CobainSaver")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6632a12b8a808daa01adc1599e45b97adaecada8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
 [assembly: System.Reflection.AssemblyProductAttribute("CobainSaver")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CobainSaver")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

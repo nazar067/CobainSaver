@@ -25,15 +25,6 @@ C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\SpotifyAP
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Microsoft.EntityFrameworkCore.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
-C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Microsoft.Extensions.Caching.Abstractions.dll
-C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Microsoft.Extensions.Caching.Memory.dll
-C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Microsoft.Extensions.Configuration.Abstractions.dll
-C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Microsoft.Extensions.DependencyInjection.dll
-C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
-C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Microsoft.Extensions.Logging.dll
-C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
-C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Microsoft.Extensions.Options.dll
-C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Microsoft.Extensions.Primitives.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Npgsql.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Humanizer.dll
@@ -51,7 +42,6 @@ C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\System.Co
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\System.Composition.Hosting.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\System.Composition.Runtime.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\System.Composition.TypedParts.dll
-C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\System.IO.Pipelines.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\cs\Microsoft.CodeAnalysis.resources.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\de\Microsoft.CodeAnalysis.resources.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\es\Microsoft.CodeAnalysis.resources.dll
@@ -106,6 +96,6 @@ C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\zh-Hans\M
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Pipelines.Sockets.Unofficial.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\StackExchange.Redis.dll
-C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Microsoft.Extensions.Http.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\YoutubeSearchApi.Net.dll
 C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\Xabe.FFmpeg.dll
+C:\Users\gamer\source\repos\CobainSaver\CobainSaver\bin\Release\net8.0\System.Text.Json.dll

@@ -19,6 +19,7 @@ namespace CobainSaver.DataBase
         public DbSet<UserLanguage> UserLanguages { get; set; } = null!;
         public DbSet<ChatReview> ChatReviews { get; set; } = null!;
         public DbSet<AdsProfile> AdsProfiles { get; set; } = null!;
+        public DbSet<UserDonate> UserDonates { get; set; } = null!;
         public ApplicationContext()
         {
             Database.EnsureCreated();

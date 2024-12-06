@@ -76,7 +76,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Sorry this song was not found or private\n" +
                         "\nIf you're sure the content is public or the bot has previously submitted this, please email us about this bug - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 if (lang == "ukr")
                 {
@@ -84,7 +84,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Вибачте ця пісня не знайдена або приватна\n" +
                         "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 if (lang == "rus")
                 {
@@ -92,7 +92,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Извините эта песня не найдена или приватная\n" +
                         "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 try
                 {
@@ -341,7 +341,7 @@ namespace CobainSaver.Downloader
                         parseMode: ParseMode.MarkdownV2,
                             caption: $"*{await EscapeMarkdownV2(albumName)}*\n" +
                             $"\n" +
-                            $"*{albumArtist}*" +
+                            $"*{await EscapeMarkdownV2(albumArtist)}*" +
                             $"\n" +
                             $"{countTrackText}\n" +
                             $"_Page *{currentPage}/{totalPages}*_" +
@@ -358,7 +358,7 @@ namespace CobainSaver.Downloader
                         parseMode: ParseMode.MarkdownV2,
                             caption: $"*{await EscapeMarkdownV2(albumName)}*\n" +
                             $"\n" +
-                            $"*{albumArtist}*" +
+                            $"*{await EscapeMarkdownV2(albumArtist)}*" +
                             $"\n" +
                             $"{countTrackText}\n" +
                             $"_Сторінка *{currentPage}/{totalPages}*_" +
@@ -375,7 +375,7 @@ namespace CobainSaver.Downloader
                         parseMode: ParseMode.MarkdownV2,
                             caption: $"*{await EscapeMarkdownV2(albumName)}*\n" +
                             $"\n" +
-                            $"*{albumArtist}*" +
+                            $"*{await EscapeMarkdownV2(albumArtist)}*" +
                             $"\n" +
                             $"{countTrackText}\n" +
                             $"_Страница *{currentPage}/{totalPages}*_" +
@@ -427,7 +427,7 @@ namespace CobainSaver.Downloader
                             parseMode: ParseMode.MarkdownV2,
                             caption: $"*{await EscapeMarkdownV2(albumName)}*\n" +
                             $"\n" +
-                            $"*{albumArtist}*" +
+                            $"*{await EscapeMarkdownV2(albumArtist)}*" +
                             $"\n" +
                             $"{countTrackText}\n" +
                             $"_Page *{currentPage}/{totalPages}*_" +
@@ -444,7 +444,7 @@ namespace CobainSaver.Downloader
                             parseMode: ParseMode.MarkdownV2,
                             caption: $"*{await EscapeMarkdownV2(albumName)}*\n" +
                             $"\n" +
-                            $"*{albumArtist}*" +
+                            $"*{await EscapeMarkdownV2(albumArtist)}*" +
                             $"\n" +
                             $"{countTrackText}\n" +
                             $"_Сторінка *{currentPage}/{totalPages}*_" +
@@ -461,7 +461,7 @@ namespace CobainSaver.Downloader
                             parseMode: ParseMode.MarkdownV2,
                             caption: $"*{await EscapeMarkdownV2(albumName)}*\n" +
                             $"\n" +
-                            $"*{albumArtist}*" +
+                            $"*{await EscapeMarkdownV2(albumArtist)}*" +
                             $"\n" +
                             $"{countTrackText}\n" +
                             $"_Страница *{currentPage}/{totalPages}*_" +
@@ -483,7 +483,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Sorry this song was not found or private\n" +
                         "\nIf you're sure the content is public or the bot has previously submitted this, please email us about this bug - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 if (lang == "ukr")
                 {
@@ -491,7 +491,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Вибачте ця пісня не знайдена або приватна\n" +
                         "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 if (lang == "rus")
                 {
@@ -499,7 +499,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Извините эта песня не найдена или приватная\n" +
                         "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 try
                 {
@@ -747,10 +747,10 @@ namespace CobainSaver.Downloader
                             messageId: message.MessageId,
                             chatId: chatId,
                             replyMarkup: inlineKeyboard,
-                        parseMode: ParseMode.MarkdownV2,
+                            parseMode: ParseMode.MarkdownV2,
                             caption: $"*{await EscapeMarkdownV2(playlistName)}*\n" +
                             $"\n" +
-                            $"*{playlistOwner}*" +
+                            $"*{await EscapeMarkdownV2(playlistOwner)}*" +
                             $"\n" +
                             $"{countTrackText}\n" +
                             $"_Page *{currentPage}/{totalPages}*_" +
@@ -767,7 +767,7 @@ namespace CobainSaver.Downloader
                         parseMode: ParseMode.MarkdownV2,
                             caption: $"*{await EscapeMarkdownV2(playlistName)}*\n" +
                             $"\n" +
-                            $"*{playlistOwner}*" +
+                            $"*{await EscapeMarkdownV2(playlistOwner)}*" +
                             $"\n" +
                             $"{countTrackText}\n" +
                             $"_Сторінка *{currentPage}/{totalPages}*_" +
@@ -781,10 +781,10 @@ namespace CobainSaver.Downloader
                             messageId: message.MessageId,
                             chatId: chatId,
                             replyMarkup: inlineKeyboard,
-                        parseMode: ParseMode.MarkdownV2,
+                            parseMode: ParseMode.MarkdownV2,
                             caption: $"*{await EscapeMarkdownV2(playlistName)}*\n" +
                             $"\n" +
-                            $"*{playlistOwner}*" +
+                            $"*{await EscapeMarkdownV2(playlistOwner)}*" +
                             $"\n" +
                             $"{countTrackText}\n" +
                             $"_Страница *{currentPage}/{totalPages}*_" +
@@ -853,7 +853,7 @@ namespace CobainSaver.Downloader
                             parseMode: ParseMode.MarkdownV2,
                             caption: $"*{await EscapeMarkdownV2(playlistName)}*\n" +
                             $"\n" +
-                            $"*{playlistOwner}*" +
+                            $"*{await EscapeMarkdownV2(playlistOwner)}*" +
                             $"\n" +
                             $"{countTrackText}\n" +
                             $"_Сторінка *{currentPage}/{totalPages}*_" +
@@ -870,7 +870,7 @@ namespace CobainSaver.Downloader
                             parseMode: ParseMode.MarkdownV2,
                             caption: $"*{await EscapeMarkdownV2(playlistName)}*\n" +
                             $"\n" +
-                            $"*{playlistOwner}*" +
+                            $"*{await EscapeMarkdownV2(playlistOwner)}*" +
                             $"\n" +
                             $"{countTrackText}\n" +
                             $"_Страница *{currentPage}/{totalPages}*_" +
@@ -892,7 +892,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Sorry this song was not found or private\n" +
                         "\nIf you're sure the content is public or the bot has previously submitted this, please email us about this bug - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 if (lang == "ukr")
                 {
@@ -900,7 +900,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Вибачте ця пісня не знайдена або приватна\n" +
                         "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 if (lang == "rus")
                 {
@@ -908,7 +908,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Извините эта песня не найдена или приватная\n" +
                         "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 try
                 {
@@ -1002,37 +1002,49 @@ namespace CobainSaver.Downloader
         }
         public async Task<string> EscapeMarkdownV2(string input)
         {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
             // Dictionary of characters needing escaping and their replacements
-            Dictionary<string, string> escapeCharacters = new Dictionary<string, string>
+            Dictionary<char, string> escapeCharacters = new Dictionary<char, string>
             {
-                { "\\", "\\\\" },
-                { "_", "\\_" },
-                { "*", "\\*" },
-                { "[", "\\[" },
-                { "]", "\\]" },
-                { "(", "\\(" },
-                { ")", "\\)" },
-                { "~", "\\~" },
-                { "`", "\\`" },
-                { ">", "\\>" },
-                { "#", "\\#" },
-                { "+", "\\+" },
-                { "-", "\\-" },
-                { "=", "\\=" },
-                { "|", "\\|" },
-                { "{", "\\{" },
-                { "}", "\\}" },
-                { ".", "\\." },
-                { "!", "\\!" },
+                { '\\', "\\\\" },
+                { '_', "\\_" },
+                { '*', "\\*" },
+                { '[', "\\[" },
+                { ']', "\\]" },
+                { '(', "\\(" },
+                { ')', "\\)" },
+                { '~', "\\~" },
+                { '`', "\\`" },
+                { '>', "\\>" },
+                { '#', "\\#" },
+                { '+', "\\+" },
+                { '-', "\\-" },
+                { '=', "\\=" },
+                { '|', "\\|" },
+                { '{', "\\{" },
+                { '}', "\\}" },
+                { '.', "\\." },
+                { '!', "\\!" },
             };
 
-            // Iterate through the dictionary and perform replacements using regular expressions
-            foreach (var pair in escapeCharacters)
+            // Use StringBuilder for better performance
+            var sb = new StringBuilder(input.Length);
+
+            foreach (var ch in input)
             {
-                input = input.Replace(pair.Key, pair.Value);
+                if (escapeCharacters.ContainsKey(ch))
+                {
+                    sb.Append(escapeCharacters[ch]); // Add escaped character
+                }
+                else
+                {
+                    sb.Append(ch); // Add character as is
+                }
             }
 
-            return input;
+            return sb.ToString();
         }
         public async Task<string> ExtractTrackId(string url)
         {

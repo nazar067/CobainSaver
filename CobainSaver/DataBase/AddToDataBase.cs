@@ -286,5 +286,36 @@ namespace CobainSaver.DataBase
                 }
             }
         }
+        public async Task AddUserDonates(long userId, int stars, string date)
+        {
+            try
+            {
+                using (ApplicationContext db = new ApplicationContext())
+                {
+                    string currentDate = DateTime.Now.ToShortDateString();
+
+                    UserDonate userReview = new UserDonate
+                    {
+                        user_id = userId,
+                        stars = stars,
+                        date = currentDate.ToString() // Преобразуем текущую дату в строку
+                    };
+                    db.UserDonates.Add(userReview);
+                    db.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    Logs logs = new Logs(userId, 0, "username", "AddUserDonates", ex.ToString());
+                    await logs.WriteServerLogs();
+                }
+                catch (Exception e)
+                {
+                    return;
+                }
+            }
+        }
     }
 }

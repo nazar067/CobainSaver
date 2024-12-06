@@ -17,7 +17,7 @@
     <PackageReference Include="RestSharp" Version="110.2.0" />
     <PackageReference Include="SpotifyAPI.Web" Version="7.1.1" />
     <PackageReference Include="StackExchange.Redis" Version="2.7.33" />
-    <PackageReference Include="Telegram.Bot" Version="19.0.0" />
+    <PackageReference Include="Telegram.Bot" Version="22.2.0" />
     <PackageReference Include="VideoLibrary" Version="3.2.5" />
     <PackageReference Include="Xabe.FFmpeg" Version="5.2.6" />
     <PackageReference Include="YoutubeDLSharp" Version="1.0.0" />

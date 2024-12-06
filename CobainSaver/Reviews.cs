@@ -48,7 +48,7 @@ namespace CobainSaver
                                         question: "Are you satisfied with the quality of cobainSaver's service for this month?" +
                                         " Your opinion is important to us!" +
                                         " The survey will only last 1 day, then the results will not be counted",
-                                        options: new[]
+                                        options: new InputPollOption[]
                                         {
                                         "Yeah, I'm 100% satisfied!",
                                         "Satisfied",
@@ -71,7 +71,7 @@ namespace CobainSaver
                                         question: "Наскільки ви задоволені якістю бота цього місяця?" +
                                         " Ваша думка важлива для нас!" +
                                         " Опитування триватиме лише 1 день, потім результати не враховуватимуться",
-                                        options: new[]
+                                        options: new InputPollOption[]
                                         {
                                         "Я на 100% задоволений!",
                                         "Задоволений",
@@ -94,7 +94,7 @@ namespace CobainSaver
                                         question: "Насколько вы довольны качеством бота в этом месяце?" +
                                         " Ваше мнение важно для нас!" +
                                         " Опрос будет длится только 1 день, затем результаты не буду учитываться",
-                                        options: new[]
+                                        options: new InputPollOption[]
                                         {
                                         "Я на 100% доволен!",
                                         "Доволен",

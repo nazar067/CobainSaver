@@ -106,7 +106,7 @@ namespace CobainSaver.Downloader
                                     video: InputFile.FromUri(video),
                                     caption: getAds,
                                     parseMode: ParseMode.Html,
-                                    replyToMessageId: update.Message.MessageId);
+                                    replyParameters: update.Message.MessageId);
                                 await addDB.AddBotCommands(chatId, "insta", DateTime.Now.ToShortDateString());
                                 count++;
                             }
@@ -119,7 +119,7 @@ namespace CobainSaver.Downloader
                                     photo: InputFile.FromUri(photo),
                                     caption: getAds,
                                     parseMode: ParseMode.Html,
-                                    replyToMessageId: update.Message.MessageId);
+                                    replyParameters: update.Message.MessageId);
                                 await addDB.AddBotCommands(chatId, "insta", DateTime.Now.ToShortDateString());
                                 count++;
                             }
@@ -136,7 +136,7 @@ namespace CobainSaver.Downloader
                                 chatId: chatId,
                                 text: "Sorry, story's expired\n" +
                                 "\nIf you're sure the content is available or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
-                                replyToMessageId: update.Message.MessageId);
+                                replyParameters: update.Message.MessageId);
                         }
                         if (lang == "ukr")
                         {
@@ -144,7 +144,7 @@ namespace CobainSaver.Downloader
                                 chatId: chatId,
                                 text: "Вибачте, термін історії закінчився\n" +
                                 "\nЯкщо ви впевнені, що контент доступний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
-                                replyToMessageId: update.Message.MessageId);
+                                replyParameters: update.Message.MessageId);
                         }
                         if (lang == "rus")
                         {
@@ -152,7 +152,7 @@ namespace CobainSaver.Downloader
                                 chatId: chatId,
                                 text: "Извините, срок истории истек\n" +
                                 "\nЕсли вы уверенны, что контент доступен или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
-                                replyToMessageId: update.Message.MessageId);
+                                replyParameters: update.Message.MessageId);
                         }
                     }
                 }
@@ -168,7 +168,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Sorry, story not found or content is private\n" +
                         "\nIf you're sure the content is public or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 if (lang == "ukr")
                 {
@@ -176,7 +176,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Вибачте, сторі не знайдено або контент є приватним\n" +
                         "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 if (lang == "rus")
                 {
@@ -184,7 +184,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Извините, история не найдена или контент является приватным\n" +
                         "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 try
                 {
@@ -362,7 +362,7 @@ namespace CobainSaver.Downloader
                             await botClient.SendMediaGroupAsync(
                                 chatId: chatId,
                                 media: item,
-                                replyToMessageId: update.Message.MessageId);
+                                replyParameters: update.Message.MessageId);
                             await addDB.AddBotCommands(chatId, "insta", DateTime.Now.ToShortDateString());
                         }
                     }
@@ -375,7 +375,7 @@ namespace CobainSaver.Downloader
                             video: InputFile.FromUri(video),
                             caption: getAds + text,
                             parseMode: ParseMode.Html,
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                         await addDB.AddBotCommands(chatId, "insta", DateTime.Now.ToShortDateString());
                     }
                     else if (jsonObject["items"][0]["image_versions2"] != null)
@@ -387,7 +387,7 @@ namespace CobainSaver.Downloader
                             photo: InputFile.FromUri(img),
                             caption: getAds + text,
                             parseMode : ParseMode.Html,
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                         await addDB.AddBotCommands(chatId, "insta", DateTime.Now.ToShortDateString());
                     }
                 }
@@ -572,7 +572,7 @@ namespace CobainSaver.Downloader
                             await botClient.SendMediaGroupAsync(
                                 chatId: chatId,
                                 media: item,
-                                replyToMessageId: update.Message.MessageId);
+                                replyParameters: update.Message.MessageId);
                             await addDB.AddBotCommands(chatId, "insta", DateTime.Now.ToShortDateString());
                             var message = update.Message;
                             var user = message.From;
@@ -614,7 +614,7 @@ namespace CobainSaver.Downloader
                                 duration: roundedDuration,
                                 caption: getAds + text,
                                 parseMode: ParseMode.Html,
-                                replyToMessageId: update.Message.MessageId);
+                                replyParameters: update.Message.MessageId);
                             await addDB.AddBotCommands(chatId, "insta", DateTime.Now.ToShortDateString());
                             var message = update.Message;
                             var user = message.From;
@@ -665,7 +665,7 @@ namespace CobainSaver.Downloader
                                 photo: InputFile.FromStream(streamImg),
                                 caption: getAds + text,
                                 parseMode: ParseMode.Html,
-                                replyToMessageId: update.Message.MessageId);
+                                replyParameters: update.Message.MessageId);
                             await addDB.AddBotCommands(chatId, "insta", DateTime.Now.ToShortDateString());
                             var message = update.Message;
                             var user = message.From;
@@ -882,7 +882,7 @@ namespace CobainSaver.Downloader
                     await botClient.SendMediaGroupAsync(
                         chatId: chatId,
                         media: item,
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                     await addDB.AddBotCommands(chatId, "insta", DateTime.Now.ToShortDateString());
                     var message = update.Message;
                     var user = message.From;
@@ -901,7 +901,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Sorry, post or video not found or content is private\n" +
                         "\nIf you're sure the content is public or the bot has previously submitted this, please write us about this bug - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 if (lang == "ukr")
                 {
@@ -909,7 +909,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Вибачте, пост або відео не знайдено або контент є приватним\n" +
                         "\nЯкщо ви впевнені, що контент публічний або бот раніше вже відправляв це, то напишіть нам, будь ласка, про цю помилку - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 if (lang == "rus")
                 {
@@ -917,7 +917,7 @@ namespace CobainSaver.Downloader
                         chatId: chatId,
                         text: "Извините, пост или видео не найден или контент является приватным\n" +
                         "\nЕсли вы уверенны, что контент публичный или бот ранее уже отправлял это, то напишите нам пожалуйста об этой ошибке - t.me/cobainSaver",
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                 }
                 try
                 {

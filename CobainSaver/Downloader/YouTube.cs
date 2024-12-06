@@ -91,21 +91,21 @@ namespace CobainSaver.Downloader
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Sorry, this video has a problem: the video is too big (the size should not exceed 50mb)",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "ukr")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Вибачте, з цим відео виникла помилка: відео занадто велике (розмір має не перевищувати 50мб)",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "rus")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Извините, с этим видео возникли проблемы: видео слишком большое(размер должен не превышать 50мб)",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     return;
                 }
@@ -172,7 +172,7 @@ namespace CobainSaver.Downloader
                         thumbnail: InputFile.FromStream(streamThumbVideo),
                         duration: Convert.ToInt32(duration),
                         parseMode: ParseMode.Html,
-                        replyToMessageId: update.Message.MessageId);
+                        replyParameters: update.Message.MessageId);
                     await addDB.AddBotCommands(chatId, "youtube", DateTime.Now.ToShortDateString());
                 }
                 catch (Exception ex)
@@ -185,21 +185,21 @@ namespace CobainSaver.Downloader
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Sorry, this video has a problem: the video has an age restriction",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "ukr")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Вибачте, з цим відео виникла помилка: відео має вікові обмеження",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "rus")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Извините, с этим видео возникли проблемы: видео имеет возрастное ограничение",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     try
                     {
@@ -468,21 +468,21 @@ namespace CobainSaver.Downloader
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Sorry, this type of audio is not supported, only send me public content",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "ukr")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Вибачте, цей тип аудіо не підтримується, надсилайте мені тільки публічний контент",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "rus")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Извините, этот тип аудио не поддерживается, отправляйте мне только публичный контент",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     return;
                 }
@@ -522,21 +522,21 @@ namespace CobainSaver.Downloader
                             await botClient.SendTextMessageAsync(
                                 chatId: chatId,
                                 text: "Sorry, this audio has a problem: the audio is too big (the size should not exceed 50mb)",
-                                replyToMessageId: update.Message.MessageId);
+                                replyParameters: update.Message.MessageId);
                         }
                         if (lang == "ukr")
                         {
                             await botClient.SendTextMessageAsync(
                                 chatId: chatId,
                                 text: "Вибачте, з цим аудіо виникла помилка: аудіо занадто велике (розмір має не перевищувати 50мб)",
-                                replyToMessageId: update.Message.MessageId);
+                                replyParameters: update.Message.MessageId);
                         }
                         if (lang == "rus")
                         {
                             await botClient.SendTextMessageAsync(
                                 chatId: chatId,
                                 text: "Извините, с этим аудио возникли проблемы: аудио слишком большое(размер должен не превышать 50мб)",
-                                replyToMessageId: update.Message.MessageId);
+                                replyParameters: update.Message.MessageId);
                         }
                     }
                     return;
@@ -613,7 +613,7 @@ namespace CobainSaver.Downloader
                             performer: author,
                             thumbnail: InputFile.FromStream(streamThumbAudio),
                             duration: Convert.ToInt32(duration),
-                            replyToMessageId: update.Message.MessageId); ;
+                            replyParameters: update.Message.MessageId); ;
                         if (messageText.StartsWith("spotify "))
                         {
                             await addDB.AddBotCommands(chatId, "spotify", DateTime.Now.ToShortDateString());
@@ -633,21 +633,21 @@ namespace CobainSaver.Downloader
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Sorry, this type of audio is not supported, only send me public content",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "ukr")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Вибачте, цей тип аудіо не підтримується, надсилайте мені тільки публічний контент",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "rus")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Извините, этот тип аудио не поддерживается, отправляйте мне только публичный контент",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     try
                     {
@@ -704,21 +704,21 @@ namespace CobainSaver.Downloader
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Sorry, this type of audio is not supported, only send me public content",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "ukr")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Вибачте, цей тип аудіо не підтримується, надсилайте мені тільки публічний контент",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "rus")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Извините, этот тип аудио не поддерживается, отправляйте мне только публичный контент",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                 }
                 try
@@ -1077,21 +1077,21 @@ namespace CobainSaver.Downloader
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Sorry, this playlist is unavailable, only send me public content",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "ukr")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Вибачте, цей тип плейлист недоступний, надсилайте мені тільки публічний контент",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "rus")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Извините, этот плейлист недоступен, отправляйте мне только публичный контент",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                 }
                 try

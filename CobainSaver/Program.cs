@@ -38,11 +38,12 @@ namespace CobainSaver
                 UpdateType.Message,// Сообщения (текст, фото/видео, голосовые/видео сообщения и т.д.)
                 UpdateType.CallbackQuery,
                 UpdateType.PollAnswer,
-                UpdateType.Poll
+                UpdateType.Poll,
+                UpdateType.PreCheckoutQuery
             },
                 // Параметр, отвечающий за обработку сообщений, пришедших за то время, когда ваш бот был оффлайн
                 // True - не обрабатывать, False (стоит по умолчанию) - обрабаывать
-                ThrowPendingUpdates = true,
+                DropPendingUpdates = true,
             };
 
             using var cts = new CancellationTokenSource();
@@ -78,6 +79,11 @@ namespace CobainSaver
                     case UpdateType.PollAnswer:
                         {
                             Task.Run(async () => await CheckPollAnswer(update, (TelegramBotClient)botClient, cancellationToken));
+                            break;
+                        }
+                    case UpdateType.PreCheckoutQuery:
+                        {
+                            Task.Run(async () => await PreCheckoutQuery(update, (TelegramBotClient)botClient, cancellationToken));
                             break;
                         }
                 }
@@ -136,6 +142,7 @@ namespace CobainSaver
                 AddToDataBase addDB = new AddToDataBase();
                 AdminCommands admin = new AdminCommands();
                 Ads ads = new Ads();
+                Donate donate = new Donate();
                 //Downloader video = new Downloader();
                 // From - это от кого пришло сообщение (или любой другой Update)
                 var user = message.From;
@@ -181,7 +188,7 @@ namespace CobainSaver
                     await addDB.AddUserLinks(chat.Id, user.Id, "spotify", message.MessageId, DateTime.Now.ToShortDateString());
                     await ads.DeleteAds(chat.Id);
                 }
-                else if (message.Text.Contains("https://vm.tiktok.com") || message.Text.Contains("https://www.tiktok.com") || message.Text.Contains("https://m.tiktok.com"))
+                else if (message.Text.Contains("https://vm.tiktok.com") || message.Text.Contains("https://www.tiktok.com") || message.Text.Contains("https://m.tiktok.com") || message.Text.Contains("https://vt.tiktok.com"))
                 {
                     await botClient.SendChatActionAsync(chat.Id, ChatAction.UploadDocument);
                     await tikTok.TikTokDownloader(chat.Id, update, cancellationToken, message.Text, (TelegramBotClient)botClient);
@@ -248,7 +255,7 @@ namespace CobainSaver
                         await botClient.SendTextMessageAsync(
                             chatId: chat.Id,
                             text: "Hi, I'm CobainSaver, just send me video's link",
-                            replyToMessageId: update.Message.MessageId
+                            replyParameters: update.Message.MessageId
                             );
                     }
                     if (lang == "ukr")
@@ -256,14 +263,14 @@ namespace CobainSaver
                         await botClient.SendTextMessageAsync(
                             chatId: chat.Id,
                             text: "Привіт, я CobainSaver, відправ мені посилання на відео",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "rus")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chat.Id,
                             text: "Привет, я CobainSaver, отправь мне ссылку на видео",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     await addDB.AddUserCommands(chat.Id, user.Id, "start", message.MessageId, DateTime.Now.ToShortDateString());
                 }
@@ -279,8 +286,9 @@ namespace CobainSaver
                             text: "/help - see all commands\n " +
                             "/changelang - change bot's language\n " +
                             "/adshelp - advertising commands\n" +
-                            "/ads - open ads manger",
-                            replyToMessageId: update.Message.MessageId
+                            "/ads - open ads manger\n" +
+                            "/donate (stars amount) - donate to bot",
+                            replyParameters: update.Message.MessageId
                             );
                     }
                     if (lang == "ukr")
@@ -290,8 +298,9 @@ namespace CobainSaver
                             text: "/help - переглянути всі команді\n " +
                             "/changelang - змінити мову\n " +
                             "/adshelp - рекламні команди\n" +
-                            "/ads - відкрити менеджер реклами",
-                            replyToMessageId: update.Message.MessageId);
+                            "/ads - відкрити менеджер реклами\n" +
+                            "/donate (кількість зірок) - пожертвувати боту",
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "rus")
                     {
@@ -300,8 +309,9 @@ namespace CobainSaver
                             text: "/help - посмотреть все команды\n " +
                             "/changelang - сменить язык\n " +
                             "/adshelp - рекламные команды\n" +
-                            "/ads - открыть менеджер рекламы",
-                            replyToMessageId: update.Message.MessageId);
+                            "/ads - открыть менеджер рекламы\n" +
+                            "/donate (количество звезд) - пожертвовать боту",
+                            replyParameters: update.Message.MessageId);
                     }
                     await addDB.AddUserCommands(chat.Id, user.Id, "help", message.MessageId, DateTime.Now.ToShortDateString());
                 }
@@ -396,7 +406,7 @@ namespace CobainSaver
                     await admin.CheckUserById((TelegramBotClient)botClient, chat.Id.ToString(), userId);
                     await addDB.AddUserCommands(chat.Id, user.Id, "user", message.MessageId, DateTime.Now.ToShortDateString());
                 }
-                else if (message.Text == "/ads")
+                else if (message.Text == "/ads" || message.Text.StartsWith($"/ads@{cobain.Username}"))
                 {
                     string userId = message.Text.Split(' ').Last();
                     await ads.SendAllAds((TelegramBotClient)botClient, chat.Id);
@@ -460,7 +470,7 @@ namespace CobainSaver
                     await admin.ChangeUserAds((TelegramBotClient)botClient, id, name, msg, isActive, isActiveAdmin, endDate, chat.Id.ToString(), message);
                     await addDB.AddUserCommands(chat.Id, user.Id, "adsEdit", message.MessageId, DateTime.Now.ToShortDateString());
                 }
-                else if (message.Text == "/adshelp")
+                else if (message.Text == "/adshelp" || message.Text.StartsWith($"/adshelp@{cobain.Username}"))
                 {
                     await ads.AdsHelp((TelegramBotClient)botClient, chat.Id, update);
                     await addDB.AddUserCommands(chat.Id, user.Id, "adsHelp", message.MessageId, DateTime.Now.ToShortDateString());
@@ -505,6 +515,19 @@ namespace CobainSaver
                         );
                     }
                     await addDB.AddUserCommands(chat.Id, user.Id, "changelang", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.Text.StartsWith("/donate") || message.Text.StartsWith($"/donate@{cobain.Username}"))
+                {
+                    string msg = message.Text;
+                    if (message.Text.StartsWith($"/donate@{cobain.Username}"))
+                        msg = msg.Replace($"@{cobain.Username}", "");
+                    string amount = msg.Split(' ').Last();
+                    await donate.DonateMessage(chat.Id.ToString(), botClient, update, amount);
+                    await addDB.AddUserCommands(chat.Id, user.Id, "donate", message.MessageId, DateTime.Now.ToShortDateString());
+                }
+                else if (message.SuccessfulPayment != null)
+                {
+                    await donate.HandleSuccessfulPayment(botClient, update);
                 }
                 Reviews reviews = new Reviews();
                 await reviews.UserReviews(chat.Id.ToString(), (TelegramBotClient)botClient);
@@ -837,6 +860,24 @@ namespace CobainSaver
                 {
                     return;
                 }
+            }
+        }
+        private static async Task PreCheckoutQuery(Update update, TelegramBotClient botClient, CancellationToken cancellationToken)
+        {   
+            try
+            {
+                var preCheckOutQuery = update.PreCheckoutQuery;
+                var user = preCheckOutQuery.From;
+                var stars = preCheckOutQuery.TotalAmount;
+                Donate donate = new Donate();
+                if (preCheckOutQuery != null)
+                {
+                    await donate.HandlePreCheckoutQuery(botClient, update, user.Id, stars);
+                }
+            }
+            catch(Exception ex)
+            {
+                
             }
         }
         private static Task ErrorHandler(ITelegramBotClient botClient, Exception error, CancellationToken cancellationToken)

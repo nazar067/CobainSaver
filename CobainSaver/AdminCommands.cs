@@ -48,7 +48,7 @@ namespace CobainSaver
                 await botClient.SendTextMessageAsync(
                     chatId: chatId,
                     text: directories.Length.ToString(),
-                    replyToMessageId: update.Message.MessageId
+                    replyParameters: update.Message.MessageId
                     );
                 using (ApplicationContext db = new ApplicationContext())
                 {
@@ -59,7 +59,7 @@ namespace CobainSaver
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "Data base: " + uniqueUserCount.ToString(),
-                        replyToMessageId: update.Message.MessageId
+                        replyParameters: update.Message.MessageId
                     );
                 }
             }
@@ -82,7 +82,7 @@ namespace CobainSaver
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: count.ToString(),
-                            replyToMessageId: update.Message.MessageId
+                            replyParameters: update.Message.MessageId
                         );
                     }
                     else
@@ -96,7 +96,7 @@ namespace CobainSaver
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: uniqueUserCount.ToString(),
-                            replyToMessageId: update.Message.MessageId
+                            replyParameters: update.Message.MessageId
                         );
                     }
                 }
@@ -120,7 +120,7 @@ namespace CobainSaver
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: count.ToString(),
-                            replyToMessageId: update.Message.MessageId
+                            replyParameters: update.Message.MessageId
                         );
                     }
                     else
@@ -134,7 +134,7 @@ namespace CobainSaver
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: uniqueUserCount.ToString(),
-                            replyToMessageId: update.Message.MessageId
+                            replyParameters: update.Message.MessageId
                         );
                     }
                 }
@@ -164,7 +164,7 @@ namespace CobainSaver
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: uniqueUserCount.ToString(),
-                        replyToMessageId: update.Message.MessageId
+                        replyParameters: update.Message.MessageId
                     );
                 }
             }
@@ -193,7 +193,7 @@ namespace CobainSaver
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: uniqueUserCount.ToString(),
-                        replyToMessageId: update.Message.MessageId
+                        replyParameters: update.Message.MessageId
                     );
                 }
             }
@@ -222,7 +222,7 @@ namespace CobainSaver
                 await botClient.SendTextMessageAsync(
                     chatId: chatId,
                     text: statistic,
-                    replyToMessageId: update.Message.MessageId
+                    replyParameters: update.Message.MessageId
                     );
             }
 
@@ -251,7 +251,7 @@ namespace CobainSaver
                 await botClient.SendTextMessageAsync(
                     chatId: chatId,
                     text: statistic,
-                    replyToMessageId: update.Message.MessageId
+                    replyParameters: update.Message.MessageId
                     );
             }
 
@@ -321,7 +321,7 @@ namespace CobainSaver
                 await botClient.SendTextMessageAsync(
                     chatId: chatId,
                     text: statistic,
-                    replyToMessageId: update.Message.MessageId
+                    replyParameters: update.Message.MessageId
                     );
             }
 
@@ -350,7 +350,7 @@ namespace CobainSaver
                 await botClient.SendTextMessageAsync(
                     chatId: chatId,
                     text: statistic,
-                    replyToMessageId: update.Message.MessageId
+                    replyParameters: update.Message.MessageId
                     );
             }
 
@@ -626,7 +626,7 @@ namespace CobainSaver
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "There are no logs in your chat",
-                            replyToMessageId: update.Message.MessageId
+                            replyParameters: update.Message.MessageId
                             );
                     }
                     if (lang == "ukr")
@@ -634,14 +634,14 @@ namespace CobainSaver
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "У вашому чаті немає логів",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "rus")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "В вашем чате нет логов",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     return;
                 }
@@ -659,7 +659,7 @@ namespace CobainSaver
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "There are no logs for that date",
-                            replyToMessageId: update.Message.MessageId
+                            replyParameters: update.Message.MessageId
                             );
                     }
                     if (lang == "ukr")
@@ -667,14 +667,14 @@ namespace CobainSaver
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Логів за цю дату немає",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     if (lang == "rus")
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Логи за эту дату отсутствуют.",
-                            replyToMessageId: update.Message.MessageId);
+                            replyParameters: update.Message.MessageId);
                     }
                     return;
                 }
@@ -684,7 +684,7 @@ namespace CobainSaver
                     await botClient.SendDocumentAsync(
                     chatId: chatId,
                         document: InputFile.FromStream(stream: stream, fileName: "allServers.txt"),
-                        replyToMessageId: update.Message.MessageId
+                        replyParameters: update.Message.MessageId
                         );
                     stream.Close();
                 }

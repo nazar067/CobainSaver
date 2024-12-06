@@ -424,7 +424,7 @@ namespace CobainSaver
                     text: "<b>Change the name (only you can see it)</b> \n/adsEditName ad's id new name, example /adsEditName 1 Rozetka\n\n" +
                             "<b>Change description</b> \n/adsEditDesc ad's id new description, example /adsEditDesc 1 <u>Best shop in USA</u>\n\n" +
                             "<b>Enable/disable</b> \n/adsEditActive ad's id True/False, example /adsEditActive 1 True\n\n",
-                    replyToMessageId: update.Message.MessageId,
+                    replyParameters: update.Message.MessageId,
                     parseMode: ParseMode.Html
                     );
             }
@@ -435,7 +435,7 @@ namespace CobainSaver
                     text: "<b>Змінити назву(тільки ви бачите її)</b> \n/adsEditName ad's id new name, наприклад /adsEditName 1 Rozetka\n\n" +
                             "<b>Змінити опис</b> \n/adsEditDesc ad's id new description, наприклад /adsEditDesc 1 <u>Best shop in USA</u>\n\n" +
                             "<b>Активувати/деактивувати</b> \n/adsEditActive ad's id True/False, наприклад /adsEditActive 1 True\n\n",
-                    replyToMessageId: update.Message.MessageId, 
+                    replyParameters: update.Message.MessageId, 
                     parseMode: ParseMode.Html);
             }
             if (lang == "rus")
@@ -445,7 +445,7 @@ namespace CobainSaver
                     text: "<b>Изменить название(только вы его видите)</b> \n/adsEditName ad's id new name, например /adsEditName 1 Rozetka\n\n" +
                             "<b>Изменить описание</b> \n/adsEditDesc ad's id new description, например /adsEditDesc 1 <u>Best shop in USA</u>\n\n" +
                             "<b>Активировать/деактивировать</b> \n/adsEditActive ad's id True/False, example /adsEditActive 1 True\n\n",
-                    replyToMessageId: update.Message.MessageId,
+                    replyParameters: update.Message.MessageId,
                     parseMode: ParseMode.Html);
             }
         }
